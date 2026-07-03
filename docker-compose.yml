@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: lmfinanz-mysql
+    environment:
+      MYSQL_DATABASE: lmfinanz
+      MYSQL_USER: lmfinanz
+      MYSQL_PASSWORD: lmfinanz
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    container_name: lmfinanz-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/lmfinanz?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: lmfinanz
+      SPRING_DATASOURCE_PASSWORD: lmfinanz
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql-data:

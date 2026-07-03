@@ -1,0 +1,9 @@
+.env
+target/
+.m2/
+
+.idea/
+*.iml
+
+*.log
+.DS_Store
