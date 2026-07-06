@@ -9,5 +9,7 @@ public interface CategoryUseCase {
 
     CategoryResponse create(UUID userId, CategoryRequest request);
 
+    CategoryResponse get(UUID userId, UUID categoryId);
+
     List<CategoryResponse> list(UUID userId);
 }

@@ -50,6 +50,9 @@ Implemented endpoints:
 | `POST` | `/api/accounts` | Create an account |
 | `GET` | `/api/accounts` | List authenticated user's accounts |
 | `GET` | `/api/accounts/{accountId}` | Get one authenticated user's account |
+| `POST` | `/api/categories` | Create a category or subcategory |
+| `GET` | `/api/categories` | List authenticated user's categories |
+| `GET` | `/api/categories/{categoryId}` | Get one authenticated user's category |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements

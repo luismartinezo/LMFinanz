@@ -40,4 +40,28 @@ public class Category extends BaseEntity {
         this.type = type;
         this.systemDefined = systemDefined;
     }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getParentCategoryId() {
+        return parentCategoryId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public CategoryType getType() {
+        return type;
+    }
+
+    public boolean isSystemDefined() {
+        return systemDefined;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
 }
