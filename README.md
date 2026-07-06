@@ -56,6 +56,9 @@ Implemented endpoints:
 | `POST` | `/api/transactions` | Create a draft transaction |
 | `POST` | `/api/transactions/{transactionId}/post` | Post a transaction and update balances |
 | `GET` | `/api/transactions?from=YYYY-MM-DD&to=YYYY-MM-DD` | List authenticated user's transactions |
+| `GET` | `/api/reports/summary?period=MONTHLY&from=YYYY-MM-DD&to=YYYY-MM-DD` | Summarize posted transactions |
+| `GET` | `/api/reports/by-currency/{currencyCode}` | Summarize posted transactions by currency |
+| `GET` | `/api/reports/by-country/{countryCode}` | Summarize posted transactions by country |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements
