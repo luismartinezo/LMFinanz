@@ -62,4 +62,52 @@ public class Transaction extends BaseEntity {
         this.transactionDate = transactionDate;
         this.description = description;
     }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public TransactionType getType() {
+        return type;
+    }
+
+    public UUID getSourceAccountId() {
+        return sourceAccountId;
+    }
+
+    public UUID getTargetAccountId() {
+        return targetAccountId;
+    }
+
+    public UUID getCategoryId() {
+        return categoryId;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public LocalDate getTransactionDate() {
+        return transactionDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public TransactionStatus getStatus() {
+        return status;
+    }
+
+    public void post() {
+        status = TransactionStatus.POSTED;
+    }
 }

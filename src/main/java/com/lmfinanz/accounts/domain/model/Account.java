@@ -1,6 +1,7 @@
 package com.lmfinanz.accounts.domain.model;
 
 import com.lmfinanz.shared.domain.model.BaseEntity;
+import com.lmfinanz.shared.domain.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -81,5 +82,17 @@ public class Account extends BaseEntity {
 
     public boolean isActive() {
         return active;
+    }
+
+    public void credit(BigDecimal amount) {
+        currentBalance = currentBalance.add(amount);
+    }
+
+    public void debit(BigDecimal amount) {
+        BigDecimal newBalance = currentBalance.subtract(amount);
+        if (newBalance.signum() < 0 && type != AccountType.CREDIT_CARD) {
+            throw new DomainException("Insufficient account balance");
+        }
+        currentBalance = newBalance;
     }
 }

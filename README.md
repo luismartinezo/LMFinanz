@@ -53,6 +53,9 @@ Implemented endpoints:
 | `POST` | `/api/categories` | Create a category or subcategory |
 | `GET` | `/api/categories` | List authenticated user's categories |
 | `GET` | `/api/categories/{categoryId}` | Get one authenticated user's category |
+| `POST` | `/api/transactions` | Create a draft transaction |
+| `POST` | `/api/transactions/{transactionId}/post` | Post a transaction and update balances |
+| `GET` | `/api/transactions?from=YYYY-MM-DD&to=YYYY-MM-DD` | List authenticated user's transactions |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements
