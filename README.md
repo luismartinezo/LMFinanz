@@ -41,6 +41,8 @@ Main bounded modules:
 
 ## Current API
 
+Detailed endpoint documentation is available in [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md).
+
 Implemented endpoints:
 
 | Method | Endpoint | Description |
