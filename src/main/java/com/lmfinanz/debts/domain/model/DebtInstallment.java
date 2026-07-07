@@ -52,4 +52,40 @@ public class DebtInstallment extends BaseEntity {
         this.interestAmount = interestAmount;
         this.dueDate = dueDate;
     }
+
+    public UUID getDebtId() {
+        return debtId;
+    }
+
+    public int getInstallmentNumber() {
+        return installmentNumber;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public BigDecimal getPrincipalAmount() {
+        return principalAmount;
+    }
+
+    public BigDecimal getInterestAmount() {
+        return interestAmount;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public LocalDate getPaidDate() {
+        return paidDate;
+    }
+
+    public UUID getPaymentTransactionId() {
+        return paymentTransactionId;
+    }
+
+    public InstallmentStatus getStatus() {
+        return status;
+    }
 }

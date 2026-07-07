@@ -59,6 +59,10 @@ Implemented endpoints:
 | `GET` | `/api/reports/summary?period=MONTHLY&from=YYYY-MM-DD&to=YYYY-MM-DD` | Summarize posted transactions |
 | `GET` | `/api/reports/by-currency/{currencyCode}` | Summarize posted transactions by currency |
 | `GET` | `/api/reports/by-country/{countryCode}` | Summarize posted transactions by country |
+| `POST` | `/api/debts` | Create a debt and its installment schedule |
+| `GET` | `/api/debts` | List authenticated user's debts |
+| `GET` | `/api/debts/{debtId}` | Get one authenticated user's debt |
+| `GET` | `/api/debts/{debtId}/installments` | List debt installments |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements

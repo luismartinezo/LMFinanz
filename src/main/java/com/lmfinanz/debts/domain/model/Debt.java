@@ -60,4 +60,44 @@ public class Debt extends BaseEntity {
         this.finalDueDate = finalDueDate;
         this.remainingBalance = principalAmount;
     }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public BigDecimal getPrincipalAmount() {
+        return principalAmount;
+    }
+
+    public BigDecimal getAnnualInterestRate() {
+        return annualInterestRate;
+    }
+
+    public int getInstallments() {
+        return installments;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getFinalDueDate() {
+        return finalDueDate;
+    }
+
+    public BigDecimal getRemainingBalance() {
+        return remainingBalance;
+    }
+
+    public DebtStatus getStatus() {
+        return status;
+    }
 }
