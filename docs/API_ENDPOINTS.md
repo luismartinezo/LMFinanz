@@ -8,6 +8,18 @@ http://localhost:8080
 
 All endpoints return JSON.
 
+Interactive documentation:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+Generated OpenAPI document:
+
+```text
+http://localhost:8080/v3/api-docs
+```
+
 ## Authentication
 
 Public endpoints:

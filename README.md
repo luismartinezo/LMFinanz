@@ -43,6 +43,18 @@ Main bounded modules:
 
 Detailed endpoint documentation is available in [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md).
 
+Interactive OpenAPI documentation is available when the backend is running:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+The generated OpenAPI JSON is available at:
+
+```text
+http://localhost:8080/v3/api-docs
+```
+
 Implemented endpoints:
 
 | Method | Endpoint | Description |
