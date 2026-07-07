@@ -1,6 +1,7 @@
 package com.lmfinanz.savings.domain.model;
 
 import com.lmfinanz.shared.domain.model.BaseEntity;
+import com.lmfinanz.shared.domain.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,5 +46,43 @@ public class SavingsGoal extends BaseEntity {
         this.currencyCode = currencyCode;
         this.targetAmount = targetAmount;
         this.deadline = deadline;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public BigDecimal getTargetAmount() {
+        return targetAmount;
+    }
+
+    public BigDecimal getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public SavingsGoalStatus getStatus() {
+        return status;
+    }
+
+    public void contribute(BigDecimal amount) {
+        if (status != SavingsGoalStatus.ACTIVE) {
+            throw new DomainException("Only active savings goals can receive contributions");
+        }
+        currentAmount = currentAmount.add(amount);
+        if (currentAmount.compareTo(targetAmount) >= 0) {
+            status = SavingsGoalStatus.COMPLETED;
+        }
     }
 }

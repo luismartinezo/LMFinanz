@@ -32,4 +32,20 @@ public class SavingsContribution extends BaseEntity {
         this.amount = amount;
         this.contributionDate = contributionDate;
     }
+
+    public UUID getSavingsGoalId() {
+        return savingsGoalId;
+    }
+
+    public UUID getTransactionId() {
+        return transactionId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public LocalDate getContributionDate() {
+        return contributionDate;
+    }
 }

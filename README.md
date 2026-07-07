@@ -63,6 +63,10 @@ Implemented endpoints:
 | `GET` | `/api/debts` | List authenticated user's debts |
 | `GET` | `/api/debts/{debtId}` | Get one authenticated user's debt |
 | `GET` | `/api/debts/{debtId}/installments` | List debt installments |
+| `POST` | `/api/savings-goals` | Create a savings goal |
+| `POST` | `/api/savings-goals/{goalId}/contributions` | Add a contribution to a savings goal |
+| `GET` | `/api/savings-goals` | List authenticated user's savings goals |
+| `GET` | `/api/savings-goals/{goalId}` | Get one authenticated user's savings goal |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements

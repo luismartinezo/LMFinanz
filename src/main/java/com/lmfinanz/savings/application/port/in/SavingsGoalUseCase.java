@@ -12,5 +12,7 @@ public interface SavingsGoalUseCase {
 
     SavingsGoalResponse contribute(UUID userId, UUID goalId, SavingsContributionRequest request);
 
+    SavingsGoalResponse get(UUID userId, UUID goalId);
+
     List<SavingsGoalResponse> list(UUID userId);
 }
