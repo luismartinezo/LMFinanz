@@ -150,6 +150,48 @@ Response `200`:
 }
 ```
 
+## Reference Data
+
+Reference data endpoints are public and do not require JWT authentication.
+
+### List Currencies
+
+```http
+GET /api/reference/currencies
+```
+
+Response `200`:
+
+```json
+[
+  {
+    "code": "EUR",
+    "name": "Euro",
+    "symbol": "EUR",
+    "decimalPlaces": 2
+  }
+]
+```
+
+### List Countries
+
+```http
+GET /api/reference/countries
+```
+
+Response `200`:
+
+```json
+[
+  {
+    "code": "DE",
+    "name": "Germany",
+    "defaultCurrencyCode": "EUR",
+    "active": true
+  }
+]
+```
+
 ## Accounts
 
 ### Create Account

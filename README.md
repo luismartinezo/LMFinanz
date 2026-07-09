@@ -61,6 +61,8 @@ Implemented endpoints:
 | --- | --- | --- |
 | `POST` | `/api/auth/register` | Register a user |
 | `POST` | `/api/auth/login` | Authenticate and receive a JWT |
+| `GET` | `/api/reference/currencies` | List supported currencies |
+| `GET` | `/api/reference/countries` | List supported countries |
 | `POST` | `/api/accounts` | Create an account |
 | `GET` | `/api/accounts` | List authenticated user's accounts |
 | `GET` | `/api/accounts/{accountId}` | Get one authenticated user's account |

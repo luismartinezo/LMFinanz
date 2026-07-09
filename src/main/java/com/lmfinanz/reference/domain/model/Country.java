@@ -29,4 +29,20 @@ public class Country extends BaseEntity {
         this.name = name;
         this.defaultCurrencyCode = defaultCurrencyCode;
     }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDefaultCurrencyCode() {
+        return defaultCurrencyCode;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
 }

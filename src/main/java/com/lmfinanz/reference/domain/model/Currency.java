@@ -30,4 +30,20 @@ public class Currency extends BaseEntity {
         this.symbol = symbol;
         this.decimalPlaces = decimalPlaces;
     }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public int getDecimalPlaces() {
+        return decimalPlaces;
+    }
 }
