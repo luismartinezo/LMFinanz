@@ -2,6 +2,7 @@ package com.lmfinanz.categories.adapter.in.web;
 
 import com.lmfinanz.categories.adapter.in.web.dto.CategoryRequest;
 import com.lmfinanz.categories.adapter.in.web.dto.CategoryResponse;
+import com.lmfinanz.categories.adapter.in.web.dto.CategoryUpdateRequest;
 import com.lmfinanz.categories.application.port.in.CategoryUseCase;
 import com.lmfinanz.shared.security.JwtPrincipal;
 import jakarta.validation.Valid;
@@ -11,8 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -49,5 +52,30 @@ public class CategoryController {
     @GetMapping
     public List<CategoryResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
         return categoryUseCase.list(principal.userId());
+    }
+
+    @PutMapping("/{categoryId}")
+    public CategoryResponse update(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID categoryId,
+            @Valid @RequestBody CategoryUpdateRequest request
+    ) {
+        return categoryUseCase.update(principal.userId(), categoryId, request);
+    }
+
+    @PatchMapping("/{categoryId}/deactivate")
+    public CategoryResponse deactivate(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID categoryId
+    ) {
+        return categoryUseCase.deactivate(principal.userId(), categoryId);
+    }
+
+    @PatchMapping("/{categoryId}/activate")
+    public CategoryResponse activate(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID categoryId
+    ) {
+        return categoryUseCase.activate(principal.userId(), categoryId);
     }
 }

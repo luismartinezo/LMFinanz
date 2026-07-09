@@ -64,4 +64,20 @@ public class Category extends BaseEntity {
     public boolean isActive() {
         return active;
     }
+
+    public void rename(String name) {
+        this.name = name;
+    }
+
+    public void moveToParent(UUID parentCategoryId) {
+        this.parentCategoryId = parentCategoryId;
+    }
+
+    public void deactivate() {
+        active = false;
+    }
+
+    public void activate() {
+        active = true;
+    }
 }

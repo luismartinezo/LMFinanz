@@ -72,6 +72,9 @@ Implemented endpoints:
 | `POST` | `/api/categories` | Create a category or subcategory |
 | `GET` | `/api/categories` | List authenticated user's categories |
 | `GET` | `/api/categories/{categoryId}` | Get one authenticated user's category |
+| `PUT` | `/api/categories/{categoryId}` | Update a category name or parent |
+| `PATCH` | `/api/categories/{categoryId}/deactivate` | Deactivate a category without deleting history |
+| `PATCH` | `/api/categories/{categoryId}/activate` | Reactivate a category |
 | `POST` | `/api/transactions` | Create a draft transaction |
 | `POST` | `/api/transactions/{transactionId}/post` | Post a transaction and update balances |
 | `GET` | `/api/transactions?from=YYYY-MM-DD&to=YYYY-MM-DD` | List authenticated user's transactions |

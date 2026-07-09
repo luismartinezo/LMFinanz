@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.lmfinanz.categories.adapter.in.web.dto.CategoryRequest;
+import com.lmfinanz.categories.adapter.in.web.dto.CategoryUpdateRequest;
 import com.lmfinanz.categories.application.port.out.CategoryRepositoryPort;
 import com.lmfinanz.categories.domain.model.Category;
 import com.lmfinanz.categories.domain.model.CategoryType;
@@ -75,6 +76,54 @@ class CategoryServiceTest {
         assertThatThrownBy(() -> service.create(userId, request(parentId, "Groceries", CategoryType.EXPENSE)))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Parent category not found");
+    }
+
+    @Test
+    void updatesCategoryNameAndParent() {
+        CategoryService service = new CategoryService(categoryRepository);
+        UUID userId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        UUID parentId = UUID.randomUUID();
+        Category category = new Category(userId, null, "Restaurants", CategoryType.EXPENSE, false);
+        Category parent = new Category(userId, null, "Food", CategoryType.EXPENSE, false);
+        when(categoryRepository.findByIdAndUserId(categoryId, userId)).thenReturn(Optional.of(category));
+        when(categoryRepository.findByIdAndUserId(parentId, userId)).thenReturn(Optional.of(parent));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var response = service.update(userId, categoryId, new CategoryUpdateRequest(parentId, "Eating out"));
+
+        assertThat(response.name()).isEqualTo("Eating out");
+        assertThat(response.parentCategoryId()).isEqualTo(parentId);
+        assertThat(response.type()).isEqualTo(CategoryType.EXPENSE);
+    }
+
+    @Test
+    void rejectsCategoryAsOwnParent() {
+        CategoryService service = new CategoryService(categoryRepository);
+        UUID userId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        Category category = new Category(userId, null, "Food", CategoryType.EXPENSE, false);
+        when(categoryRepository.findByIdAndUserId(categoryId, userId)).thenReturn(Optional.of(category));
+
+        assertThatThrownBy(() -> service.update(userId, categoryId, new CategoryUpdateRequest(categoryId, "Food")))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Category cannot be its own parent");
+    }
+
+    @Test
+    void deactivatesAndActivatesCategory() {
+        CategoryService service = new CategoryService(categoryRepository);
+        UUID userId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        Category category = new Category(userId, null, "Food", CategoryType.EXPENSE, false);
+        when(categoryRepository.findByIdAndUserId(categoryId, userId)).thenReturn(Optional.of(category));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var deactivated = service.deactivate(userId, categoryId);
+        var activated = service.activate(userId, categoryId);
+
+        assertThat(deactivated.active()).isFalse();
+        assertThat(activated.active()).isTrue();
     }
 
     private CategoryRequest request(UUID parentCategoryId, String name, CategoryType type) {

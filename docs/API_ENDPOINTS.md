@@ -385,6 +385,49 @@ Authorization: Bearer <accessToken>
 
 Response `200`: same shape as create category response.
 
+### Update Category
+
+```http
+PUT /api/categories/{categoryId}
+Authorization: Bearer <accessToken>
+```
+
+Request:
+
+```json
+{
+  "parentCategoryId": "99a451a6-8e58-4e3e-a739-f8d53bf8a7b4",
+  "name": "Eating out"
+}
+```
+
+Response `200`: same shape as create category response.
+
+Notes:
+
+- `parentCategoryId` can be `null` to move the category to the root level.
+- Category type is intentionally immutable after creation to preserve reporting consistency.
+- A category cannot be its own parent.
+- System-defined categories cannot be modified.
+
+### Deactivate Category
+
+```http
+PATCH /api/categories/{categoryId}/deactivate
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create category response with `active: false`.
+
+### Activate Category
+
+```http
+PATCH /api/categories/{categoryId}/activate
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create category response with `active: true`.
+
 ## Transactions
 
 Transactions are created as `DRAFT`. Posting a transaction changes its status to `POSTED` and updates account balances.
