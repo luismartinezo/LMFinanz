@@ -76,6 +76,7 @@ TransactionStatus: DRAFT, POSTED, CANCELLED
 DebtStatus: ACTIVE, PAID, DEFAULTED, CANCELLED
 InstallmentStatus: PENDING, PAID, OVERDUE
 SavingsGoalStatus: ACTIVE, COMPLETED, CANCELLED
+AssetType: HOUSE, VEHICLE, ELECTRONICS, FURNITURE, OTHER
 ReportPeriod: DAILY, MONTHLY, YEARLY, CUSTOM
 ```
 
@@ -734,6 +735,89 @@ Authorization: Bearer <accessToken>
 ```
 
 Response `200`: same shape as create savings goal response.
+
+## Assets
+
+### Create Asset
+
+```http
+POST /api/assets
+Authorization: Bearer <accessToken>
+```
+
+Request:
+
+```json
+{
+  "name": "Car",
+  "type": "VEHICLE",
+  "currencyCode": "EUR",
+  "countryCode": "DE",
+  "estimatedValue": 12000.00,
+  "acquisitionDate": "2025-01-10",
+  "description": "Primary vehicle"
+}
+```
+
+Response `201`:
+
+```json
+{
+  "id": "6126e5e2-d90b-4469-967f-80dc0c7d8ac2",
+  "name": "Car",
+  "type": "VEHICLE",
+  "currencyCode": "EUR",
+  "countryCode": "DE",
+  "estimatedValue": 12000.0000,
+  "acquisitionDate": "2025-01-10",
+  "description": "Primary vehicle",
+  "active": true
+}
+```
+
+Validation:
+
+- `name`: required, max 140 characters
+- `type`: required
+- `currencyCode`: required, supported 3-letter code
+- `countryCode`: required, supported 2-letter code
+- `estimatedValue`: required, minimum `0.0000`
+- `acquisitionDate`: optional, must be past or present
+- `description`: optional, max 500 characters
+
+### List Assets
+
+```http
+GET /api/assets
+Authorization: Bearer <accessToken>
+```
+
+Response `200`:
+
+```json
+[
+  {
+    "id": "6126e5e2-d90b-4469-967f-80dc0c7d8ac2",
+    "name": "Car",
+    "type": "VEHICLE",
+    "currencyCode": "EUR",
+    "countryCode": "DE",
+    "estimatedValue": 12000.0000,
+    "acquisitionDate": "2025-01-10",
+    "description": "Primary vehicle",
+    "active": true
+  }
+]
+```
+
+### Get Asset
+
+```http
+GET /api/assets/{assetId}
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create asset response.
 
 ## Health Check
 

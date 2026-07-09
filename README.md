@@ -81,6 +81,9 @@ Implemented endpoints:
 | `POST` | `/api/savings-goals/{goalId}/contributions` | Add a contribution to a savings goal |
 | `GET` | `/api/savings-goals` | List authenticated user's savings goals |
 | `GET` | `/api/savings-goals/{goalId}` | Get one authenticated user's savings goal |
+| `POST` | `/api/assets` | Create an asset |
+| `GET` | `/api/assets` | List authenticated user's assets |
+| `GET` | `/api/assets/{assetId}` | Get one authenticated user's asset |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements

@@ -55,4 +55,40 @@ public class Asset extends BaseEntity {
         this.acquisitionDate = acquisitionDate;
         this.description = description;
     }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public AssetType getType() {
+        return type;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public BigDecimal getEstimatedValue() {
+        return estimatedValue;
+    }
+
+    public LocalDate getAcquisitionDate() {
+        return acquisitionDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
 }
