@@ -84,6 +84,18 @@ public class Account extends BaseEntity {
         return active;
     }
 
+    public void rename(String name) {
+        this.name = name;
+    }
+
+    public void close() {
+        active = false;
+    }
+
+    public void reopen() {
+        active = true;
+    }
+
     public void credit(BigDecimal amount) {
         currentBalance = currentBalance.add(amount);
     }

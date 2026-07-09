@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.lmfinanz.accounts.adapter.in.web.dto.AccountRequest;
+import com.lmfinanz.accounts.adapter.in.web.dto.AccountUpdateRequest;
 import com.lmfinanz.accounts.application.port.out.AccountRepositoryPort;
 import com.lmfinanz.accounts.domain.model.Account;
 import com.lmfinanz.accounts.domain.model.AccountType;
@@ -53,6 +54,51 @@ class AccountServiceTest {
         assertThatThrownBy(() -> service.create(UUID.randomUUID(), request("GBP", "DE")))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Unsupported currency: GBP");
+    }
+
+    @Test
+    void updatesAccountName() {
+        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        Account account = new Account(
+                userId,
+                "Old name",
+                AccountType.BANK_ACCOUNT,
+                "EUR",
+                "DE",
+                new BigDecimal("100.00")
+        );
+        when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var response = service.update(userId, accountId, new AccountUpdateRequest("Updated name"));
+
+        assertThat(response.name()).isEqualTo("Updated name");
+        assertThat(response.currentBalance()).isEqualByComparingTo("100.00");
+    }
+
+    @Test
+    void closesAndReopensAccount() {
+        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        Account account = new Account(
+                userId,
+                "Main account",
+                AccountType.BANK_ACCOUNT,
+                "EUR",
+                "DE",
+                new BigDecimal("100.00")
+        );
+        when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var closed = service.close(userId, accountId);
+        var reopened = service.reopen(userId, accountId);
+
+        assertThat(closed.active()).isFalse();
+        assertThat(reopened.active()).isTrue();
     }
 
     private AccountRequest request(String currency, String country) {

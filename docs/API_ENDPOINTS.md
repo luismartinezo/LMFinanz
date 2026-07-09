@@ -267,6 +267,46 @@ Authorization: Bearer <accessToken>
 
 Response `200`: same shape as create account response.
 
+### Update Account
+
+```http
+PUT /api/accounts/{accountId}
+Authorization: Bearer <accessToken>
+```
+
+Request:
+
+```json
+{
+  "name": "Emergency fund account"
+}
+```
+
+Response `200`: same shape as create account response.
+
+Notes:
+
+- The account currency, country, opening balance, and current balance are intentionally immutable after creation.
+- To preserve financial history, accounts are closed instead of physically deleted.
+
+### Close Account
+
+```http
+PATCH /api/accounts/{accountId}/close
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create account response with `active: false`.
+
+### Reopen Account
+
+```http
+PATCH /api/accounts/{accountId}/reopen
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create account response with `active: true`.
+
 ## Categories
 
 ### Create Category
