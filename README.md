@@ -1,8 +1,8 @@
 # LMFinanz
 
-LMFinanz is a personal finance backend built with Java 21 and Spring Boot 3. The project is designed as a production-ready foundation for managing accounts, transactions, categories, debts, savings goals, assets, countries, currencies, and financial reports.
+LMFinanz is a personal finance system built with Java 21, Spring Boot 3, and Angular 21. The project is designed as a production-ready foundation for managing accounts, transactions, categories, debts, savings goals, assets, countries, currencies, and financial reports.
 
-The current repository contains the backend only. The Angular frontend will be added later.
+The current repository contains the Spring Boot backend and the Angular frontend base.
 
 ## Tech Stack
 
@@ -15,6 +15,9 @@ The current repository contains the backend only. The Angular frontend will be a
 - Flyway
 - Docker and Docker Compose
 - Maven
+- Angular 21
+- Node.js 22 LTS
+- npm
 
 ## Architecture
 
@@ -162,6 +165,41 @@ Expected response:
   "status": "UP",
   "groups": ["liveness", "readiness"]
 }
+```
+
+## Frontend Setup
+
+The Angular app lives in:
+
+```text
+frontend
+```
+
+Use Node.js 22 LTS for the frontend. Node 24 can currently trigger an esbuild crash in this Angular toolchain.
+
+Install dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+Run Angular locally:
+
+```bash
+npm start
+```
+
+Frontend URL:
+
+```text
+http://localhost:4200
+```
+
+Build Angular:
+
+```bash
+npm run build
 ```
 
 ## Docker Setup
