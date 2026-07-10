@@ -25,6 +25,7 @@ The backend follows a hexagonal architecture style:
 - `adapter/in/web`: REST controllers and DTOs
 - `adapter/out/persistence`: database adapters and Spring Data repositories
 - `shared`: cross-cutting concerns such as security, errors, and base domain models
+- `BaseEntity`: shared identifier, timestamps, and authenticated-user auditing fields
 
 Main bounded modules:
 
@@ -38,6 +39,11 @@ Main bounded modules:
 - `assets`: inventory of personal assets
 - `reports`: reporting ports and DTOs
 - `shared`: common infrastructure and reusable domain objects
+
+Persistence auditing is enabled for domain entities:
+
+- `createdAt` and `updatedAt` are managed automatically.
+- `createdBy` and `updatedBy` are populated from the authenticated JWT principal when available.
 
 ## Current API
 
