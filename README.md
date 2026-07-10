@@ -61,6 +61,11 @@ Implemented endpoints:
 | --- | --- | --- |
 | `POST` | `/api/auth/register` | Register a user |
 | `POST` | `/api/auth/login` | Authenticate and receive a JWT |
+| `GET` | `/api/admin/users` | List users, admin only |
+| `GET` | `/api/admin/users/{userId}` | Get user details, admin only |
+| `PATCH` | `/api/admin/users/{userId}/activate` | Activate a user, admin only |
+| `PATCH` | `/api/admin/users/{userId}/deactivate` | Deactivate a user, admin only |
+| `PUT` | `/api/admin/users/{userId}/roles` | Replace user roles, admin only |
 | `GET` | `/api/reference/currencies` | List supported currencies |
 | `GET` | `/api/reference/countries` | List supported countries |
 | `POST` | `/api/accounts` | Create an account |

@@ -67,4 +67,17 @@ public class User extends BaseEntity {
     public void addRole(Role role) {
         roles.add(role);
     }
+
+    public void replaceRoles(Set<Role> roles) {
+        this.roles.clear();
+        this.roles.addAll(roles);
+    }
+
+    public void deactivate() {
+        active = false;
+    }
+
+    public void activate() {
+        active = true;
+    }
 }

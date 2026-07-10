@@ -2,6 +2,7 @@ package com.lmfinanz.identity.adapter.out.persistence;
 
 import com.lmfinanz.identity.application.port.out.UserRepositoryPort;
 import com.lmfinanz.identity.domain.model.User;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
@@ -23,6 +24,11 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     @Override
     public Optional<User> findById(UUID id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return repository.findAllByOrderByEmailAsc();
     }
 
     @Override

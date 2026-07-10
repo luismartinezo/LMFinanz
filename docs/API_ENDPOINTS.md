@@ -150,6 +150,85 @@ Response `200`:
 }
 ```
 
+## Admin Users
+
+All endpoints in this section require a JWT with `ROLE_ADMIN`.
+
+### List Users
+
+```http
+GET /api/admin/users
+Authorization: Bearer <adminAccessToken>
+```
+
+Response `200`:
+
+```json
+[
+  {
+    "id": "0d3bb389-4317-40a1-b7e9-e242b70f4c94",
+    "email": "user@example.com",
+    "fullName": "Luis Martinez",
+    "active": true,
+    "roles": ["ROLE_USER"]
+  }
+]
+```
+
+### Get User
+
+```http
+GET /api/admin/users/{userId}
+Authorization: Bearer <adminAccessToken>
+```
+
+Response `200`: same shape as list user item.
+
+### Activate User
+
+```http
+PATCH /api/admin/users/{userId}/activate
+Authorization: Bearer <adminAccessToken>
+```
+
+Response `200`: same shape as list user item with `active: true`.
+
+### Deactivate User
+
+```http
+PATCH /api/admin/users/{userId}/deactivate
+Authorization: Bearer <adminAccessToken>
+```
+
+Response `200`: same shape as list user item with `active: false`.
+
+Notes:
+
+- Administrators cannot deactivate their own account.
+- Deactivated users cannot log in.
+
+### Replace User Roles
+
+```http
+PUT /api/admin/users/{userId}/roles
+Authorization: Bearer <adminAccessToken>
+```
+
+Request:
+
+```json
+{
+  "roles": ["ROLE_USER", "ROLE_ADMIN"]
+}
+```
+
+Response `200`: same shape as list user item.
+
+Notes:
+
+- `roles` must not be empty.
+- Administrators cannot remove their own `ROLE_ADMIN`.
+
 ## Reference Data
 
 Reference data endpoints are public and do not require JWT authentication.
