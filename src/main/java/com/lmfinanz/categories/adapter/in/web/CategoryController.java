@@ -5,6 +5,8 @@ import com.lmfinanz.categories.adapter.in.web.dto.CategoryResponse;
 import com.lmfinanz.categories.adapter.in.web.dto.CategoryUpdateRequest;
 import com.lmfinanz.categories.application.port.in.CategoryUseCase;
 import com.lmfinanz.shared.security.JwtPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/categories")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@Tag(name = "Categories", description = "Income and expense categories with parent-child hierarchy")
 public class CategoryController {
 
     private final CategoryUseCase categoryUseCase;
@@ -34,6 +37,7 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create category", description = "Creates a root category or subcategory for the authenticated user.")
     public CategoryResponse create(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody CategoryRequest request
@@ -42,6 +46,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{categoryId}")
+    @Operation(summary = "Get category", description = "Returns one category owned by the authenticated user.")
     public CategoryResponse get(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID categoryId
@@ -50,11 +55,13 @@ public class CategoryController {
     }
 
     @GetMapping
+    @Operation(summary = "List categories", description = "Lists categories owned by the authenticated user.")
     public List<CategoryResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
         return categoryUseCase.list(principal.userId());
     }
 
     @PutMapping("/{categoryId}")
+    @Operation(summary = "Update category", description = "Updates a category name or parent while preserving its type.")
     public CategoryResponse update(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID categoryId,
@@ -64,6 +71,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/{categoryId}/deactivate")
+    @Operation(summary = "Deactivate category", description = "Deactivates a category without deleting historical transactions.")
     public CategoryResponse deactivate(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID categoryId
@@ -72,6 +80,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/{categoryId}/activate")
+    @Operation(summary = "Activate category", description = "Reactivates a previously deactivated category.")
     public CategoryResponse activate(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID categoryId

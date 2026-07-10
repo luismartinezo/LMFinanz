@@ -6,6 +6,8 @@ import com.lmfinanz.debts.adapter.in.web.dto.DebtRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtResponse;
 import com.lmfinanz.debts.application.port.in.DebtUseCase;
 import com.lmfinanz.shared.security.JwtPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/debts")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@Tag(name = "Debts", description = "Debt balances, installment schedules, and payments")
 public class DebtController {
 
     private final DebtUseCase debtUseCase;
@@ -33,6 +36,7 @@ public class DebtController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create debt", description = "Creates a debt and generates its installment schedule.")
     public DebtResponse create(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody DebtRequest request
@@ -41,6 +45,7 @@ public class DebtController {
     }
 
     @GetMapping("/{debtId}")
+    @Operation(summary = "Get debt", description = "Returns one debt owned by the authenticated user.")
     public DebtResponse get(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID debtId
@@ -49,11 +54,13 @@ public class DebtController {
     }
 
     @GetMapping
+    @Operation(summary = "List debts", description = "Lists debts owned by the authenticated user.")
     public List<DebtResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
         return debtUseCase.list(principal.userId());
     }
 
     @GetMapping("/{debtId}/installments")
+    @Operation(summary = "List debt installments", description = "Lists the installment schedule for one debt.")
     public List<DebtInstallmentResponse> listInstallments(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID debtId
@@ -62,6 +69,7 @@ public class DebtController {
     }
 
     @PostMapping("/{debtId}/installments/{installmentId}/pay")
+    @Operation(summary = "Pay debt installment", description = "Marks an installment as paid and reduces the debt remaining balance.")
     public DebtInstallmentResponse payInstallment(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID debtId,

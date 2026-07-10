@@ -23,7 +23,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("LMFinanz API")
                         .version("0.1.0")
-                        .description("REST API for personal finance management: accounts, categories, transactions, reports, debts, and savings goals.")
+                        .description("REST API for personal finance management: authentication, accounts, categories, transactions, reports, debts, savings goals, assets, reference data, and admin user management.")
                         .contact(new Contact()
                                 .name("Luis Martinez")
                                 .email("lmartinezocoro@gmail.com"))

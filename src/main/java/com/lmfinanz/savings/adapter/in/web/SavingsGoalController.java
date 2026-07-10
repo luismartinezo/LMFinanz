@@ -5,6 +5,8 @@ import com.lmfinanz.savings.adapter.in.web.dto.SavingsGoalRequest;
 import com.lmfinanz.savings.adapter.in.web.dto.SavingsGoalResponse;
 import com.lmfinanz.savings.application.port.in.SavingsGoalUseCase;
 import com.lmfinanz.shared.security.JwtPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/savings-goals")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@Tag(name = "Savings Goals", description = "Savings targets, contributions, and cancellation")
 public class SavingsGoalController {
 
     private final SavingsGoalUseCase savingsGoalUseCase;
@@ -32,6 +35,7 @@ public class SavingsGoalController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create savings goal", description = "Creates a savings goal for the authenticated user.")
     public SavingsGoalResponse create(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody SavingsGoalRequest request
@@ -40,6 +44,7 @@ public class SavingsGoalController {
     }
 
     @PostMapping("/{goalId}/contributions")
+    @Operation(summary = "Add savings contribution", description = "Adds a contribution and completes the goal when the target is reached.")
     public SavingsGoalResponse contribute(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID goalId,
@@ -49,6 +54,7 @@ public class SavingsGoalController {
     }
 
     @PostMapping("/{goalId}/cancel")
+    @Operation(summary = "Cancel savings goal", description = "Cancels an active savings goal.")
     public SavingsGoalResponse cancel(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID goalId
@@ -57,6 +63,7 @@ public class SavingsGoalController {
     }
 
     @GetMapping("/{goalId}")
+    @Operation(summary = "Get savings goal", description = "Returns one savings goal owned by the authenticated user.")
     public SavingsGoalResponse get(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID goalId
@@ -65,6 +72,7 @@ public class SavingsGoalController {
     }
 
     @GetMapping
+    @Operation(summary = "List savings goals", description = "Lists savings goals owned by the authenticated user.")
     public List<SavingsGoalResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
         return savingsGoalUseCase.list(principal.userId());
     }

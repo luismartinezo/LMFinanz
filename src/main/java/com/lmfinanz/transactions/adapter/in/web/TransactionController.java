@@ -4,6 +4,8 @@ import com.lmfinanz.shared.security.JwtPrincipal;
 import com.lmfinanz.transactions.adapter.in.web.dto.TransactionRequest;
 import com.lmfinanz.transactions.adapter.in.web.dto.TransactionResponse;
 import com.lmfinanz.transactions.application.port.in.TransactionUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/transactions")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@Tag(name = "Transactions", description = "Income, expense, and transfer transactions")
 public class TransactionController {
 
     private final TransactionUseCase transactionUseCase;
@@ -34,6 +37,7 @@ public class TransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create transaction", description = "Creates a draft income, expense, or transfer transaction.")
     public TransactionResponse create(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody TransactionRequest request
@@ -42,6 +46,7 @@ public class TransactionController {
     }
 
     @PostMapping("/{transactionId}/post")
+    @Operation(summary = "Post transaction", description = "Posts a draft transaction and updates affected account balances.")
     public TransactionResponse post(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID transactionId
@@ -50,6 +55,7 @@ public class TransactionController {
     }
 
     @PostMapping("/{transactionId}/cancel")
+    @Operation(summary = "Cancel transaction", description = "Cancels a draft transaction or reverses a posted transaction.")
     public TransactionResponse cancel(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID transactionId
@@ -58,6 +64,7 @@ public class TransactionController {
     }
 
     @GetMapping
+    @Operation(summary = "List transactions", description = "Lists transactions for the authenticated user within an optional date range.")
     public List<TransactionResponse> list(
             @AuthenticationPrincipal JwtPrincipal principal,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,

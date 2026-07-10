@@ -5,6 +5,8 @@ import com.lmfinanz.assets.adapter.in.web.dto.AssetResponse;
 import com.lmfinanz.assets.adapter.in.web.dto.AssetUpdateRequest;
 import com.lmfinanz.assets.application.port.in.AssetUseCase;
 import com.lmfinanz.shared.security.JwtPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/assets")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@Tag(name = "Assets", description = "Personal asset inventory and valuation")
 public class AssetController {
 
     private final AssetUseCase assetUseCase;
@@ -34,6 +37,7 @@ public class AssetController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create asset", description = "Creates a personal asset inventory item.")
     public AssetResponse create(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody AssetRequest request
@@ -42,6 +46,7 @@ public class AssetController {
     }
 
     @GetMapping("/{assetId}")
+    @Operation(summary = "Get asset", description = "Returns one asset owned by the authenticated user.")
     public AssetResponse get(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID assetId
@@ -50,11 +55,13 @@ public class AssetController {
     }
 
     @GetMapping
+    @Operation(summary = "List assets", description = "Lists assets owned by the authenticated user.")
     public List<AssetResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
         return assetUseCase.list(principal.userId());
     }
 
     @PutMapping("/{assetId}")
+    @Operation(summary = "Update asset", description = "Updates asset details, valuation, country, and currency.")
     public AssetResponse update(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID assetId,
@@ -64,6 +71,7 @@ public class AssetController {
     }
 
     @PatchMapping("/{assetId}/retire")
+    @Operation(summary = "Retire asset", description = "Retires an asset without deleting historical inventory data.")
     public AssetResponse retire(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID assetId
@@ -72,6 +80,7 @@ public class AssetController {
     }
 
     @PatchMapping("/{assetId}/activate")
+    @Operation(summary = "Activate asset", description = "Reactivates a previously retired asset.")
     public AssetResponse activate(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID assetId

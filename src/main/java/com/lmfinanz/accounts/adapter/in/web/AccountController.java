@@ -5,6 +5,8 @@ import com.lmfinanz.accounts.adapter.in.web.dto.AccountResponse;
 import com.lmfinanz.accounts.adapter.in.web.dto.AccountUpdateRequest;
 import com.lmfinanz.accounts.application.port.in.AccountUseCase;
 import com.lmfinanz.shared.security.JwtPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/accounts")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@Tag(name = "Accounts", description = "Bank accounts, cash accounts, and credit cards")
 public class AccountController {
 
     private final AccountUseCase accountUseCase;
@@ -34,6 +37,7 @@ public class AccountController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create account", description = "Creates a bank, cash, or credit-card account for the authenticated user.")
     public AccountResponse create(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody AccountRequest request
@@ -42,6 +46,7 @@ public class AccountController {
     }
 
     @GetMapping("/{accountId}")
+    @Operation(summary = "Get account", description = "Returns one account owned by the authenticated user.")
     public AccountResponse get(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID accountId
@@ -50,11 +55,13 @@ public class AccountController {
     }
 
     @GetMapping
+    @Operation(summary = "List accounts", description = "Lists accounts owned by the authenticated user.")
     public List<AccountResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
         return accountUseCase.list(principal.userId());
     }
 
     @PutMapping("/{accountId}")
+    @Operation(summary = "Update account", description = "Updates mutable account data such as the account name.")
     public AccountResponse update(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID accountId,
@@ -64,6 +71,7 @@ public class AccountController {
     }
 
     @PatchMapping("/{accountId}/close")
+    @Operation(summary = "Close account", description = "Closes an account without deleting its financial history.")
     public AccountResponse close(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID accountId
@@ -72,6 +80,7 @@ public class AccountController {
     }
 
     @PatchMapping("/{accountId}/reopen")
+    @Operation(summary = "Reopen account", description = "Reopens a previously closed account.")
     public AccountResponse reopen(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable UUID accountId

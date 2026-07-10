@@ -55,6 +55,8 @@ Interactive OpenAPI documentation is available when the backend is running:
 http://localhost:8080/swagger-ui.html
 ```
 
+Swagger UI groups endpoints by bounded module and includes operation summaries for easier API exploration.
+
 The generated OpenAPI JSON is available at:
 
 ```text
