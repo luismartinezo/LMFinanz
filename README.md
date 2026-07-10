@@ -69,6 +69,8 @@ Implemented endpoints:
 | --- | --- | --- |
 | `POST` | `/api/auth/register` | Register a user |
 | `POST` | `/api/auth/login` | Authenticate and receive a JWT |
+| `POST` | `/api/auth/refresh` | Rotate refresh token and receive a new access token |
+| `POST` | `/api/auth/logout` | Revoke a refresh token |
 | `GET` | `/api/admin/users` | List users, admin only |
 | `GET` | `/api/admin/users/{userId}` | Get user details, admin only |
 | `PATCH` | `/api/admin/users/{userId}/activate` | Activate a user, admin only |
@@ -193,6 +195,7 @@ http://localhost:8080
 | `SPRING_DATASOURCE_PASSWORD` | `lmfinanz` | Database password |
 | `JWT_SECRET` | Development fallback in `application.yml` | JWT signing secret |
 | `JWT_EXPIRATION_MINUTES` | `60` | JWT expiration time |
+| `JWT_REFRESH_EXPIRATION_DAYS` | `30` | Refresh token expiration time |
 | `SERVER_PORT` | `8080` | Backend HTTP port |
 
 For production, always provide a strong `JWT_SECRET` through the deployment environment.

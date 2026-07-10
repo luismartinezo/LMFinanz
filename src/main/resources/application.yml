@@ -21,6 +21,7 @@ security:
     issuer: lmfinanz
     secret: ${JWT_SECRET:lmfinanz-development-secret-key-change-before-production}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+    refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:30}
 
 management:
   endpoints:

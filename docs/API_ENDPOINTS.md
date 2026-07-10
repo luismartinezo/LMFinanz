@@ -113,7 +113,8 @@ Response `200`:
   "email": "user@example.com",
   "fullName": "Luis Martinez",
   "roles": ["ROLE_USER"],
-  "accessToken": "<jwt>"
+  "accessToken": "<jwt>",
+  "refreshToken": "<opaque-refresh-token>"
 }
 ```
 
@@ -146,9 +147,48 @@ Response `200`:
   "email": "user@example.com",
   "fullName": "Luis Martinez",
   "roles": ["ROLE_USER"],
-  "accessToken": "<jwt>"
+  "accessToken": "<jwt>",
+  "refreshToken": "<opaque-refresh-token>"
 }
 ```
+
+### Refresh Token
+
+```http
+POST /api/auth/refresh
+```
+
+Request:
+
+```json
+{
+  "refreshToken": "<opaque-refresh-token>"
+}
+```
+
+Response `200`: same shape as login response with a new access token and a new refresh token.
+
+Notes:
+
+- Refresh tokens are opaque values.
+- Refresh tokens are stored only as hashes in the database.
+- Refreshing revokes the previous refresh token and issues a new one.
+
+### Logout
+
+```http
+POST /api/auth/logout
+```
+
+Request:
+
+```json
+{
+  "refreshToken": "<opaque-refresh-token>"
+}
+```
+
+Response `204`: no content.
 
 ## Admin Users
 
