@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.lmfinanz.assets.adapter.in.web.dto.AssetRequest;
+import com.lmfinanz.assets.adapter.in.web.dto.AssetUpdateRequest;
 import com.lmfinanz.assets.application.port.out.AssetRepositoryPort;
 import com.lmfinanz.assets.domain.model.Asset;
 import com.lmfinanz.assets.domain.model.AssetType;
@@ -69,6 +70,71 @@ class AssetServiceTest {
         assertThatThrownBy(() -> service.create(UUID.randomUUID(), request("EUR", "BR", null)))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Unsupported country: BR");
+    }
+
+    @Test
+    void updatesAssetDetails() {
+        AssetService service = new AssetService(assetRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID assetId = UUID.randomUUID();
+        Asset asset = new Asset(
+                userId,
+                "Car",
+                AssetType.VEHICLE,
+                "EUR",
+                "DE",
+                new BigDecimal("12000.00"),
+                LocalDate.of(2025, 1, 10),
+                "Primary vehicle"
+        );
+        when(referenceDataRepository.findCurrencyByCode("USD"))
+                .thenReturn(Optional.of(new Currency("USD", "US Dollar", "USD", 2)));
+        when(referenceDataRepository.findCountryByCode("CO"))
+                .thenReturn(Optional.of(new Country("CO", "Colombia", "COP")));
+        when(assetRepository.findByIdAndUserId(assetId, userId)).thenReturn(Optional.of(asset));
+        when(assetRepository.save(asset)).thenReturn(asset);
+
+        var response = service.update(userId, assetId, new AssetUpdateRequest(
+                "Laptop",
+                AssetType.ELECTRONICS,
+                "USD",
+                "CO",
+                new BigDecimal("900.00"),
+                LocalDate.of(2026, 1, 5),
+                "  Work laptop  "
+        ));
+
+        assertThat(response.name()).isEqualTo("Laptop");
+        assertThat(response.type()).isEqualTo(AssetType.ELECTRONICS);
+        assertThat(response.currencyCode()).isEqualTo("USD");
+        assertThat(response.countryCode()).isEqualTo("CO");
+        assertThat(response.estimatedValue()).isEqualByComparingTo("900.00");
+        assertThat(response.description()).isEqualTo("Work laptop");
+    }
+
+    @Test
+    void retiresAndActivatesAsset() {
+        AssetService service = new AssetService(assetRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID assetId = UUID.randomUUID();
+        Asset asset = new Asset(
+                userId,
+                "Car",
+                AssetType.VEHICLE,
+                "EUR",
+                "DE",
+                new BigDecimal("12000.00"),
+                LocalDate.of(2025, 1, 10),
+                null
+        );
+        when(assetRepository.findByIdAndUserId(assetId, userId)).thenReturn(Optional.of(asset));
+        when(assetRepository.save(asset)).thenReturn(asset);
+
+        var retired = service.retire(userId, assetId);
+        var activated = service.activate(userId, assetId);
+
+        assertThat(retired.active()).isFalse();
+        assertThat(activated.active()).isTrue();
     }
 
     private AssetRequest request(String currencyCode, String countryCode, String description) {

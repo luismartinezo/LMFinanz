@@ -95,6 +95,9 @@ Implemented endpoints:
 | `POST` | `/api/assets` | Create an asset |
 | `GET` | `/api/assets` | List authenticated user's assets |
 | `GET` | `/api/assets/{assetId}` | Get one authenticated user's asset |
+| `PUT` | `/api/assets/{assetId}` | Update an asset |
+| `PATCH` | `/api/assets/{assetId}/retire` | Retire an asset without deleting history |
+| `PATCH` | `/api/assets/{assetId}/activate` | Reactivate a retired asset |
 | `GET` | `/actuator/health` | Application health check |
 
 ## Requirements

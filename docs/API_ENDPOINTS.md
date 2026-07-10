@@ -1045,6 +1045,47 @@ Authorization: Bearer <accessToken>
 
 Response `200`: same shape as create asset response.
 
+### Update Asset
+
+```http
+PUT /api/assets/{assetId}
+Authorization: Bearer <accessToken>
+```
+
+Request:
+
+```json
+{
+  "name": "Work laptop",
+  "type": "ELECTRONICS",
+  "currencyCode": "USD",
+  "countryCode": "CO",
+  "estimatedValue": 900.00,
+  "acquisitionDate": "2026-01-05",
+  "description": "Work laptop"
+}
+```
+
+Response `200`: same shape as create asset response.
+
+### Retire Asset
+
+```http
+PATCH /api/assets/{assetId}/retire
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create asset response with `active: false`.
+
+### Activate Asset
+
+```http
+PATCH /api/assets/{assetId}/activate
+Authorization: Bearer <accessToken>
+```
+
+Response `200`: same shape as create asset response with `active: true`.
+
 ## Health Check
 
 ```http

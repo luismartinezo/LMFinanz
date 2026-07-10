@@ -91,4 +91,23 @@ public class Asset extends BaseEntity {
     public boolean isActive() {
         return active;
     }
+
+    public void update(String name, AssetType type, String currencyCode, String countryCode,
+                       BigDecimal estimatedValue, LocalDate acquisitionDate, String description) {
+        this.name = name;
+        this.type = type;
+        this.currencyCode = currencyCode;
+        this.countryCode = countryCode;
+        this.estimatedValue = estimatedValue;
+        this.acquisitionDate = acquisitionDate;
+        this.description = description;
+    }
+
+    public void retire() {
+        active = false;
+    }
+
+    public void activate() {
+        active = true;
+    }
 }

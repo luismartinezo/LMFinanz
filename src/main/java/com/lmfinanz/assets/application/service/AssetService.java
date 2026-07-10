@@ -2,6 +2,7 @@ package com.lmfinanz.assets.application.service;
 
 import com.lmfinanz.assets.adapter.in.web.dto.AssetRequest;
 import com.lmfinanz.assets.adapter.in.web.dto.AssetResponse;
+import com.lmfinanz.assets.adapter.in.web.dto.AssetUpdateRequest;
 import com.lmfinanz.assets.application.port.in.AssetUseCase;
 import com.lmfinanz.assets.application.port.out.AssetRepositoryPort;
 import com.lmfinanz.assets.domain.model.Asset;
@@ -60,6 +61,36 @@ public class AssetService implements AssetUseCase {
                 .toList();
     }
 
+    @Override
+    public AssetResponse update(UUID userId, UUID assetId, AssetUpdateRequest request) {
+        validateReferenceData(request.currencyCode(), request.countryCode());
+        Asset asset = findAsset(userId, assetId);
+        asset.update(
+                request.name().trim(),
+                request.type(),
+                request.currencyCode(),
+                request.countryCode(),
+                request.estimatedValue(),
+                request.acquisitionDate(),
+                normalizeDescription(request.description())
+        );
+        return toResponse(assetRepository.save(asset));
+    }
+
+    @Override
+    public AssetResponse retire(UUID userId, UUID assetId) {
+        Asset asset = findAsset(userId, assetId);
+        asset.retire();
+        return toResponse(assetRepository.save(asset));
+    }
+
+    @Override
+    public AssetResponse activate(UUID userId, UUID assetId) {
+        Asset asset = findAsset(userId, assetId);
+        asset.activate();
+        return toResponse(assetRepository.save(asset));
+    }
+
     private void validateReferenceData(String currencyCode, String countryCode) {
         if (referenceDataRepository.findCurrencyByCode(currencyCode).isEmpty()) {
             throw new DomainException("Unsupported currency: " + currencyCode);
@@ -74,6 +105,11 @@ public class AssetService implements AssetUseCase {
             return null;
         }
         return description.trim();
+    }
+
+    private Asset findAsset(UUID userId, UUID assetId) {
+        return assetRepository.findByIdAndUserId(assetId, userId)
+                .orElseThrow(() -> new NotFoundException("Asset not found"));
     }
 
     private AssetResponse toResponse(Asset asset) {
