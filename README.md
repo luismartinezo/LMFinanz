@@ -196,6 +196,8 @@ http://localhost:8080
 | `JWT_SECRET` | Development fallback in `application.yml` | JWT signing secret |
 | `JWT_EXPIRATION_MINUTES` | `60` | JWT expiration time |
 | `JWT_REFRESH_EXPIRATION_DAYS` | `30` | Refresh token expiration time |
+| `LOGIN_RATE_LIMIT_MAX_ATTEMPTS` | `5` | Maximum failed login attempts per email and IP window |
+| `LOGIN_RATE_LIMIT_WINDOW_MINUTES` | `15` | Failed login attempt window in minutes |
 | `SERVER_PORT` | `8080` | Backend HTTP port |
 
 For production, always provide a strong `JWT_SECRET` through the deployment environment.

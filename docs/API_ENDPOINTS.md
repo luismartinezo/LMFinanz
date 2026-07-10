@@ -64,6 +64,7 @@ Common status codes:
 | `403` | Authenticated but not allowed |
 | `404` | Resource not found |
 | `409` | Conflict, such as duplicate user |
+| `429` | Too many repeated requests, such as repeated failed login attempts |
 | `422` | Domain rule violation |
 
 ## Enums
@@ -151,6 +152,13 @@ Response `200`:
   "refreshToken": "<opaque-refresh-token>"
 }
 ```
+
+Rate limiting:
+
+- Failed login attempts are limited by email and client IP.
+- Default limit: 5 failed attempts within 15 minutes.
+- Successful login clears the failed-attempt counter.
+- Exceeding the limit returns `429 Too Many Requests`.
 
 ### Refresh Token
 

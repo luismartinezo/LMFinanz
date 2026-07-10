@@ -4,6 +4,7 @@ import com.lmfinanz.shared.domain.exception.DomainException;
 import com.lmfinanz.shared.domain.exception.AuthenticationFailedException;
 import com.lmfinanz.shared.domain.exception.ConflictException;
 import com.lmfinanz.shared.domain.exception.NotFoundException;
+import com.lmfinanz.shared.domain.exception.TooManyRequestsException;
 import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.List;
@@ -29,6 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex) {
         return error(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    ResponseEntity<ApiErrorResponse> handleTooManyRequests(TooManyRequestsException ex) {
+        return error(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), List.of());
     }
 
     @ExceptionHandler(DomainException.class)
