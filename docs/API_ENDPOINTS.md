@@ -903,6 +903,33 @@ Domain rules:
 - Only active savings goals can receive contributions.
 - When `currentAmount >= targetAmount`, status becomes `COMPLETED`.
 
+### Cancel Savings Goal
+
+```http
+POST /api/savings-goals/{goalId}/cancel
+Authorization: Bearer <accessToken>
+```
+
+Response `200`:
+
+```json
+{
+  "id": "c641db8a-ccaa-4e6c-9777-3926dc30f912",
+  "name": "Emergency fund",
+  "currencyCode": "EUR",
+  "targetAmount": 1000.0000,
+  "currentAmount": 400.0000,
+  "deadline": "2026-12-31",
+  "status": "CANCELLED"
+}
+```
+
+Notes:
+
+- Only active savings goals can be cancelled.
+- Completed savings goals remain completed and cannot be cancelled.
+- Cancelled savings goals cannot receive new contributions.
+
 ### List Savings Goals
 
 ```http

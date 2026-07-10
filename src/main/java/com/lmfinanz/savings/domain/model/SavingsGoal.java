@@ -85,4 +85,11 @@ public class SavingsGoal extends BaseEntity {
             status = SavingsGoalStatus.COMPLETED;
         }
     }
+
+    public void cancel() {
+        if (status != SavingsGoalStatus.ACTIVE) {
+            throw new DomainException("Only active savings goals can be cancelled");
+        }
+        status = SavingsGoalStatus.CANCELLED;
+    }
 }

@@ -58,6 +58,14 @@ public class SavingsGoalService implements SavingsGoalUseCase {
     }
 
     @Override
+    public SavingsGoalResponse cancel(UUID userId, UUID goalId) {
+        SavingsGoal goal = savingsGoalRepository.findByIdAndUserId(goalId, userId)
+                .orElseThrow(() -> new NotFoundException("Savings goal not found"));
+        goal.cancel();
+        return toResponse(savingsGoalRepository.save(goal));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public SavingsGoalResponse get(UUID userId, UUID goalId) {
         return savingsGoalRepository.findByIdAndUserId(goalId, userId)

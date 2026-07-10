@@ -114,6 +114,46 @@ class SavingsGoalServiceTest {
                 .hasMessage("Only active savings goals can receive contributions");
     }
 
+    @Test
+    void cancelsActiveGoal() {
+        SavingsGoalService service = new SavingsGoalService(savingsGoalRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID goalId = UUID.randomUUID();
+        SavingsGoal goal = new SavingsGoal(
+                userId,
+                "Emergency fund",
+                "EUR",
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusMonths(6)
+        );
+        when(savingsGoalRepository.findByIdAndUserId(goalId, userId)).thenReturn(Optional.of(goal));
+        when(savingsGoalRepository.save(goal)).thenReturn(goal);
+
+        var response = service.cancel(userId, goalId);
+
+        assertThat(response.status()).isEqualTo(SavingsGoalStatus.CANCELLED);
+    }
+
+    @Test
+    void rejectsCancelCompletedGoal() {
+        SavingsGoalService service = new SavingsGoalService(savingsGoalRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID goalId = UUID.randomUUID();
+        SavingsGoal goal = new SavingsGoal(
+                userId,
+                "Emergency fund",
+                "EUR",
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusMonths(6)
+        );
+        goal.contribute(new BigDecimal("1000.00"));
+        when(savingsGoalRepository.findByIdAndUserId(goalId, userId)).thenReturn(Optional.of(goal));
+
+        assertThatThrownBy(() -> service.cancel(userId, goalId))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Only active savings goals can be cancelled");
+    }
+
     private SavingsGoalRequest goalRequest() {
         return new SavingsGoalRequest(
                 "Emergency fund",

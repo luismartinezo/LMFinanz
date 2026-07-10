@@ -48,6 +48,14 @@ public class SavingsGoalController {
         return savingsGoalUseCase.contribute(principal.userId(), goalId, request);
     }
 
+    @PostMapping("/{goalId}/cancel")
+    public SavingsGoalResponse cancel(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID goalId
+    ) {
+        return savingsGoalUseCase.cancel(principal.userId(), goalId);
+    }
+
     @GetMapping("/{goalId}")
     public SavingsGoalResponse get(
             @AuthenticationPrincipal JwtPrincipal principal,

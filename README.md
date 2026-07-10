@@ -89,6 +89,7 @@ Implemented endpoints:
 | `POST` | `/api/debts/{debtId}/installments/{installmentId}/pay` | Mark a debt installment as paid |
 | `POST` | `/api/savings-goals` | Create a savings goal |
 | `POST` | `/api/savings-goals/{goalId}/contributions` | Add a contribution to a savings goal |
+| `POST` | `/api/savings-goals/{goalId}/cancel` | Cancel an active savings goal |
 | `GET` | `/api/savings-goals` | List authenticated user's savings goals |
 | `GET` | `/api/savings-goals/{goalId}` | Get one authenticated user's savings goal |
 | `POST` | `/api/assets` | Create an asset |
