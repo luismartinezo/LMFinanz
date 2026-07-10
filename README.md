@@ -77,6 +77,7 @@ Implemented endpoints:
 | `PATCH` | `/api/categories/{categoryId}/activate` | Reactivate a category |
 | `POST` | `/api/transactions` | Create a draft transaction |
 | `POST` | `/api/transactions/{transactionId}/post` | Post a transaction and update balances |
+| `POST` | `/api/transactions/{transactionId}/cancel` | Cancel a draft or reverse a posted transaction |
 | `GET` | `/api/transactions?from=YYYY-MM-DD&to=YYYY-MM-DD` | List authenticated user's transactions |
 | `GET` | `/api/reports/summary?period=MONTHLY&from=YYYY-MM-DD&to=YYYY-MM-DD` | Summarize posted transactions |
 | `GET` | `/api/reports/by-currency/{currencyCode}` | Summarize posted transactions by currency |

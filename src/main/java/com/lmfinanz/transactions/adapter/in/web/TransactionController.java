@@ -49,6 +49,14 @@ public class TransactionController {
         return transactionUseCase.post(principal.userId(), transactionId);
     }
 
+    @PostMapping("/{transactionId}/cancel")
+    public TransactionResponse cancel(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID transactionId
+    ) {
+        return transactionUseCase.cancel(principal.userId(), transactionId);
+    }
+
     @GetMapping
     public List<TransactionResponse> list(
             @AuthenticationPrincipal JwtPrincipal principal,

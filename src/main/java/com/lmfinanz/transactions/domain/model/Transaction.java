@@ -110,4 +110,8 @@ public class Transaction extends BaseEntity {
     public void post() {
         status = TransactionStatus.POSTED;
     }
+
+    public void cancel() {
+        status = TransactionStatus.CANCELLED;
+    }
 }

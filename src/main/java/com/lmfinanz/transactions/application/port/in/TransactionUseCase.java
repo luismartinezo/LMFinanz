@@ -12,5 +12,7 @@ public interface TransactionUseCase {
 
     TransactionResponse post(UUID userId, UUID transactionId);
 
+    TransactionResponse cancel(UUID userId, UUID transactionId);
+
     List<TransactionResponse> list(UUID userId, LocalDate from, LocalDate to);
 }

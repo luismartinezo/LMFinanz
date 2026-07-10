@@ -430,7 +430,7 @@ Response `200`: same shape as create category response with `active: true`.
 
 ## Transactions
 
-Transactions are created as `DRAFT`. Posting a transaction changes its status to `POSTED` and updates account balances.
+Transactions are created as `DRAFT`. Posting a transaction changes its status to `POSTED` and updates account balances. Cancelling a posted transaction reverses the account balance movement and changes its status to `CANCELLED`.
 
 ### Create Income Transaction
 
@@ -553,6 +553,39 @@ Response `200`:
   "status": "POSTED"
 }
 ```
+
+### Cancel Transaction
+
+```http
+POST /api/transactions/{transactionId}/cancel
+Authorization: Bearer <accessToken>
+```
+
+Response `200`:
+
+```json
+{
+  "id": "aa590e04-7a5a-49e1-b57b-1683211af948",
+  "type": "EXPENSE",
+  "sourceAccountId": "7cc650f0-cce9-4756-adcc-65b757dc8fa0",
+  "targetAccountId": null,
+  "categoryId": "d46e4b77-0c54-4e5b-9b75-348d05e8886f",
+  "currencyCode": "EUR",
+  "countryCode": "DE",
+  "amount": 25.5000,
+  "transactionDate": "2026-07-07",
+  "description": "Lunch",
+  "status": "CANCELLED"
+}
+```
+
+Notes:
+
+- Cancelling a `DRAFT` transaction only changes its status.
+- Cancelling a `POSTED` income debits the target account.
+- Cancelling a `POSTED` expense credits the source account.
+- Cancelling a `POSTED` transfer debits the target account and credits the source account.
+- A `CANCELLED` transaction cannot be cancelled again.
 
 ### List Transactions
 

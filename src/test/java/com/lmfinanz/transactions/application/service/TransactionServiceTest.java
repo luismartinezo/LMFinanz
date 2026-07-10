@@ -112,6 +112,54 @@ class TransactionServiceTest {
         verify(accountRepository).save(account);
     }
 
+    @Test
+    void cancelsDraftTransactionWithoutChangingBalances() {
+        TransactionService service = service();
+        UUID userId = UUID.randomUUID();
+        UUID transactionId = UUID.randomUUID();
+        Transaction transaction = expenseTransaction(userId, UUID.randomUUID(), UUID.randomUUID(), "10.00");
+        when(transactionRepository.findByIdAndUserId(transactionId, userId)).thenReturn(Optional.of(transaction));
+        when(transactionRepository.save(transaction)).thenReturn(transaction);
+
+        var response = service.cancel(userId, transactionId);
+
+        assertThat(response.status()).isEqualTo(TransactionStatus.CANCELLED);
+    }
+
+    @Test
+    void cancelsPostedExpenseAndCreditsSourceAccount() {
+        TransactionService service = service();
+        UUID userId = UUID.randomUUID();
+        UUID transactionId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        Account account = account("EUR", "DE", "90.00");
+        Transaction transaction = expenseTransaction(userId, accountId, UUID.randomUUID(), "10.00");
+        transaction.post();
+        when(transactionRepository.findByIdAndUserId(transactionId, userId)).thenReturn(Optional.of(transaction));
+        when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+        when(transactionRepository.save(transaction)).thenReturn(transaction);
+
+        var response = service.cancel(userId, transactionId);
+
+        assertThat(account.getCurrentBalance()).isEqualByComparingTo("100.00");
+        assertThat(response.status()).isEqualTo(TransactionStatus.CANCELLED);
+        verify(accountRepository).save(account);
+    }
+
+    @Test
+    void rejectsAlreadyCancelledTransaction() {
+        TransactionService service = service();
+        UUID userId = UUID.randomUUID();
+        UUID transactionId = UUID.randomUUID();
+        Transaction transaction = expenseTransaction(userId, UUID.randomUUID(), UUID.randomUUID(), "10.00");
+        transaction.cancel();
+        when(transactionRepository.findByIdAndUserId(transactionId, userId)).thenReturn(Optional.of(transaction));
+
+        assertThatThrownBy(() -> service.cancel(userId, transactionId))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Transaction is already cancelled");
+    }
+
     private TransactionService service() {
         return new TransactionService(
                 transactionRepository,
@@ -157,6 +205,21 @@ class TransactionServiceTest {
                 new BigDecimal("10.00"),
                 LocalDate.now(),
                 "Move money"
+        );
+    }
+
+    private Transaction expenseTransaction(UUID userId, UUID accountId, UUID categoryId, String amount) {
+        return new Transaction(
+                userId,
+                TransactionType.EXPENSE,
+                accountId,
+                null,
+                categoryId,
+                "EUR",
+                "DE",
+                new BigDecimal(amount),
+                LocalDate.now(),
+                "Lunch"
         );
     }
 

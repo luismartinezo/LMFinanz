@@ -82,6 +82,27 @@ public class TransactionService implements TransactionUseCase {
     }
 
     @Override
+    public TransactionResponse cancel(UUID userId, UUID transactionId) {
+        Transaction transaction = transactionRepository.findByIdAndUserId(transactionId, userId)
+                .orElseThrow(() -> new NotFoundException("Transaction not found"));
+
+        if (transaction.getStatus() == TransactionStatus.CANCELLED) {
+            throw new DomainException("Transaction is already cancelled");
+        }
+
+        if (transaction.getStatus() == TransactionStatus.POSTED) {
+            switch (transaction.getType()) {
+                case INCOME -> reverseIncome(userId, transaction);
+                case EXPENSE -> reverseExpense(userId, transaction);
+                case TRANSFER -> reverseTransfer(userId, transaction);
+            }
+        }
+
+        transaction.cancel();
+        return toResponse(transactionRepository.save(transaction));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<TransactionResponse> list(UUID userId, LocalDate from, LocalDate to) {
         LocalDate effectiveFrom = from == null ? LocalDate.of(1970, 1, 1) : from;
@@ -196,6 +217,31 @@ public class TransactionService implements TransactionUseCase {
         target.credit(transaction.getAmount());
         accountRepository.save(source);
         accountRepository.save(target);
+    }
+
+    private void reverseIncome(UUID userId, Transaction transaction) {
+        Account target = accountRepository.findByIdAndUserId(transaction.getTargetAccountId(), userId)
+                .orElseThrow(() -> new DomainException("Account not found"));
+        target.debit(transaction.getAmount());
+        accountRepository.save(target);
+    }
+
+    private void reverseExpense(UUID userId, Transaction transaction) {
+        Account source = accountRepository.findByIdAndUserId(transaction.getSourceAccountId(), userId)
+                .orElseThrow(() -> new DomainException("Account not found"));
+        source.credit(transaction.getAmount());
+        accountRepository.save(source);
+    }
+
+    private void reverseTransfer(UUID userId, Transaction transaction) {
+        Account source = accountRepository.findByIdAndUserId(transaction.getSourceAccountId(), userId)
+                .orElseThrow(() -> new DomainException("Account not found"));
+        Account target = accountRepository.findByIdAndUserId(transaction.getTargetAccountId(), userId)
+                .orElseThrow(() -> new DomainException("Account not found"));
+        target.debit(transaction.getAmount());
+        source.credit(transaction.getAmount());
+        accountRepository.save(target);
+        accountRepository.save(source);
     }
 
     private String normalizeDescription(String description) {
