@@ -15,6 +15,7 @@ import com.lmfinanz.identity.domain.model.RoleName;
 import com.lmfinanz.identity.domain.model.User;
 import com.lmfinanz.shared.domain.exception.AuthenticationFailedException;
 import com.lmfinanz.shared.domain.exception.ConflictException;
+import com.lmfinanz.shared.domain.exception.DomainException;
 import com.lmfinanz.shared.security.JwtPrincipal;
 import com.lmfinanz.shared.security.JwtTokenPort;
 import java.util.Optional;
@@ -45,11 +46,11 @@ class AuthServiceTest {
         AuthService service = service();
         when(userRepository.existsByEmail("user@example.com")).thenReturn(false);
         when(roleRepository.findByName(RoleName.ROLE_USER)).thenReturn(Optional.of(new Role(RoleName.ROLE_USER)));
-        when(passwordEncoder.encode("password123")).thenReturn("hash");
+        when(passwordEncoder.encode("StrongPass123!")).thenReturn("hash");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(jwtTokenPort.issueToken(any(JwtPrincipal.class))).thenReturn("token");
 
-        var response = service.register(new RegisterUserRequest(" User@Example.com ", "password123", "Luis"));
+        var response = service.register(new RegisterUserRequest(" User@Example.com ", "StrongPass123!", "Luis"));
 
         assertThat(response.email()).isEqualTo("user@example.com");
         assertThat(response.roles()).containsExactly(RoleName.ROLE_USER.name());
@@ -65,8 +66,19 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("user@example.com")).thenReturn(true);
 
         assertThatThrownBy(() -> service.register(
-                new RegisterUserRequest("user@example.com", "password123", "Luis")
+                new RegisterUserRequest("user@example.com", "StrongPass123!", "Luis")
         )).isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void rejectsWeakPassword() {
+        AuthService service = service();
+
+        assertThatThrownBy(() -> service.register(
+                new RegisterUserRequest("user@example.com", "password123", "Luis")
+        ))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Password must include uppercase, lowercase, number, and special character");
     }
 
     @Test

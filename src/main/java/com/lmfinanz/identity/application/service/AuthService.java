@@ -44,6 +44,7 @@ public class AuthService implements AuthUseCase {
     @Override
     public AuthResponse register(RegisterUserRequest request) {
         String email = normalizeEmail(request.email());
+        validatePasswordPolicy(request.password());
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("An account already exists for this email");
         }
@@ -77,6 +78,17 @@ public class AuthService implements AuthUseCase {
 
     private AuthenticationFailedException invalidCredentials() {
         return new AuthenticationFailedException("Invalid email or password");
+    }
+
+    private void validatePasswordPolicy(String password) {
+        if (password.length() < 10
+                || password.length() > 120
+                || password.chars().noneMatch(Character::isUpperCase)
+                || password.chars().noneMatch(Character::isLowerCase)
+                || password.chars().noneMatch(Character::isDigit)
+                || password.chars().allMatch(Character::isLetterOrDigit)) {
+            throw new DomainException("Password must include uppercase, lowercase, number, and special character");
+        }
     }
 
     private String normalizeEmail(String email) {

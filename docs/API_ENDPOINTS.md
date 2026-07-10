@@ -120,7 +120,7 @@ Response `200`:
 Validation:
 
 - `email`: required, valid email
-- `password`: required, 10 to 120 characters
+- `password`: required, 10 to 120 characters, must include uppercase, lowercase, number, and special character
 - `fullName`: required, max 140 characters
 
 ### Login
