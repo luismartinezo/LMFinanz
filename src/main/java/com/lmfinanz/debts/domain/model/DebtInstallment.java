@@ -1,6 +1,7 @@
 package com.lmfinanz.debts.domain.model;
 
 import com.lmfinanz.shared.domain.model.BaseEntity;
+import com.lmfinanz.shared.domain.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -87,5 +88,14 @@ public class DebtInstallment extends BaseEntity {
 
     public InstallmentStatus getStatus() {
         return status;
+    }
+
+    public void markPaid(LocalDate paidDate, UUID paymentTransactionId) {
+        if (status == InstallmentStatus.PAID) {
+            throw new DomainException("Installment is already paid");
+        }
+        this.paidDate = paidDate;
+        this.paymentTransactionId = paymentTransactionId;
+        this.status = InstallmentStatus.PAID;
     }
 }

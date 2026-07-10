@@ -17,4 +17,6 @@ public interface DebtRepositoryPort {
     List<Debt> findAllByUserId(UUID userId);
 
     List<DebtInstallment> findInstallmentsByDebtId(UUID debtId);
+
+    Optional<DebtInstallment> findInstallmentByIdAndDebtId(UUID installmentId, UUID debtId);
 }

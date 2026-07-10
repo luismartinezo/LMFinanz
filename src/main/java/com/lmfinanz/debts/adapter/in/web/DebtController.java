@@ -1,6 +1,7 @@
 package com.lmfinanz.debts.adapter.in.web;
 
 import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentResponse;
+import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentPaymentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtResponse;
 import com.lmfinanz.debts.application.port.in.DebtUseCase;
@@ -58,5 +59,15 @@ public class DebtController {
             @PathVariable UUID debtId
     ) {
         return debtUseCase.listInstallments(principal.userId(), debtId);
+    }
+
+    @PostMapping("/{debtId}/installments/{installmentId}/pay")
+    public DebtInstallmentResponse payInstallment(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID debtId,
+            @PathVariable UUID installmentId,
+            @Valid @RequestBody DebtInstallmentPaymentRequest request
+    ) {
+        return debtUseCase.payInstallment(principal.userId(), debtId, installmentId, request);
     }
 }

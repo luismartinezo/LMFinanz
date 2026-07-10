@@ -787,6 +787,47 @@ Response `200`:
 ]
 ```
 
+### Pay Debt Installment
+
+```http
+POST /api/debts/{debtId}/installments/{installmentId}/pay
+Authorization: Bearer <accessToken>
+```
+
+Request:
+
+```json
+{
+  "paidDate": "2026-07-10",
+  "paymentTransactionId": "aa590e04-7a5a-49e1-b57b-1683211af948"
+}
+```
+
+Response `200`:
+
+```json
+{
+  "id": "f3e6d2ee-1468-4532-9aaa-633f54fb2bc5",
+  "debtId": "1d50da64-504a-4707-a168-86c62c31e0fa",
+  "installmentNumber": 1,
+  "amount": 560.0000,
+  "principalAmount": 500.0000,
+  "interestAmount": 60.0000,
+  "dueDate": "2026-07-01",
+  "paidDate": "2026-07-10",
+  "paymentTransactionId": "aa590e04-7a5a-49e1-b57b-1683211af948",
+  "status": "PAID"
+}
+```
+
+Notes:
+
+- `paidDate` is optional; if omitted, the backend uses the current date.
+- `paymentTransactionId` is optional and can link the installment to a payment transaction.
+- Paying an installment reduces the debt `remainingBalance` by the installment principal amount.
+- When the remaining balance reaches zero, the debt status becomes `PAID`.
+- Paid installments cannot be paid again.
+
 ## Savings Goals
 
 ### Create Savings Goal

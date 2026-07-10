@@ -1,6 +1,7 @@
 package com.lmfinanz.debts.domain.model;
 
 import com.lmfinanz.shared.domain.model.BaseEntity;
+import com.lmfinanz.shared.domain.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -99,5 +100,19 @@ public class Debt extends BaseEntity {
 
     public DebtStatus getStatus() {
         return status;
+    }
+
+    public void applyPrincipalPayment(BigDecimal principalPayment) {
+        if (status != DebtStatus.ACTIVE) {
+            throw new DomainException("Only active debts can receive payments");
+        }
+        BigDecimal updatedBalance = remainingBalance.subtract(principalPayment);
+        if (updatedBalance.signum() < 0) {
+            throw new DomainException("Debt payment exceeds remaining balance");
+        }
+        remainingBalance = updatedBalance;
+        if (remainingBalance.signum() == 0) {
+            status = DebtStatus.PAID;
+        }
     }
 }

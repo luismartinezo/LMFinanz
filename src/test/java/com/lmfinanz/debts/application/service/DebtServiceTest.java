@@ -7,10 +7,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentPaymentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtRequest;
 import com.lmfinanz.debts.application.port.out.DebtRepositoryPort;
 import com.lmfinanz.debts.domain.model.Debt;
 import com.lmfinanz.debts.domain.model.DebtInstallment;
+import com.lmfinanz.debts.domain.model.DebtStatus;
+import com.lmfinanz.debts.domain.model.InstallmentStatus;
 import com.lmfinanz.reference.application.port.out.ReferenceDataRepositoryPort;
 import com.lmfinanz.reference.domain.model.Currency;
 import com.lmfinanz.shared.domain.exception.DomainException;
@@ -98,6 +101,78 @@ class DebtServiceTest {
                 .hasMessage("Installments cannot exceed the number of months in the debt period");
     }
 
+    @Test
+    void paysInstallmentAndReducesRemainingBalance() {
+        DebtService service = new DebtService(debtRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID debtId = UUID.randomUUID();
+        UUID installmentId = UUID.randomUUID();
+        UUID paymentTransactionId = UUID.randomUUID();
+        Debt debt = debt(userId, "1000.00", 2);
+        DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
+        when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
+        when(debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId()))
+                .thenReturn(Optional.of(installment));
+        when(debtRepository.save(debt)).thenReturn(debt);
+        when(debtRepository.saveInstallment(installment)).thenReturn(installment);
+
+        var response = service.payInstallment(
+                userId,
+                debtId,
+                installmentId,
+                new DebtInstallmentPaymentRequest(LocalDate.of(2026, 7, 10), paymentTransactionId)
+        );
+
+        assertThat(debt.getRemainingBalance()).isEqualByComparingTo("500.00");
+        assertThat(debt.getStatus()).isEqualTo(DebtStatus.ACTIVE);
+        assertThat(response.status()).isEqualTo(InstallmentStatus.PAID);
+        assertThat(response.paidDate()).isEqualTo(LocalDate.of(2026, 7, 10));
+        assertThat(response.paymentTransactionId()).isEqualTo(paymentTransactionId);
+    }
+
+    @Test
+    void marksDebtPaidWhenLastPrincipalIsPaid() {
+        DebtService service = new DebtService(debtRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID debtId = UUID.randomUUID();
+        UUID installmentId = UUID.randomUUID();
+        Debt debt = debt(userId, "500.00", 1);
+        DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
+        when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
+        when(debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId()))
+                .thenReturn(Optional.of(installment));
+        when(debtRepository.save(debt)).thenReturn(debt);
+        when(debtRepository.saveInstallment(installment)).thenReturn(installment);
+
+        service.payInstallment(userId, debtId, installmentId, new DebtInstallmentPaymentRequest(null, null));
+
+        assertThat(debt.getRemainingBalance()).isEqualByComparingTo("0.00");
+        assertThat(debt.getStatus()).isEqualTo(DebtStatus.PAID);
+    }
+
+    @Test
+    void rejectsAlreadyPaidInstallment() {
+        DebtService service = new DebtService(debtRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID debtId = UUID.randomUUID();
+        UUID installmentId = UUID.randomUUID();
+        Debt debt = debt(userId, "1000.00", 2);
+        DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
+        installment.markPaid(LocalDate.of(2026, 7, 10), null);
+        when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
+        when(debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId()))
+                .thenReturn(Optional.of(installment));
+
+        assertThatThrownBy(() -> service.payInstallment(
+                userId,
+                debtId,
+                installmentId,
+                new DebtInstallmentPaymentRequest(LocalDate.of(2026, 7, 10), null)
+        ))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Installment is already paid");
+    }
+
     private DebtRequest request(
             String name,
             String principalAmount,
@@ -126,6 +201,36 @@ class DebtServiceTest {
                 installments,
                 startDate,
                 finalDueDate
+        );
+    }
+
+    private Debt debt(UUID userId, String principalAmount, int installments) {
+        return new Debt(
+                userId,
+                "Loan",
+                "EUR",
+                new BigDecimal(principalAmount),
+                new BigDecimal("12.00"),
+                installments,
+                LocalDate.of(2026, 7, 1),
+                LocalDate.of(2026, 8, 1)
+        );
+    }
+
+    private DebtInstallment installment(
+            UUID debtId,
+            int installmentNumber,
+            String amount,
+            String principalAmount,
+            String interestAmount
+    ) {
+        return new DebtInstallment(
+                debtId,
+                installmentNumber,
+                new BigDecimal(amount),
+                new BigDecimal(principalAmount),
+                new BigDecimal(interestAmount),
+                LocalDate.of(2026, 7, 1)
         );
     }
 }

@@ -46,4 +46,9 @@ public class DebtPersistenceAdapter implements DebtRepositoryPort {
     public List<DebtInstallment> findInstallmentsByDebtId(UUID debtId) {
         return installmentRepository.findAllByDebtIdOrderByInstallmentNumberAsc(debtId);
     }
+
+    @Override
+    public Optional<DebtInstallment> findInstallmentByIdAndDebtId(UUID installmentId, UUID debtId) {
+        return installmentRepository.findByIdAndDebtId(installmentId, debtId);
+    }
 }

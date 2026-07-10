@@ -1,6 +1,7 @@
 package com.lmfinanz.debts.application.service;
 
 import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentResponse;
+import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentPaymentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtResponse;
 import com.lmfinanz.debts.application.port.in.DebtUseCase;
@@ -78,6 +79,26 @@ public class DebtService implements DebtUseCase {
         return debtRepository.findInstallmentsByDebtId(debt.getId()).stream()
                 .map(this::toInstallmentResponse)
                 .toList();
+    }
+
+    @Override
+    public DebtInstallmentResponse payInstallment(
+            UUID userId,
+            UUID debtId,
+            UUID installmentId,
+            DebtInstallmentPaymentRequest request
+    ) {
+        Debt debt = debtRepository.findByIdAndUserId(debtId, userId)
+                .orElseThrow(() -> new NotFoundException("Debt not found"));
+        DebtInstallment installment = debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId())
+                .orElseThrow(() -> new NotFoundException("Debt installment not found"));
+
+        LocalDate paidDate = request.paidDate() == null ? LocalDate.now() : request.paidDate();
+        installment.markPaid(paidDate, request.paymentTransactionId());
+        debt.applyPrincipalPayment(installment.getPrincipalAmount());
+
+        debtRepository.save(debt);
+        return toInstallmentResponse(debtRepository.saveInstallment(installment));
     }
 
     private void validateRequest(DebtRequest request) {
