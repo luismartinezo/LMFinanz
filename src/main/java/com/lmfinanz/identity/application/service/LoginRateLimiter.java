@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ public class LoginRateLimiter {
     private final Duration window;
     private final Clock clock;
 
+    @Autowired
     public LoginRateLimiter(
             @Value("${security.login-rate-limit.max-attempts}") int maxAttempts,
             @Value("${security.login-rate-limit.window-minutes}") long windowMinutes
