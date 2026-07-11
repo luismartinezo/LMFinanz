@@ -16,27 +16,7 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
 
       <section class="auth-panel">
         <div class="auth-visual" aria-hidden="true">
-          <div class="visual-card visual-card-small"></div>
-          <div class="visual-card visual-card-wide"></div>
-          <div class="visual-desk">
-            <div class="visual-screen">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <div class="visual-person">
-              <span class="person-head"></span>
-              <span class="person-body"></span>
-              <span class="person-arm"></span>
-              <span class="person-leg person-leg-left"></span>
-              <span class="person-leg person-leg-right"></span>
-            </div>
-          </div>
-          <div class="visual-chart">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+          <img src="/images/auth-finance-illustration.png" alt="" />
         </div>
 
         <div class="auth-form-panel">

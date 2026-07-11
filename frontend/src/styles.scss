@@ -66,218 +66,19 @@ button:disabled {
 }
 
 .auth-visual {
-  position: relative;
-  min-height: 390px;
+  display: grid;
+  place-items: center;
+  min-height: 420px;
   border-radius: 8px;
   background: #eef5f6;
   overflow: hidden;
 }
 
-.auth-visual::before {
-  content: "";
-  position: absolute;
-  inset: 42px 68px auto;
-  height: 118px;
-  border-top: 8px solid #d7e1e5;
-  border-bottom: 8px solid #d7e1e5;
-  opacity: 0.78;
-}
-
-.visual-card {
-  position: absolute;
-  background: white;
-  border: 1px solid #d7e1e5;
-  border-radius: 6px;
-}
-
-.visual-card-small {
-  top: 68px;
-  left: 96px;
-  width: 72px;
-  height: 44px;
-}
-
-.visual-card-wide {
-  top: 122px;
-  right: 82px;
-  width: 110px;
-  height: 52px;
-}
-
-.visual-desk {
-  position: absolute;
-  left: 76px;
-  bottom: 42px;
-  width: 282px;
-  height: 220px;
-}
-
-.visual-screen {
-  position: absolute;
-  top: 0;
-  right: 16px;
-  width: 166px;
-  height: 108px;
-  border: 8px solid #263845;
-  border-radius: 6px;
-  background: white;
-  padding: 20px 22px;
-}
-
-.visual-screen span {
+.auth-visual img {
   display: block;
-  height: 5px;
-  border-radius: 999px;
-  background: #0f766e;
-  margin-bottom: 10px;
-}
-
-.visual-screen span:nth-child(2) {
-  width: 72%;
-  background: #10212b;
-}
-
-.visual-screen span:nth-child(3) {
-  width: 46%;
-  background: #9fb2bd;
-}
-
-.visual-person {
-  position: absolute;
-  left: 2px;
-  bottom: 8px;
-  width: 152px;
-  height: 190px;
-}
-
-.visual-person::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  bottom: 34px;
-  width: 118px;
-  height: 74px;
-  border-radius: 34px 34px 10px 10px;
-  background: #9fcac4;
-}
-
-.visual-person::after {
-  content: "";
-  position: absolute;
-  left: 18px;
-  bottom: 0;
-  width: 4px;
-  height: 58px;
-  background: #263845;
-  box-shadow: 94px 0 0 #263845;
-}
-
-.person-head,
-.person-body,
-.person-arm,
-.person-leg {
-  position: absolute;
-  display: block;
-}
-
-.person-head {
-  top: 26px;
-  left: 54px;
-  width: 42px;
-  height: 48px;
-  border-radius: 45% 45% 48% 48%;
-  background: #263845;
-}
-
-.person-head::before {
-  content: "";
-  position: absolute;
-  top: 20px;
-  right: -13px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #f0b6a7;
-}
-
-.person-head::after {
-  content: "";
-  position: absolute;
-  top: -7px;
-  left: -14px;
-  width: 40px;
-  height: 28px;
-  border-radius: 999px;
-  background: #263845;
-}
-
-.person-body {
-  top: 78px;
-  left: 40px;
-  width: 58px;
-  height: 86px;
-  border-radius: 20px 24px 12px 12px;
-  background: #0f766e;
-  transform: skewX(-4deg);
-}
-
-.person-arm {
-  top: 92px;
-  left: 88px;
-  width: 64px;
-  height: 14px;
-  border-radius: 999px;
-  background: #0f766e;
-  transform: rotate(8deg);
-}
-
-.person-leg {
-  bottom: 18px;
-  width: 20px;
-  height: 78px;
-  border-radius: 999px;
-  background: #263845;
-  transform-origin: top;
-}
-
-.person-leg-left {
-  left: 62px;
-  transform: rotate(-10deg);
-}
-
-.person-leg-right {
-  left: 90px;
-  transform: rotate(22deg);
-}
-
-.visual-chart {
-  position: absolute;
-  right: 84px;
-  bottom: 62px;
-  display: flex;
-  align-items: end;
-  gap: 10px;
-  height: 124px;
-}
-
-.visual-chart span {
-  width: 24px;
-  border-radius: 999px 999px 4px 4px;
-  background: #0f766e;
-}
-
-.visual-chart span:nth-child(1) {
-  height: 64px;
-  background: #9fcac4;
-}
-
-.visual-chart span:nth-child(2) {
-  height: 102px;
-}
-
-.visual-chart span:nth-child(3) {
-  height: 78px;
-  background: #10212b;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .auth-form-panel {
@@ -285,21 +86,23 @@ button:disabled {
 }
 
 .auth-heading {
+  text-align: center;
   margin-bottom: 24px;
 }
 
 .auth-heading .eyebrow {
-  color: #10212b;
-  font-size: 24px;
+  color: #0f766e;
+  font-size: 34px;
   font-weight: 900;
   letter-spacing: 0;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
   text-transform: none;
 }
 
 .auth-heading h1 {
   margin-bottom: 0;
-  font-size: 32px;
+  color: #10212b;
+  font-size: 34px;
 }
 
 .auth-heading p:not(.eyebrow) {
