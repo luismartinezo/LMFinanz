@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { LanguageSelectorComponent } from '../../core/i18n/language-selector.component';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [LanguageSelectorComponent, RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <div class="shell">
       <aside class="sidebar">
@@ -14,13 +16,13 @@ import { AuthService } from '../../core/auth/auth.service';
         </div>
 
         <nav aria-label="Main navigation">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-          <a routerLink="/accounts" routerLinkActive="active">Accounts</a>
-          <a routerLink="/transactions" routerLinkActive="active">Transactions</a>
-          <a routerLink="/debts" routerLinkActive="active">Debts</a>
-          <a routerLink="/savings" routerLinkActive="active">Savings</a>
-          <a routerLink="/assets" routerLinkActive="active">Assets</a>
-          <a routerLink="/reports" routerLinkActive="active">Reports</a>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ i18n.t('app.dashboard') }}</a>
+          <a routerLink="/accounts" routerLinkActive="active">{{ i18n.t('app.accounts') }}</a>
+          <a routerLink="/transactions" routerLinkActive="active">{{ i18n.t('app.transactions') }}</a>
+          <a routerLink="/debts" routerLinkActive="active">{{ i18n.t('app.debts') }}</a>
+          <a routerLink="/savings" routerLinkActive="active">{{ i18n.t('app.savings') }}</a>
+          <a routerLink="/assets" routerLinkActive="active">{{ i18n.t('app.assets') }}</a>
+          <a routerLink="/reports" routerLinkActive="active">{{ i18n.t('app.reports') }}</a>
         </nav>
       </aside>
 
@@ -30,7 +32,10 @@ import { AuthService } from '../../core/auth/auth.service';
             <strong>{{ auth.user()?.fullName }}</strong>
             <span>{{ auth.user()?.email }}</span>
           </div>
-          <button type="button" (click)="logout()">Logout</button>
+          <div class="topbar-actions">
+            <app-language-selector />
+            <button type="button" (click)="logout()">{{ i18n.t('app.logout') }}</button>
+          </div>
         </header>
 
         <router-outlet />
@@ -41,6 +46,7 @@ import { AuthService } from '../../core/auth/auth.service';
 export class AppShellComponent {
   constructor(
     readonly auth: AuthService,
+    readonly i18n: I18nService,
     private readonly router: Router
   ) {}
 

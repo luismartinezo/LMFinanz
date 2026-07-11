@@ -2,29 +2,32 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { LanguageSelectorComponent } from '../../core/i18n/language-selector.component';
 
 @Component({
   selector: 'app-register-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [LanguageSelectorComponent, ReactiveFormsModule, RouterLink],
   template: `
     <main class="auth-page">
       <section class="auth-panel">
+        <app-language-selector />
         <p class="eyebrow">LMFinanz</p>
-        <h1>Crear cuenta</h1>
+        <h1>{{ i18n.t('auth.register') }}</h1>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
           <label>
-            Nombre completo
+            {{ i18n.t('auth.fullName') }}
             <input type="text" formControlName="fullName" autocomplete="name" />
           </label>
 
           <label>
-            Email
+            {{ i18n.t('auth.email') }}
             <input type="email" formControlName="email" autocomplete="email" />
           </label>
 
           <label>
-            Password
+            {{ i18n.t('auth.password') }}
             <input type="password" formControlName="password" autocomplete="new-password" />
           </label>
 
@@ -33,11 +36,11 @@ import { AuthService } from '../../core/auth/auth.service';
           }
 
           <button type="submit" [disabled]="form.invalid || loading()">
-            {{ loading() ? 'Creando...' : 'Crear cuenta' }}
+            {{ loading() ? i18n.t('auth.creating') : i18n.t('auth.registerSubmit') }}
           </button>
         </form>
 
-        <p class="switch">Ya tienes cuenta? <a routerLink="/auth/login">Ingresar</a></p>
+        <p class="switch">{{ i18n.t('auth.hasAccount') }} <a routerLink="/auth/login">{{ i18n.t('auth.login') }}</a></p>
       </section>
     </main>
   `
@@ -46,6 +49,7 @@ export class RegisterPage {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  readonly i18n = inject(I18nService);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly form = this.fb.nonNullable.group({
@@ -72,7 +76,7 @@ export class RegisterPage {
       next: () => this.router.navigateByUrl('/'),
       error: () => {
         this.loading.set(false);
-        this.error.set('No pudimos crear la cuenta.');
+        this.error.set(this.i18n.t('auth.registerError'));
       }
     });
   }

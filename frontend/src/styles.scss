@@ -51,6 +51,11 @@ button:disabled {
   padding: 28px;
 }
 
+.auth-panel .language-select {
+  margin-left: auto;
+  margin-bottom: 20px;
+}
+
 .auth-panel h1,
 .dashboard h2,
 .module-page h2 {
@@ -169,6 +174,28 @@ nav a.active {
   display: block;
   color: #64727c;
   font-size: 13px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.language-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #43525c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.language-select select {
+  min-height: 36px;
+  width: auto;
+  min-width: 120px;
+  background: white;
 }
 
 .dashboard,
@@ -405,7 +432,8 @@ nav a.active {
   }
 
   .page-heading,
-  .panel-title {
+  .panel-title,
+  .topbar-actions {
     align-items: flex-start;
     flex-direction: column;
   }
