@@ -20,7 +20,7 @@ security:
   jwt:
     issuer: lmfinanz
     secret: ${JWT_SECRET:lmfinanz-development-secret-key-change-before-production}
-    expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:30}
     refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:30}
   login-rate-limit:
     max-attempts: ${LOGIN_RATE_LIMIT_MAX_ATTEMPTS:5}
