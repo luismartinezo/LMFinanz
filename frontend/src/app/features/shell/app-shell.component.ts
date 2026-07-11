@@ -1,24 +1,31 @@
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <div class="shell">
-      <aside>
-        <h1>LMFinanz</h1>
-        <nav>
-          <a class="active">Dashboard</a>
-          <a>Accounts</a>
-          <a>Transactions</a>
-          <a>Reports</a>
+      <aside class="sidebar">
+        <div class="brand">
+          <span>LM</span>
+          <strong>LMFinanz</strong>
+        </div>
+
+        <nav aria-label="Main navigation">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+          <a routerLink="/accounts" routerLinkActive="active">Accounts</a>
+          <a routerLink="/transactions" routerLinkActive="active">Transactions</a>
+          <a routerLink="/debts" routerLinkActive="active">Debts</a>
+          <a routerLink="/savings" routerLinkActive="active">Savings</a>
+          <a routerLink="/assets" routerLinkActive="active">Assets</a>
+          <a routerLink="/reports" routerLinkActive="active">Reports</a>
         </nav>
       </aside>
 
       <section class="workspace">
-        <header>
+        <header class="topbar">
           <div>
             <strong>{{ auth.user()?.fullName }}</strong>
             <span>{{ auth.user()?.email }}</span>

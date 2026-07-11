@@ -19,6 +19,30 @@ export const routes: Routes = [
         path: '',
         pathMatch: 'full',
         loadComponent: () => import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage)
+      },
+      {
+        path: 'accounts',
+        loadComponent: () => import('./features/accounts/accounts.page').then((m) => m.AccountsPage)
+      },
+      {
+        path: 'transactions',
+        loadComponent: () => import('./features/transactions/transactions.page').then((m) => m.TransactionsPage)
+      },
+      {
+        path: 'debts',
+        loadComponent: () => import('./features/debts/debts.page').then((m) => m.DebtsPage)
+      },
+      {
+        path: 'savings',
+        loadComponent: () => import('./features/savings/savings.page').then((m) => m.SavingsPage)
+      },
+      {
+        path: 'assets',
+        loadComponent: () => import('./features/assets/assets.page').then((m) => m.AssetsPage)
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./features/reports/reports.page').then((m) => m.ReportsPage)
       }
     ]
   },
