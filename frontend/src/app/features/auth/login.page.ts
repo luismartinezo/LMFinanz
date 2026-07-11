@@ -24,7 +24,13 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
               <span></span>
               <span></span>
             </div>
-            <div class="visual-person"></div>
+            <div class="visual-person">
+              <span class="person-head"></span>
+              <span class="person-body"></span>
+              <span class="person-arm"></span>
+              <span class="person-leg person-leg-left"></span>
+              <span class="person-leg person-leg-right"></span>
+            </div>
           </div>
           <div class="visual-chart">
             <span></span>

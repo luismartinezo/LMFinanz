@@ -106,18 +106,18 @@ button:disabled {
 
 .visual-desk {
   position: absolute;
-  left: 88px;
-  bottom: 54px;
-  width: 250px;
-  height: 196px;
+  left: 76px;
+  bottom: 42px;
+  width: 282px;
+  height: 220px;
 }
 
 .visual-screen {
   position: absolute;
   top: 0;
-  right: 0;
-  width: 156px;
-  height: 104px;
+  right: 16px;
+  width: 166px;
+  height: 108px;
   border: 8px solid #263845;
   border-radius: 6px;
   background: white;
@@ -144,35 +144,110 @@ button:disabled {
 
 .visual-person {
   position: absolute;
-  left: 18px;
-  bottom: 0;
-  width: 106px;
-  height: 132px;
-  border-radius: 42px 42px 12px 12px;
-  background: #0f766e;
+  left: 2px;
+  bottom: 8px;
+  width: 152px;
+  height: 190px;
 }
 
 .visual-person::before {
   content: "";
   position: absolute;
-  top: -42px;
-  left: 36px;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #263845;
+  left: 4px;
+  bottom: 34px;
+  width: 118px;
+  height: 74px;
+  border-radius: 34px 34px 10px 10px;
+  background: #9fcac4;
 }
 
 .visual-person::after {
   content: "";
   position: absolute;
-  left: -20px;
-  bottom: -16px;
-  width: 146px;
-  height: 60px;
-  border-radius: 50px 50px 8px 8px;
-  background: #9fcac4;
-  z-index: -1;
+  left: 18px;
+  bottom: 0;
+  width: 4px;
+  height: 58px;
+  background: #263845;
+  box-shadow: 94px 0 0 #263845;
+}
+
+.person-head,
+.person-body,
+.person-arm,
+.person-leg {
+  position: absolute;
+  display: block;
+}
+
+.person-head {
+  top: 26px;
+  left: 54px;
+  width: 42px;
+  height: 48px;
+  border-radius: 45% 45% 48% 48%;
+  background: #263845;
+}
+
+.person-head::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: -13px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f0b6a7;
+}
+
+.person-head::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: -14px;
+  width: 40px;
+  height: 28px;
+  border-radius: 999px;
+  background: #263845;
+}
+
+.person-body {
+  top: 78px;
+  left: 40px;
+  width: 58px;
+  height: 86px;
+  border-radius: 20px 24px 12px 12px;
+  background: #0f766e;
+  transform: skewX(-4deg);
+}
+
+.person-arm {
+  top: 92px;
+  left: 88px;
+  width: 64px;
+  height: 14px;
+  border-radius: 999px;
+  background: #0f766e;
+  transform: rotate(8deg);
+}
+
+.person-leg {
+  bottom: 18px;
+  width: 20px;
+  height: 78px;
+  border-radius: 999px;
+  background: #263845;
+  transform-origin: top;
+}
+
+.person-leg-left {
+  left: 62px;
+  transform: rotate(-10deg);
+}
+
+.person-leg-right {
+  left: 90px;
+  transform: rotate(22deg);
 }
 
 .visual-chart {
@@ -213,8 +288,18 @@ button:disabled {
   margin-bottom: 24px;
 }
 
+.auth-heading .eyebrow {
+  color: #10212b;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0;
+  margin-bottom: 14px;
+  text-transform: none;
+}
+
 .auth-heading h1 {
   margin-bottom: 0;
+  font-size: 32px;
 }
 
 .auth-heading p:not(.eyebrow) {
