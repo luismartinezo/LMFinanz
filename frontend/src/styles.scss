@@ -91,6 +91,14 @@ input {
   color: #b42318;
 }
 
+.notice {
+  border: 1px solid #f3b8b3;
+  border-radius: 8px;
+  background: #fff4f2;
+  padding: 12px 14px;
+  margin: 16px 0 0;
+}
+
 .switch {
   margin: 18px 0 0;
 }
@@ -194,7 +202,7 @@ nav a.active {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
   margin-top: 16px;
 }
@@ -209,6 +217,10 @@ nav a.active {
 .metric-grid strong {
   display: block;
   font-size: 24px;
+}
+
+.metric-grid strong.negative {
+  color: #b42318;
 }
 
 .metric-grid small,
@@ -274,6 +286,37 @@ nav a.active {
 
 .status-list strong {
   color: #0f766e;
+}
+
+.status-list.compact li {
+  padding: 10px 0;
+}
+
+.breakdown-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breakdown-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #e1e9ed;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.breakdown-list li div {
+  display: grid;
+  gap: 4px;
+}
+
+.breakdown-list li span {
+  color: #64727c;
 }
 
 .module-grid {
