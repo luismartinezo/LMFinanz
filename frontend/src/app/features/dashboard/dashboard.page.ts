@@ -1,6 +1,7 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Observable, catchError, map, of, startWith } from 'rxjs';
+import { I18nService } from '../../core/i18n/i18n.service';
 import { DashboardService } from './dashboard.service';
 import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboard.models';
 
@@ -11,55 +12,55 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
     <main class="dashboard" *ngIf="state$ | async as state">
       <section class="page-heading">
         <div>
-          <p class="eyebrow">Overview</p>
-          <h2>Tu centro financiero</h2>
+          <p class="eyebrow">{{ i18n.t('dashboard.eyebrow') }}</p>
+          <h2>{{ i18n.t('dashboard.title') }}</h2>
           <p>
-            Metricas del mes
+            {{ i18n.t('dashboard.subtitle') }}
             <ng-container *ngIf="state.report">
               · {{ state.report.from | date: 'dd MMM' }} - {{ state.report.to | date: 'dd MMM y' }}
             </ng-container>
           </p>
         </div>
-        <button type="button">New transaction</button>
+        <button type="button">{{ i18n.t('dashboard.newTransaction') }}</button>
       </section>
 
       <p class="notice error" *ngIf="state.error">{{ state.error }}</p>
 
       <div class="metric-grid">
         <article>
-          <span>Income</span>
+          <span>{{ i18n.t('dashboard.income') }}</span>
           <strong>{{ money(state.report?.totalIncome) | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
-          <small>Posted income this month</small>
+          <small>{{ i18n.t('dashboard.incomeHint') }}</small>
         </article>
         <article>
-          <span>Expenses</span>
+          <span>{{ i18n.t('dashboard.expenses') }}</span>
           <strong>{{ money(state.report?.totalExpenses) | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
-          <small>Posted expenses this month</small>
+          <small>{{ i18n.t('dashboard.expensesHint') }}</small>
         </article>
         <article>
-          <span>Net cash flow</span>
+          <span>{{ i18n.t('dashboard.netCashFlow') }}</span>
           <strong [class.negative]="money(state.report?.netCashFlow) < 0">
             {{ money(state.report?.netCashFlow) | currency: 'EUR' : 'symbol' : '1.2-2' }}
           </strong>
-          <small>Income minus expenses</small>
+          <small>{{ i18n.t('dashboard.netCashFlowHint') }}</small>
         </article>
         <article>
-          <span>Report lines</span>
+          <span>{{ i18n.t('dashboard.reportLines') }}</span>
           <strong>{{ state.report?.breakdown?.length ?? 0 | number }}</strong>
-          <small>Grouped by period</small>
+          <small>{{ i18n.t('dashboard.reportLinesHint') }}</small>
         </article>
       </div>
 
       <section class="content-grid">
         <article class="panel">
           <div class="panel-title">
-            <h3>Monthly movement</h3>
-            <span *ngIf="state.loading">Loading</span>
+            <h3>{{ i18n.t('dashboard.monthlyMovement') }}</h3>
+            <span *ngIf="state.loading">{{ i18n.t('common.loading') }}</span>
             <span *ngIf="!state.loading">EUR · COP · USD</span>
           </div>
           <div class="empty-state" *ngIf="isEmpty(state.report)">
-            <strong>No posted transactions yet</strong>
-            <p>Cuando registres y publiques movimientos, las metricas se actualizaran desde el backend.</p>
+            <strong>{{ i18n.t('dashboard.noTransactions') }}</strong>
+            <p>{{ i18n.t('dashboard.noTransactionsHint') }}</p>
           </div>
           <ul class="breakdown-list" *ngIf="!isEmpty(state.report)">
             <li *ngFor="let item of topBreakdown(state.report)">
@@ -74,14 +75,14 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
 
         <article class="panel">
           <div class="panel-title">
-            <h3>Financial health</h3>
+            <h3>{{ i18n.t('dashboard.financialHealth') }}</h3>
             <span>{{ healthLabel(state.report) }}</span>
           </div>
           <ul class="status-list compact">
-            <li><span>Savings capacity</span><strong>{{ savingsRate(state.report) | number: '1.0-0' }}%</strong></li>
-            <li><span>Expense pressure</span><strong>{{ expensePressure(state.report) | number: '1.0-0' }}%</strong></li>
-            <li><span>Net position</span><strong>{{ netPosition(state.report) }}</strong></li>
-            <li><span>Data source</span><strong>API</strong></li>
+            <li><span>{{ i18n.t('dashboard.savingsCapacity') }}</span><strong>{{ savingsRate(state.report) | number: '1.0-0' }}%</strong></li>
+            <li><span>{{ i18n.t('dashboard.expensePressure') }}</span><strong>{{ expensePressure(state.report) | number: '1.0-0' }}%</strong></li>
+            <li><span>{{ i18n.t('dashboard.netPosition') }}</span><strong>{{ netPosition(state.report) }}</strong></li>
+            <li><span>{{ i18n.t('dashboard.dataSource') }}</span><strong>API</strong></li>
           </ul>
         </article>
       </section>
@@ -91,6 +92,7 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
 export class DashboardPage {
   private readonly dashboard = inject(DashboardService);
   private readonly range = this.currentMonthRange();
+  readonly i18n = inject(I18nService);
 
   readonly state$: Observable<DashboardState> = this.dashboard.monthlySummary(this.range.from, this.range.to).pipe(
     map((report) => ({ loading: false, report, error: null })),
@@ -99,7 +101,7 @@ export class DashboardPage {
       of({
         loading: false,
         report: null,
-        error: 'No se pudieron cargar las metricas. Verifica que el backend este corriendo.'
+        error: this.i18n.t('dashboard.loadError')
       })
     )
   );
@@ -135,17 +137,17 @@ export class DashboardPage {
   healthLabel(report: FinancialReport | null): string {
     const netCashFlow = this.money(report?.netCashFlow);
     if (!report || report.breakdown.length === 0) {
-      return 'No data';
+      return this.i18n.t('dashboard.healthNoData');
     }
-    return netCashFlow >= 0 ? 'Stable' : 'Attention';
+    return netCashFlow >= 0 ? this.i18n.t('dashboard.healthStable') : this.i18n.t('dashboard.healthAttention');
   }
 
   netPosition(report: FinancialReport | null): string {
     const netCashFlow = this.money(report?.netCashFlow);
     if (!report || report.breakdown.length === 0) {
-      return 'Pending';
+      return this.i18n.t('dashboard.positionPending');
     }
-    return netCashFlow >= 0 ? 'Positive' : 'Negative';
+    return netCashFlow >= 0 ? this.i18n.t('dashboard.positionPositive') : this.i18n.t('dashboard.positionNegative');
   }
 
   private currentMonthRange(): { from: string; to: string } {
