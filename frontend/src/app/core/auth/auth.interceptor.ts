@@ -9,17 +9,21 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const tokens = inject(TokenStorageService);
   const auth = inject(AuthService);
   const isApiRequest = request.url.startsWith(API_BASE_URL);
-  const isAuthRefresh = request.url.endsWith('/api/auth/refresh');
+  const isPublicAuthRequest =
+    request.url.endsWith('/api/auth/login') ||
+    request.url.endsWith('/api/auth/register') ||
+    request.url.endsWith('/api/auth/refresh') ||
+    request.url.endsWith('/api/auth/logout');
   const accessToken = tokens.accessToken;
 
   const authorizedRequest =
-    isApiRequest && accessToken
+    isApiRequest && accessToken && !isPublicAuthRequest
       ? request.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } })
       : request;
 
   return next(authorizedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status !== 401 || !tokens.refreshToken || isAuthRefresh) {
+      if (error.status !== 401 || !tokens.refreshToken || isPublicAuthRequest) {
         return throwError(() => error);
       }
 

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, tap } from 'rxjs';
 import { API_BASE_URL } from '../api/api.config';
 import { AuthResponse, LoginRequest, RegisterRequest } from './auth.models';
 import { TokenStorageService } from './token-storage.service';
@@ -36,7 +36,10 @@ export class AuthService {
   logout(): void {
     const refreshToken = this.tokens.refreshToken;
     if (refreshToken) {
-      this.http.post(`${API_BASE_URL}/api/auth/logout`, { refreshToken }).subscribe();
+      this.http
+        .post(`${API_BASE_URL}/api/auth/logout`, { refreshToken })
+        .pipe(catchError(() => EMPTY))
+        .subscribe();
     }
     this.tokens.clear();
     this.userState.set(null);
