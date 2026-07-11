@@ -11,41 +11,62 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
   template: `
     <main class="auth-page">
       <section class="auth-panel">
-        <div class="auth-language">
-          <app-language-selector />
+        <div class="auth-visual" aria-hidden="true">
+          <div class="visual-card visual-card-small"></div>
+          <div class="visual-card visual-card-wide"></div>
+          <div class="visual-desk">
+            <div class="visual-screen">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="visual-person"></div>
+          </div>
+          <div class="visual-chart">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
 
-        <div class="auth-heading">
-          <p class="eyebrow">LMFinanz</p>
-          <h1>{{ i18n.t('auth.register') }}</h1>
+        <div class="auth-form-panel">
+          <div class="auth-language">
+            <app-language-selector />
+          </div>
+
+          <div class="auth-heading">
+            <p class="eyebrow">LMFinanz</p>
+            <h1>{{ i18n.t('auth.register') }}</h1>
+            <p>{{ i18n.t('auth.registerSubtitle') }}</p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <label>
+              {{ i18n.t('auth.fullName') }}
+              <input type="text" formControlName="fullName" autocomplete="name" />
+            </label>
+
+            <label>
+              {{ i18n.t('auth.email') }}
+              <input type="email" formControlName="email" autocomplete="email" />
+            </label>
+
+            <label>
+              {{ i18n.t('auth.password') }}
+              <input type="password" formControlName="password" autocomplete="new-password" />
+            </label>
+
+            @if (error()) {
+              <p class="error">{{ error() }}</p>
+            }
+
+            <button type="submit" [disabled]="form.invalid || loading()">
+              {{ loading() ? i18n.t('auth.creating') : i18n.t('auth.registerSubmit') }}
+            </button>
+          </form>
+
+          <p class="switch">{{ i18n.t('auth.hasAccount') }} <a routerLink="/auth/login">{{ i18n.t('auth.login') }}</a></p>
         </div>
-
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <label>
-            {{ i18n.t('auth.fullName') }}
-            <input type="text" formControlName="fullName" autocomplete="name" />
-          </label>
-
-          <label>
-            {{ i18n.t('auth.email') }}
-            <input type="email" formControlName="email" autocomplete="email" />
-          </label>
-
-          <label>
-            {{ i18n.t('auth.password') }}
-            <input type="password" formControlName="password" autocomplete="new-password" />
-          </label>
-
-          @if (error()) {
-            <p class="error">{{ error() }}</p>
-          }
-
-          <button type="submit" [disabled]="form.invalid || loading()">
-            {{ loading() ? i18n.t('auth.creating') : i18n.t('auth.registerSubmit') }}
-          </button>
-        </form>
-
-        <p class="switch">{{ i18n.t('auth.hasAccount') }} <a routerLink="/auth/login">{{ i18n.t('auth.login') }}</a></p>
       </section>
     </main>
   `
