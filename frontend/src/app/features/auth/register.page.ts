@@ -10,6 +10,10 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
   imports: [LanguageSelectorComponent, ReactiveFormsModule, RouterLink],
   template: `
     <main class="auth-page">
+      <div class="auth-page-language">
+        <app-language-selector />
+      </div>
+
       <section class="auth-panel">
         <div class="auth-visual" aria-hidden="true">
           <div class="visual-card visual-card-small"></div>
@@ -30,10 +34,6 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
         </div>
 
         <div class="auth-form-panel">
-          <div class="auth-language">
-            <app-language-selector />
-          </div>
-
           <div class="auth-heading">
             <p class="eyebrow">LMFinanz</p>
             <h1>{{ i18n.t('auth.register') }}</h1>

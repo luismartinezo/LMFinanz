@@ -37,10 +37,18 @@ button:disabled {
 }
 
 .auth-page {
+  position: relative;
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 76px 24px 24px;
+}
+
+.auth-page-language {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 2;
 }
 
 .auth-panel {
@@ -201,12 +209,6 @@ button:disabled {
   min-width: 0;
 }
 
-.auth-language {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 32px;
-}
-
 .auth-heading {
   margin-bottom: 24px;
 }
@@ -356,14 +358,12 @@ nav a.active {
   font-weight: 700;
 }
 
-.auth-language .language-select {
-  width: 100%;
-  justify-content: space-between;
-  border: 1px solid #c7d4da;
+.auth-page-language .language-select {
+  border: 1px solid rgba(215, 225, 229, 0.28);
   border-radius: 8px;
-  background: #f8fbfc;
-  padding: 10px 12px;
-  max-width: 270px;
+  color: white;
+  background: rgba(248, 251, 252, 0.08);
+  padding: 8px 10px;
 }
 
 .language-select select {
@@ -373,10 +373,10 @@ nav a.active {
   background: white;
 }
 
-.auth-language .language-select select {
-  min-height: 40px;
+.auth-page-language .language-select select {
+  min-height: 38px;
   min-width: 132px;
-  border-color: #9fb2bd;
+  border-color: transparent;
   color: #15202b;
   cursor: pointer;
 }
@@ -598,7 +598,18 @@ nav a.active {
 
 @media (max-width: 800px) {
   .auth-page {
-    padding: 18px;
+    padding: 86px 18px 18px;
+  }
+
+  .auth-page-language {
+    top: 18px;
+    left: 18px;
+    right: 18px;
+  }
+
+  .auth-page-language .language-select {
+    justify-content: space-between;
+    width: 100%;
   }
 
   .auth-panel {
@@ -610,14 +621,6 @@ nav a.active {
 
   .auth-visual {
     display: none;
-  }
-
-  .auth-language {
-    justify-content: stretch;
-  }
-
-  .auth-language .language-select {
-    max-width: none;
   }
 
   .shell {
