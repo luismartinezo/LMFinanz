@@ -11,9 +11,14 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
   template: `
     <main class="auth-page">
       <section class="auth-panel">
-        <app-language-selector />
-        <p class="eyebrow">LMFinanz</p>
-        <h1>{{ i18n.t('auth.signIn') }}</h1>
+        <div class="auth-language">
+          <app-language-selector />
+        </div>
+
+        <div class="auth-heading">
+          <p class="eyebrow">LMFinanz</p>
+          <h1>{{ i18n.t('auth.signIn') }}</h1>
+        </div>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
           <label>
