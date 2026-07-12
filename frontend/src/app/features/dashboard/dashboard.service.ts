@@ -2,7 +2,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import { API_BASE_URL } from '../../core/api/api.config';
-import { DashboardAccount, DashboardAsset, DashboardDebt, DashboardSavingsGoal, FinancialReport } from './dashboard.models';
+import {
+  DashboardAccount,
+  DashboardAsset,
+  DashboardDebt,
+  DashboardSavingsGoal,
+  DashboardTransaction,
+  FinancialReport
+} from './dashboard.models';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -23,6 +30,7 @@ export class DashboardService {
     debts: DashboardDebt[];
     savingsGoals: DashboardSavingsGoal[];
     assets: DashboardAsset[];
+    transactions: DashboardTransaction[];
   }> {
     const params = new HttpParams()
       .set('period', 'MONTHLY')
@@ -34,7 +42,14 @@ export class DashboardService {
       accounts: this.http.get<DashboardAccount[]>(`${API_BASE_URL}/api/accounts`),
       debts: this.http.get<DashboardDebt[]>(`${API_BASE_URL}/api/debts`),
       savingsGoals: this.http.get<DashboardSavingsGoal[]>(`${API_BASE_URL}/api/savings-goals`),
-      assets: this.http.get<DashboardAsset[]>(`${API_BASE_URL}/api/assets`)
+      assets: this.http.get<DashboardAsset[]>(`${API_BASE_URL}/api/assets`),
+      transactions: this.http.get<DashboardTransaction[]>(`${API_BASE_URL}/api/transactions`, {
+        params: this.dateParams(from, to)
+      })
     });
+  }
+
+  private dateParams(from: string, to: string): HttpParams {
+    return new HttpParams().set('from', from).set('to', to);
   }
 }

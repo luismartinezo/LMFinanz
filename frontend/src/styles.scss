@@ -454,6 +454,337 @@ nav a.active {
   margin-top: 16px;
 }
 
+.dashboard-pro {
+  color: #182334;
+}
+
+.pro-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 132px;
+  border-color: #dfe5ef;
+  background:
+    radial-gradient(circle at 88% 40%, rgba(15, 118, 110, 0.14), transparent 22%),
+    linear-gradient(135deg, #ffffff 0%, #f6fbfa 100%);
+}
+
+.hero-summary {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.hero-summary span {
+  color: #64727c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hero-summary strong {
+  color: #0f766e;
+  font-size: 28px;
+}
+
+.hero-summary strong.negative {
+  color: #b42318;
+}
+
+.pro-metrics .metric-card {
+  min-height: 116px;
+  border-color: #e4ebf0;
+  background:
+    radial-gradient(circle at 95% 0%, rgba(15, 118, 110, 0.08), transparent 26%),
+    #ffffff;
+}
+
+.dashboard-pro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr) minmax(320px, 0.8fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.sales-overview {
+  grid-column: span 2;
+  min-height: 320px;
+}
+
+.chart-shell {
+  position: relative;
+  min-height: 240px;
+  border-bottom: 1px solid #e7eef1;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 39px, #eef3f5 40px),
+    linear-gradient(180deg, rgba(15, 118, 110, 0.04), transparent 45%);
+  overflow: hidden;
+}
+
+.bar-chart {
+  position: absolute;
+  inset: 36px 16px 28px;
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  gap: 18px;
+}
+
+.bar-chart span {
+  display: grid;
+  align-items: end;
+  width: min(34px, 7%);
+  min-height: 18px;
+}
+
+.bar-chart b {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #45b68c, #0f766e);
+  box-shadow: 0 10px 18px rgba(15, 118, 110, 0.18);
+}
+
+.trend-line {
+  position: absolute;
+  inset: 26px 18px 34px;
+  width: calc(100% - 36px);
+  height: calc(100% - 60px);
+  overflow: visible;
+}
+
+.trend-line polyline {
+  fill: none;
+  stroke: #ef4fa3;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 8px 10px rgba(239, 79, 163, 0.2));
+}
+
+.health-panel {
+  min-height: 320px;
+}
+
+.gauge {
+  --value: 0%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 190px;
+  height: 190px;
+  margin: 16px auto;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #fff 0 57%, transparent 58%),
+    conic-gradient(#0f766e var(--value), #e9eff3 0);
+}
+
+.gauge::after {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border-radius: inherit;
+  border: 12px solid #f5f8fa;
+}
+
+.gauge strong,
+.gauge span {
+  position: relative;
+  z-index: 1;
+}
+
+.gauge strong {
+  font-size: 28px;
+}
+
+.gauge span {
+  color: #64727c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.legend-list,
+.category-list,
+.transaction-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legend-list {
+  grid-template-columns: repeat(3, 1fr);
+  font-size: 12px;
+  color: #64727c;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-list i,
+.category-list i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-income,
+.category-list li:nth-child(1) i {
+  background: #0f766e;
+}
+
+.legend-expense,
+.category-list li:nth-child(2) i {
+  background: #ef4fa3;
+}
+
+.legend-cash,
+.category-list li:nth-child(3) i {
+  background: #5865f2;
+}
+
+.stacked-strip {
+  display: flex;
+  gap: 3px;
+  height: 9px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9eff3;
+}
+
+.stacked-strip span:nth-child(1) {
+  background: #0f766e;
+}
+
+.stacked-strip span:nth-child(2) {
+  background: #ef4fa3;
+}
+
+.stacked-strip span:nth-child(3) {
+  background: #5865f2;
+}
+
+.stacked-strip span:nth-child(4) {
+  background: #ff8a65;
+}
+
+.stacked-strip span:nth-child(5) {
+  background: #f6bd3b;
+}
+
+.stacked-strip span:nth-child(n + 6) {
+  background: #8b5cf6;
+}
+
+.category-list li,
+.transaction-list li {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e7eef1;
+  padding: 11px 0;
+}
+
+.category-list li {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.category-list span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #43525c;
+}
+
+.category-list strong,
+.transaction-list b {
+  color: #0f766e;
+}
+
+.transaction-list li {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+}
+
+.transaction-list strong,
+.transaction-list small {
+  display: block;
+}
+
+.transaction-list strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transaction-list small {
+  margin-top: 4px;
+  color: #64727c;
+}
+
+.transaction-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: #0f766e;
+  background: #e9f8f5;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.transaction-icon.expense {
+  color: #b42318;
+  background: #fff4f2;
+}
+
+.transaction-icon.transfer {
+  color: #5865f2;
+  background: #eef0ff;
+}
+
+.transaction-list b.negative {
+  color: #b42318;
+}
+
+.mini-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mini-stat-grid div {
+  border: 1px solid #e7eef1;
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 12px;
+}
+
+.mini-stat-grid span {
+  display: block;
+  color: #64727c;
+  font-size: 12px;
+}
+
+.mini-stat-grid strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f766e;
+  font-size: 15px;
+}
+
 .panel-title {
   display: flex;
   align-items: center;
@@ -763,10 +1094,29 @@ nav a.active {
   .metric-grid,
   .module-grid,
   .content-grid,
+  .dashboard-pro-grid,
   .accounts-layout,
   .form-row,
   .data-row {
     grid-template-columns: 1fr;
+  }
+
+  .sales-overview,
+  .health-panel,
+  .category-panel,
+  .recent-transactions,
+  .portfolio-panel {
+    grid-column: auto;
+  }
+
+  .pro-hero,
+  .mini-stat-grid,
+  .legend-list {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-summary {
+    justify-items: start;
   }
 
   .page-heading,

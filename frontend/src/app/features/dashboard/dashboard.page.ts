@@ -9,6 +9,7 @@ import {
   DashboardDebt,
   DashboardSavingsGoal,
   DashboardState,
+  DashboardTransaction,
   FinancialReport,
   ReportBreakdownItem
 } from './dashboard.models';
@@ -17,8 +18,8 @@ import {
   selector: 'app-dashboard-page',
   imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf],
   template: `
-    <main class="dashboard" *ngIf="state$ | async as state">
-      <section class="page-heading dashboard-hero">
+    <main class="dashboard dashboard-pro" *ngIf="state$ | async as state">
+      <section class="dashboard-hero pro-hero">
         <div>
           <p class="eyebrow">{{ i18n.t('dashboard.eyebrow') }}</p>
           <h2>{{ i18n.t('dashboard.title') }}</h2>
@@ -29,12 +30,18 @@ import {
             </ng-container>
           </p>
         </div>
-        <button type="button">{{ i18n.t('dashboard.newTransaction') }}</button>
+        <div class="hero-summary">
+          <span>{{ i18n.t('dashboard.netWorth') }}</span>
+          <strong [class.negative]="netWorth(state, primaryCurrency(state)) < 0">
+            {{ netWorth(state, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}
+          </strong>
+          <button type="button">{{ i18n.t('dashboard.newTransaction') }}</button>
+        </div>
       </section>
 
       <p class="notice error" *ngIf="state.error">{{ state.error }}</p>
 
-      <div class="metric-grid">
+      <div class="metric-grid pro-metrics">
         <article class="metric-card income">
           <div class="metric-topline">
             <span>{{ i18n.t('dashboard.income') }}</span>
@@ -63,86 +70,113 @@ import {
         </article>
         <article class="metric-card reports">
           <div class="metric-topline">
-            <span>{{ i18n.t('dashboard.netWorth') }}</span>
-            <b>NW</b>
+            <span>{{ i18n.t('dashboard.reportLines') }}</span>
+            <b>RP</b>
           </div>
-          <strong [class.negative]="netWorth(state, primaryCurrency(state)) < 0">
-            {{ netWorth(state, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}
-          </strong>
-          <small>{{ i18n.t('dashboard.netWorthHint') }}</small>
+          <strong>{{ state.report?.breakdown?.length ?? 0 | number }}</strong>
+          <small>{{ i18n.t('dashboard.reportLinesHint') }}</small>
         </article>
       </div>
 
-      <section class="content-grid">
-        <article class="panel">
+      <section class="dashboard-pro-grid">
+        <article class="panel sales-overview">
           <div class="panel-title">
-            <h3>{{ i18n.t('dashboard.balanceByCurrency') }}</h3>
-            <span>{{ state.accounts.length }} {{ i18n.t('app.accounts') }}</span>
+            <h3>{{ i18n.t('dashboard.monthlyMovement') }}</h3>
+            <span>{{ primaryCurrency(state) }}</span>
+          </div>
+          <div class="chart-shell" *ngIf="!isEmpty(state.report)">
+            <div class="bar-chart">
+              <span *ngFor="let item of chartItems(state.report)" [style.height.%]="chartHeight(item, state.report)">
+                <b></b>
+              </span>
+            </div>
+            <svg class="trend-line" viewBox="0 0 640 180" preserveAspectRatio="none" aria-hidden="true">
+              <polyline [attr.points]="trendPoints(state.report)" />
+            </svg>
+          </div>
+          <div class="empty-state" *ngIf="isEmpty(state.report)">
+            <strong>{{ i18n.t('dashboard.noTransactions') }}</strong>
+            <p>{{ i18n.t('dashboard.noTransactionsHint') }}</p>
+          </div>
+        </article>
+
+        <article class="panel health-panel">
+          <div class="panel-title">
+            <h3>{{ i18n.t('dashboard.financialHealth') }}</h3>
+            <span>{{ healthLabel(state.report) }}</span>
+          </div>
+          <div class="gauge" [style.--value.%]="healthScore(state.report)">
+            <strong>{{ healthScore(state.report) | number: '1.0-0' }}%</strong>
+            <span>{{ i18n.t('dashboard.savingsCapacity') }}</span>
+          </div>
+          <ul class="legend-list">
+            <li><i class="legend-income"></i>{{ i18n.t('dashboard.savingsCapacity') }}</li>
+            <li><i class="legend-expense"></i>{{ i18n.t('dashboard.expensePressure') }}</li>
+            <li><i class="legend-cash"></i>{{ i18n.t('dashboard.netPosition') }}</li>
+          </ul>
+        </article>
+
+        <article class="panel category-panel">
+          <div class="panel-title">
+            <h3>{{ i18n.t('dashboard.topCategories') }}</h3>
+            <span>{{ state.report?.breakdown?.length ?? 0 }}</span>
+          </div>
+          <div class="stacked-strip" *ngIf="topBreakdown(state.report).length > 0">
+            <span *ngFor="let item of topBreakdown(state.report)" [style.flex]="stripWeight(item)"></span>
+          </div>
+          <ul class="category-list">
+            <li *ngFor="let item of topBreakdown(state.report)">
+              <span><i></i>{{ item.label }}</span>
+              <strong>{{ item.amount | currency: item.currencyCode : 'symbol' : '1.2-2' }}</strong>
+            </li>
+          </ul>
+        </article>
+
+        <article class="panel recent-transactions">
+          <div class="panel-title">
+            <h3>{{ i18n.t('dashboard.latestTransactions') }}</h3>
+            <span>{{ state.transactions.length }}</span>
+          </div>
+          <ul class="transaction-list">
+            <li *ngFor="let transaction of recentTransactions(state.transactions)">
+              <span class="transaction-icon" [class.expense]="transaction.type === 'EXPENSE'" [class.transfer]="transaction.type === 'TRANSFER'">
+                {{ transaction.type.charAt(0) }}
+              </span>
+              <div>
+                <strong>{{ transaction.description || transaction.type }}</strong>
+                <small>{{ transaction.transactionDate | date: 'dd MMM y' }} · {{ transaction.countryCode }}</small>
+              </div>
+              <b [class.negative]="transaction.type === 'EXPENSE'">
+                {{ signedTransactionAmount(transaction) | currency: transaction.currencyCode : 'symbol' : '1.2-2' }}
+              </b>
+            </li>
+          </ul>
+        </article>
+
+        <article class="panel portfolio-panel">
+          <div class="panel-title">
+            <h3>{{ i18n.t('dashboard.portfolioSnapshot') }}</h3>
+            <span>{{ primaryCurrency(state) }}</span>
+          </div>
+          <div class="mini-stat-grid">
+            <div>
+              <span>{{ i18n.t('app.assets') }}</span>
+              <strong>{{ assetValue(state.assets, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+            </div>
+            <div>
+              <span>{{ i18n.t('app.debts') }}</span>
+              <strong>{{ debtBalance(state.debts, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+            </div>
+            <div>
+              <span>{{ i18n.t('app.savings') }}</span>
+              <strong>{{ savingsBalance(state.savingsGoals, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+            </div>
           </div>
           <ul class="status-list compact">
             <li *ngFor="let currency of currencies(state)">
               <span>{{ currency }}</span>
               <strong>{{ accountBalance(state.accounts, currency) | currency: currency : 'symbol' : '1.2-2' }}</strong>
             </li>
-          </ul>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h3>{{ i18n.t('dashboard.portfolioSnapshot') }}</h3>
-            <span>{{ primaryCurrency(state) }}</span>
-          </div>
-          <ul class="status-list compact">
-            <li>
-              <span>{{ i18n.t('app.assets') }}</span>
-              <strong>{{ assetValue(state.assets, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
-            </li>
-            <li>
-              <span>{{ i18n.t('app.debts') }}</span>
-              <strong>{{ debtBalance(state.debts, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
-            </li>
-            <li>
-              <span>{{ i18n.t('app.savings') }}</span>
-              <strong>{{ savingsBalance(state.savingsGoals, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
-            </li>
-            <li>
-              <span>{{ i18n.t('dashboard.activeCountries') }}</span>
-              <strong>{{ countries(state.accounts).join(' · ') || '-' }}</strong>
-            </li>
-          </ul>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h3>{{ i18n.t('dashboard.monthlyMovement') }}</h3>
-            <span *ngIf="state.loading">{{ i18n.t('common.loading') }}</span>
-            <span *ngIf="!state.loading">EUR · COP · USD</span>
-          </div>
-          <div class="empty-state" *ngIf="isEmpty(state.report)">
-            <strong>{{ i18n.t('dashboard.noTransactions') }}</strong>
-            <p>{{ i18n.t('dashboard.noTransactionsHint') }}</p>
-          </div>
-          <ul class="breakdown-list" *ngIf="!isEmpty(state.report)">
-            <li *ngFor="let item of topBreakdown(state.report)">
-              <div>
-                <strong>{{ item.label }}</strong>
-                <span>{{ item.currencyCode }} · {{ item.countryCode }}</span>
-              </div>
-              <span>{{ item.amount | currency: item.currencyCode : 'symbol' : '1.2-2' }}</span>
-            </li>
-          </ul>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h3>{{ i18n.t('dashboard.financialHealth') }}</h3>
-            <span>{{ healthLabel(state.report) }}</span>
-          </div>
-          <ul class="status-list compact">
-            <li><span>{{ i18n.t('dashboard.savingsCapacity') }}</span><strong>{{ savingsRate(state.report) | number: '1.0-0' }}%</strong></li>
-            <li><span>{{ i18n.t('dashboard.expensePressure') }}</span><strong>{{ expensePressure(state.report) | number: '1.0-0' }}%</strong></li>
-            <li><span>{{ i18n.t('dashboard.netPosition') }}</span><strong>{{ netPosition(state.report) }}</strong></li>
-            <li><span>{{ i18n.t('dashboard.dataSource') }}</span><strong>API</strong></li>
           </ul>
         </article>
       </section>
@@ -163,6 +197,7 @@ export class DashboardPage {
       debts: [],
       savingsGoals: [],
       assets: [],
+      transactions: [],
       error: null
     }),
     catchError(() =>
@@ -173,6 +208,7 @@ export class DashboardPage {
         debts: [],
         savingsGoals: [],
         assets: [],
+        transactions: [],
         error: this.i18n.t('dashboard.loadError')
       })
     )
@@ -193,10 +229,6 @@ export class DashboardPage {
   currencies(state: DashboardState): string[] {
     const values = state.accounts.filter((account) => account.active).map((account) => account.currencyCode);
     return [...new Set(values.length > 0 ? values : ['EUR', 'COP', 'USD'])];
-  }
-
-  countries(accounts: DashboardAccount[]): string[] {
-    return [...new Set(accounts.filter((account) => account.active).map((account) => account.countryCode))];
   }
 
   accountBalance(accounts: DashboardAccount[], currencyCode: string): number {
@@ -240,12 +272,55 @@ export class DashboardPage {
     return [...(report?.breakdown ?? [])].sort((left, right) => Math.abs(right.amount) - Math.abs(left.amount)).slice(0, 6);
   }
 
+  chartItems(report: FinancialReport | null): ReportBreakdownItem[] {
+    return [...(report?.breakdown ?? [])].slice(0, 10);
+  }
+
+  chartHeight(item: ReportBreakdownItem, report: FinancialReport | null): number {
+    const max = Math.max(...this.chartItems(report).map((entry) => Math.abs(entry.amount)), 1);
+    return Math.max(12, (Math.abs(item.amount) / max) * 82);
+  }
+
+  trendPoints(report: FinancialReport | null): string {
+    const items = this.chartItems(report);
+    if (items.length === 0) {
+      return '';
+    }
+    const max = Math.max(...items.map((item) => Math.abs(item.amount)), 1);
+    return items
+      .map((item, index) => {
+        const x = items.length === 1 ? 320 : (index / (items.length - 1)) * 640;
+        const y = 160 - (Math.abs(item.amount) / max) * 120;
+        return `${x},${y}`;
+      })
+      .join(' ');
+  }
+
+  stripWeight(item: ReportBreakdownItem): number {
+    return Math.max(1, Math.abs(item.amount));
+  }
+
+  recentTransactions(transactions: DashboardTransaction[]): DashboardTransaction[] {
+    return [...transactions].sort((left, right) => right.transactionDate.localeCompare(left.transactionDate)).slice(0, 6);
+  }
+
+  signedTransactionAmount(transaction: DashboardTransaction): number {
+    if (transaction.type === 'EXPENSE') {
+      return -Math.abs(transaction.amount);
+    }
+    return transaction.amount;
+  }
+
   savingsRate(report: FinancialReport | null): number {
     const income = this.money(report?.totalIncome);
     if (income <= 0) {
       return 0;
     }
     return Math.max((this.money(report?.netCashFlow) / income) * 100, 0);
+  }
+
+  healthScore(report: FinancialReport | null): number {
+    return Math.min(100, Math.max(0, this.savingsRate(report)));
   }
 
   expensePressure(report: FinancialReport | null): number {
@@ -262,14 +337,6 @@ export class DashboardPage {
       return this.i18n.t('dashboard.healthNoData');
     }
     return netCashFlow >= 0 ? this.i18n.t('dashboard.healthStable') : this.i18n.t('dashboard.healthAttention');
-  }
-
-  netPosition(report: FinancialReport | null): string {
-    const netCashFlow = this.money(report?.netCashFlow);
-    if (!report || report.breakdown.length === 0) {
-      return this.i18n.t('dashboard.positionPending');
-    }
-    return netCashFlow >= 0 ? this.i18n.t('dashboard.positionPositive') : this.i18n.t('dashboard.positionNegative');
   }
 
   private currentMonthRange(): { from: string; to: string } {

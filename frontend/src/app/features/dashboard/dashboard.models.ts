@@ -22,6 +22,7 @@ export interface DashboardState {
   debts: DashboardDebt[];
   savingsGoals: DashboardSavingsGoal[];
   assets: DashboardAsset[];
+  transactions: DashboardTransaction[];
   error: string | null;
 }
 
@@ -49,4 +50,15 @@ export interface DashboardAsset {
   currencyCode: string;
   estimatedValue: number;
   active: boolean;
+}
+
+export interface DashboardTransaction {
+  id: string;
+  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  currencyCode: string;
+  countryCode: string;
+  amount: number;
+  transactionDate: string;
+  description: string | null;
+  status: string;
 }
