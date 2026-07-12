@@ -621,7 +621,26 @@ nav a.active {
     minmax(130px, 0.8fr)
     minmax(95px, 0.5fr)
     minmax(130px, 0.8fr)
-    minmax(100px, 0.6fr);
+    minmax(100px, 0.6fr)
+    minmax(130px, 0.8fr);
+}
+
+.installment-list {
+  display: grid;
+  gap: 6px;
+  margin: -2px 0 8px 18px;
+  padding-left: 12px;
+  border-left: 2px solid #dce8e6;
+}
+
+.installment-row {
+  grid-template-columns:
+    minmax(45px, 0.3fr)
+    minmax(130px, 0.8fr)
+    minmax(130px, 0.8fr)
+    minmax(100px, 0.6fr)
+    minmax(140px, 0.8fr);
+  background: #f8fbfa;
 }
 
 .savings-row {

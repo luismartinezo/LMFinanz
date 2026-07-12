@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, map, of, startWith, switchMap, tap } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
-import { Debt, DebtRequest, DebtStatus } from './debts.models';
+import { Debt, DebtInstallment, DebtRequest, DebtStatus, InstallmentStatus } from './debts.models';
 import { DebtsService } from './debts.service';
 
 @Component({
@@ -121,18 +121,52 @@ import { DebtsService } from './debts.service';
               <span>{{ i18n.t('debts.interestRate') }}</span>
               <span>{{ i18n.t('debts.finalDueDate') }}</span>
               <span>{{ i18n.t('transactions.status') }}</span>
+              <span>{{ i18n.t('transactions.actions') }}</span>
             </div>
 
-            <div class="data-row debt-row" *ngFor="let debt of state.debts">
-              <span>
-                <strong>{{ debt.name }}</strong>
-                <small>{{ debt.installments }} {{ i18n.t('debts.installments').toLowerCase() }}</small>
-              </span>
-              <span>{{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</span>
-              <span>{{ debt.annualInterestRate | number: '1.2-2' }}%</span>
-              <span>{{ debt.finalDueDate | date: 'dd MMM y' }}</span>
-              <span>{{ labelForStatus(debt.status) }}</span>
-            </div>
+            <ng-container *ngFor="let debt of state.debts">
+              <div class="data-row debt-row">
+                <span>
+                  <strong>{{ debt.name }}</strong>
+                  <small>{{ debt.installments }} {{ i18n.t('debts.installments').toLowerCase() }}</small>
+                </span>
+                <span>{{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</span>
+                <span>{{ debt.annualInterestRate | number: '1.2-2' }}%</span>
+                <span>{{ debt.finalDueDate | date: 'dd MMM y' }}</span>
+                <span>{{ labelForStatus(debt.status) }}</span>
+                <span>
+                  <button class="table-action" type="button" (click)="toggleInstallments(debt.id)">
+                    {{ selectedDebtId === debt.id ? i18n.t('debts.hideInstallments') : i18n.t('debts.viewInstallments') }}
+                  </button>
+                </span>
+              </div>
+
+              <div class="installment-list" *ngIf="selectedDebtId === debt.id">
+                <div class="data-row installment-row heading">
+                  <span>#</span>
+                  <span>{{ i18n.t('transactions.amount') }}</span>
+                  <span>{{ i18n.t('debts.finalDueDate') }}</span>
+                  <span>{{ i18n.t('transactions.status') }}</span>
+                  <span>{{ i18n.t('transactions.actions') }}</span>
+                </div>
+                <div class="data-row installment-row" *ngFor="let installment of selectedInstallments">
+                  <span>{{ installment.installmentNumber }}</span>
+                  <span>{{ installment.amount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</span>
+                  <span>{{ installment.dueDate | date: 'dd MMM y' }}</span>
+                  <span>{{ labelForInstallmentStatus(installment.status) }}</span>
+                  <span>
+                    <button
+                      class="table-action"
+                      type="button"
+                      *ngIf="installment.status !== 'PAID'"
+                      (click)="payInstallment(debt.id, installment.id)"
+                    >
+                      {{ i18n.t('debts.markPaid') }}
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </ng-container>
           </div>
         </article>
       </section>
@@ -147,6 +181,8 @@ export class DebtsPage {
 
   showForm = false;
   saving = false;
+  selectedDebtId: string | null = null;
+  selectedInstallments: DebtInstallment[] = [];
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(140)]],
@@ -234,6 +270,42 @@ export class DebtsPage {
       PAID: this.i18n.t('debts.statusPaid'),
       DEFAULTED: this.i18n.t('debts.statusDefaulted'),
       CANCELLED: this.i18n.t('debts.statusCancelled')
+    };
+    return labels[status];
+  }
+
+  toggleInstallments(debtId: string): void {
+    if (this.selectedDebtId === debtId) {
+      this.selectedDebtId = null;
+      this.selectedInstallments = [];
+      return;
+    }
+
+    this.selectedDebtId = debtId;
+    this.debts.installments(debtId).subscribe((installments) => {
+      this.selectedInstallments = installments;
+    });
+  }
+
+  payInstallment(debtId: string, installmentId: string): void {
+    this.debts
+      .payInstallment(debtId, installmentId, {
+        paidDate: this.today(),
+        paymentTransactionId: null
+      })
+      .subscribe(() => {
+        this.debts.installments(debtId).subscribe((installments) => {
+          this.selectedInstallments = installments;
+          this.reload$.next();
+        });
+      });
+  }
+
+  labelForInstallmentStatus(status: InstallmentStatus): string {
+    const labels: Record<InstallmentStatus, string> = {
+      PENDING: this.i18n.t('debts.statusPending'),
+      PAID: this.i18n.t('debts.statusPaid'),
+      OVERDUE: this.i18n.t('debts.statusOverdue')
     };
     return labels[status];
   }

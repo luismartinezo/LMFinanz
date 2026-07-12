@@ -28,6 +28,50 @@ import { TransactionsService } from './transactions.service';
 
       <p class="notice error" *ngIf="state.error">{{ state.error }}</p>
 
+      <section class="panel report-filters">
+        <form [formGroup]="filterForm" (ngSubmit)="reloadTransactions()">
+          <label>
+            {{ i18n.t('reports.from') }}
+            <input type="date" formControlName="from" />
+          </label>
+
+          <label>
+            {{ i18n.t('reports.to') }}
+            <input type="date" formControlName="to" />
+          </label>
+
+          <label>
+            {{ i18n.t('transactions.type') }}
+            <select formControlName="type">
+              <option value="ALL">{{ i18n.t('common.all') }}</option>
+              <option value="INCOME">{{ i18n.t('transactions.typeIncome') }}</option>
+              <option value="EXPENSE">{{ i18n.t('transactions.typeExpense') }}</option>
+              <option value="TRANSFER">{{ i18n.t('transactions.typeTransfer') }}</option>
+            </select>
+          </label>
+
+          <label>
+            {{ i18n.t('transactions.status') }}
+            <select formControlName="status">
+              <option value="ALL">{{ i18n.t('common.all') }}</option>
+              <option value="DRAFT">{{ i18n.t('transactions.statusDraft') }}</option>
+              <option value="POSTED">{{ i18n.t('transactions.statusPosted') }}</option>
+              <option value="CANCELLED">{{ i18n.t('transactions.statusCancelled') }}</option>
+            </select>
+          </label>
+
+          <label>
+            {{ i18n.t('transactions.category') }}
+            <select formControlName="categoryId">
+              <option value="ALL">{{ i18n.t('common.all') }}</option>
+              <option *ngFor="let category of state.categories" [value]="category.id">{{ category.name }}</option>
+            </select>
+          </label>
+
+          <button type="submit">{{ i18n.t('reports.apply') }}</button>
+        </form>
+      </section>
+
       <section class="content-grid accounts-layout">
         <article class="panel" *ngIf="showForm">
           <div class="panel-title">
@@ -113,15 +157,15 @@ import { TransactionsService } from './transactions.service';
         <article class="panel">
         <div class="panel-title">
           <h3>{{ i18n.t('transactions.ledger') }}</h3>
-          <span>{{ state.loading ? i18n.t('common.loading') : state.transactions.length + ' ' + i18n.t('common.total') }}</span>
+          <span>{{ state.loading ? i18n.t('common.loading') : filteredTransactions(state.transactions).length + ' ' + i18n.t('common.total') }}</span>
         </div>
 
-        <div class="empty-state" *ngIf="!state.loading && state.transactions.length === 0">
+        <div class="empty-state" *ngIf="!state.loading && filteredTransactions(state.transactions).length === 0">
           <strong>{{ i18n.t('transactions.emptyTitle') }}</strong>
           <p>{{ i18n.t('transactions.emptyHint') }}</p>
         </div>
 
-        <div class="data-table" *ngIf="state.transactions.length > 0">
+        <div class="data-table" *ngIf="filteredTransactions(state.transactions).length > 0">
           <div class="data-row transaction-row heading">
             <span>{{ i18n.t('transactions.date') }}</span>
             <span>{{ i18n.t('transactions.type') }}</span>
@@ -131,7 +175,7 @@ import { TransactionsService } from './transactions.service';
             <span>{{ i18n.t('transactions.actions') }}</span>
           </div>
 
-          <div class="data-row transaction-row" *ngFor="let transaction of state.transactions">
+          <div class="data-row transaction-row" *ngFor="let transaction of filteredTransactions(state.transactions)">
             <span>{{ transaction.transactionDate | date: 'dd MMM y' }}</span>
             <span>{{ labelForType(transaction.type) }}</span>
             <span>{{ accountLabel(transaction, state.accounts) }}</span>
@@ -145,6 +189,14 @@ import { TransactionsService } from './transactions.service';
                 (click)="postTransaction(transaction.id)"
               >
                 {{ i18n.t('transactions.post') }}
+              </button>
+              <button
+                class="table-action"
+                type="button"
+                *ngIf="transaction.status !== 'CANCELLED'"
+                (click)="cancelTransaction(transaction.id)"
+              >
+                {{ i18n.t('transactions.cancel') }}
               </button>
             </span>
           </div>
@@ -177,6 +229,14 @@ export class TransactionsPage {
     description: ['']
   });
 
+  readonly filterForm = this.formBuilder.nonNullable.group({
+    from: [this.currentMonthRange().from, Validators.required],
+    to: [this.currentMonthRange().to, Validators.required],
+    type: ['ALL' as TransactionType | 'ALL'],
+    status: ['ALL' as TransactionStatus | 'ALL'],
+    categoryId: ['ALL']
+  });
+
   readonly state$: Observable<{
     loading: boolean;
     transactions: Transaction[];
@@ -186,7 +246,7 @@ export class TransactionsPage {
   }> = this.reload$.pipe(
     switchMap(() =>
       forkJoin({
-        transactions: this.transactions.list(this.currentMonthRange().from, this.currentMonthRange().to),
+        transactions: this.transactions.list(this.filterForm.controls.from.value, this.filterForm.controls.to.value),
         accounts: this.accounts.list(),
         categories: this.categories.list()
       }).pipe(
@@ -245,6 +305,27 @@ export class TransactionsPage {
 
   postTransaction(transactionId: string): void {
     this.transactions.post(transactionId).subscribe(() => this.reload$.next());
+  }
+
+  cancelTransaction(transactionId: string): void {
+    this.transactions.cancel(transactionId).subscribe(() => this.reload$.next());
+  }
+
+  reloadTransactions(): void {
+    if (this.filterForm.invalid) {
+      return;
+    }
+    this.reload$.next();
+  }
+
+  filteredTransactions(transactions: Transaction[]): Transaction[] {
+    const filters = this.filterForm.getRawValue();
+    return transactions.filter((transaction) => {
+      const typeMatches = filters.type === 'ALL' || transaction.type === filters.type;
+      const statusMatches = filters.status === 'ALL' || transaction.status === filters.status;
+      const categoryMatches = filters.categoryId === 'ALL' || transaction.categoryId === filters.categoryId;
+      return typeMatches && statusMatches && categoryMatches;
+    });
   }
 
   syncAccountReference(accounts: Account[]): void {

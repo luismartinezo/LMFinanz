@@ -20,4 +20,8 @@ export class TransactionsService {
   post(transactionId: string): Observable<Transaction> {
     return this.http.post<Transaction>(`${API_BASE_URL}/api/transactions/${transactionId}/post`, {});
   }
+
+  cancel(transactionId: string): Observable<Transaction> {
+    return this.http.post<Transaction>(`${API_BASE_URL}/api/transactions/${transactionId}/cancel`, {});
+  }
 }
