@@ -633,6 +633,15 @@ nav a.active {
     minmax(180px, 1.1fr);
 }
 
+.asset-row {
+  grid-template-columns:
+    minmax(160px, 1.1fr)
+    minmax(120px, 0.7fr)
+    minmax(85px, 0.45fr)
+    minmax(140px, 0.9fr)
+    minmax(110px, 0.7fr);
+}
+
 .progress-track {
   display: block;
   height: 7px;
