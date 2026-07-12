@@ -15,4 +15,12 @@ export class AccountsService {
   create(request: AccountRequest): Observable<Account> {
     return this.http.post<Account>(`${API_BASE_URL}/api/accounts`, request);
   }
+
+  close(accountId: string): Observable<Account> {
+    return this.http.patch<Account>(`${API_BASE_URL}/api/accounts/${accountId}/close`, {});
+  }
+
+  reopen(accountId: string): Observable<Account> {
+    return this.http.patch<Account>(`${API_BASE_URL}/api/accounts/${accountId}/reopen`, {});
+  }
 }

@@ -104,14 +104,15 @@ import { AccountsService } from './accounts.service';
           </div>
 
           <div class="data-table" *ngIf="state.accounts.length > 0">
-            <div class="data-row heading">
+            <div class="data-row account-row heading">
               <span>{{ i18n.t('accounts.tableName') }}</span>
               <span>{{ i18n.t('accounts.tableType') }}</span>
               <span>{{ i18n.t('accounts.tableCountry') }}</span>
               <span>{{ i18n.t('accounts.tableBalance') }}</span>
+              <span>{{ i18n.t('transactions.actions') }}</span>
             </div>
 
-            <div class="data-row" *ngFor="let account of state.accounts">
+            <div class="data-row account-row" *ngFor="let account of state.accounts">
               <span>
                 <strong>{{ account.name }}</strong>
                 <small>{{ account.active ? i18n.t('common.active') : i18n.t('common.closed') }}</small>
@@ -119,6 +120,14 @@ import { AccountsService } from './accounts.service';
               <span>{{ labelFor(account.type) }}</span>
               <span>{{ account.countryCode }}</span>
               <span>{{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' }}</span>
+              <span>
+                <button class="table-action" type="button" *ngIf="account.active" (click)="closeAccount(account.id)">
+                  {{ i18n.t('accounts.closeAccount') }}
+                </button>
+                <button class="table-action" type="button" *ngIf="!account.active" (click)="reopenAccount(account.id)">
+                  {{ i18n.t('accounts.reopenAccount') }}
+                </button>
+              </span>
             </div>
           </div>
         </article>
@@ -193,6 +202,14 @@ export class AccountsPage {
 
   countByType(accounts: Account[], type: AccountType): number {
     return accounts.filter((account) => account.type === type).length;
+  }
+
+  closeAccount(accountId: string): void {
+    this.accounts.close(accountId).subscribe(() => this.reload$.next());
+  }
+
+  reopenAccount(accountId: string): void {
+    this.accounts.reopen(accountId).subscribe(() => this.reload$.next());
   }
 
   labelFor(type: AccountType): string {
