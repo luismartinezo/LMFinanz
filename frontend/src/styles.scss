@@ -615,6 +615,15 @@ nav a.active {
     minmax(110px, 0.7fr);
 }
 
+.debt-row {
+  grid-template-columns:
+    minmax(170px, 1.2fr)
+    minmax(130px, 0.8fr)
+    minmax(95px, 0.5fr)
+    minmax(130px, 0.8fr)
+    minmax(100px, 0.6fr);
+}
+
 .data-row.heading {
   border: 0;
   color: #64727c;
