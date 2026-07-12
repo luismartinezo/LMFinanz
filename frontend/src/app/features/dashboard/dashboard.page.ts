@@ -10,7 +10,7 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
   imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf],
   template: `
     <main class="dashboard" *ngIf="state$ | async as state">
-      <section class="page-heading">
+      <section class="page-heading dashboard-hero">
         <div>
           <p class="eyebrow">{{ i18n.t('dashboard.eyebrow') }}</p>
           <h2>{{ i18n.t('dashboard.title') }}</h2>
@@ -27,25 +27,37 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
       <p class="notice error" *ngIf="state.error">{{ state.error }}</p>
 
       <div class="metric-grid">
-        <article>
-          <span>{{ i18n.t('dashboard.income') }}</span>
+        <article class="metric-card income">
+          <div class="metric-topline">
+            <span>{{ i18n.t('dashboard.income') }}</span>
+            <b>IN</b>
+          </div>
           <strong>{{ money(state.report?.totalIncome) | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
           <small>{{ i18n.t('dashboard.incomeHint') }}</small>
         </article>
-        <article>
-          <span>{{ i18n.t('dashboard.expenses') }}</span>
+        <article class="metric-card expense">
+          <div class="metric-topline">
+            <span>{{ i18n.t('dashboard.expenses') }}</span>
+            <b>EX</b>
+          </div>
           <strong>{{ money(state.report?.totalExpenses) | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
           <small>{{ i18n.t('dashboard.expensesHint') }}</small>
         </article>
-        <article>
-          <span>{{ i18n.t('dashboard.netCashFlow') }}</span>
+        <article class="metric-card cashflow">
+          <div class="metric-topline">
+            <span>{{ i18n.t('dashboard.netCashFlow') }}</span>
+            <b>CF</b>
+          </div>
           <strong [class.negative]="money(state.report?.netCashFlow) < 0">
             {{ money(state.report?.netCashFlow) | currency: 'EUR' : 'symbol' : '1.2-2' }}
           </strong>
           <small>{{ i18n.t('dashboard.netCashFlowHint') }}</small>
         </article>
-        <article>
-          <span>{{ i18n.t('dashboard.reportLines') }}</span>
+        <article class="metric-card reports">
+          <div class="metric-topline">
+            <span>{{ i18n.t('dashboard.reportLines') }}</span>
+            <b>RP</b>
+          </div>
           <strong>{{ state.report?.breakdown?.length ?? 0 | number }}</strong>
           <small>{{ i18n.t('dashboard.reportLinesHint') }}</small>
         </article>

@@ -28,13 +28,16 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
 
       <section class="workspace">
         <header class="topbar">
-          <div>
-            <strong>{{ auth.user()?.fullName }}</strong>
-            <span>{{ auth.user()?.email }}</span>
+          <div class="topbar-user">
+            <span class="user-avatar">{{ initials() }}</span>
+            <div>
+              <strong>{{ auth.user()?.fullName }}</strong>
+              <span>{{ auth.user()?.email }}</span>
+            </div>
           </div>
           <div class="topbar-actions">
             <app-language-selector />
-            <button type="button" (click)="logout()">{{ i18n.t('app.logout') }}</button>
+            <button class="button-secondary" type="button" (click)="logout()">{{ i18n.t('app.logout') }}</button>
           </div>
         </header>
 
@@ -53,5 +56,17 @@ export class AppShellComponent {
   logout(): void {
     this.auth.logout();
     this.router.navigateByUrl('/auth/login');
+  }
+
+  initials(): string {
+    const fullName = this.auth.user()?.fullName?.trim();
+    if (!fullName) {
+      return 'LM';
+    }
+    return fullName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
   }
 }
