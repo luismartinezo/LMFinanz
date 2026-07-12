@@ -167,6 +167,23 @@ Expected response:
 }
 ```
 
+## Demo Data
+
+To test the app with realistic data, start the backend and run:
+
+```bash
+python3 scripts/seed_demo_data.py
+```
+
+Demo login:
+
+```text
+demo.lmfinanz@example.com
+DemoPass#2026
+```
+
+More details are available in [docs/DEMO_DATA.md](docs/DEMO_DATA.md).
+
 ## Frontend Setup
 
 The Angular app lives in:
