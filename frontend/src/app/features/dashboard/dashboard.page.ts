@@ -85,14 +85,23 @@ import {
             <span>{{ primaryCurrency(state) }}</span>
           </div>
           <div class="chart-shell" *ngIf="!isEmpty(state.report)">
-            <div class="bar-chart">
-              <span *ngFor="let item of chartItems(state.report)" [style.height.%]="chartHeight(item, state.report)">
-                <b></b>
-              </span>
+            <div class="cashflow-bars">
+              <div class="cashflow-bar income" [style.--bar-height.%]="reportMetricHeight(state.report, 'income')">
+                <span>{{ money(state.report?.totalIncome) | currency: primaryCurrency(state) : 'symbol' : '1.0-0' }}</span>
+                <i></i>
+                <small>{{ i18n.t('dashboard.income') }}</small>
+              </div>
+              <div class="cashflow-bar expense" [style.--bar-height.%]="reportMetricHeight(state.report, 'expenses')">
+                <span>{{ money(state.report?.totalExpenses) | currency: primaryCurrency(state) : 'symbol' : '1.0-0' }}</span>
+                <i></i>
+                <small>{{ i18n.t('dashboard.expenses') }}</small>
+              </div>
+              <div class="cashflow-bar net" [class.negative]="money(state.report?.netCashFlow) < 0" [style.--bar-height.%]="reportMetricHeight(state.report, 'net')">
+                <span>{{ money(state.report?.netCashFlow) | currency: primaryCurrency(state) : 'symbol' : '1.0-0' }}</span>
+                <i></i>
+                <small>{{ i18n.t('dashboard.netCashFlow') }}</small>
+              </div>
             </div>
-            <svg class="trend-line" viewBox="0 0 640 180" preserveAspectRatio="none" aria-hidden="true">
-              <polyline [attr.points]="trendPoints(state.report)" />
-            </svg>
           </div>
           <div class="empty-state" *ngIf="isEmpty(state.report)">
             <strong>{{ i18n.t('dashboard.noTransactions') }}</strong>
@@ -272,28 +281,18 @@ export class DashboardPage {
     return [...(report?.breakdown ?? [])].sort((left, right) => Math.abs(right.amount) - Math.abs(left.amount)).slice(0, 6);
   }
 
-  chartItems(report: FinancialReport | null): ReportBreakdownItem[] {
-    return [...(report?.breakdown ?? [])].slice(0, 10);
-  }
+  reportMetricHeight(report: FinancialReport | null, metric: 'income' | 'expenses' | 'net'): number {
+    const income = this.money(report?.totalIncome);
+    const expenses = this.money(report?.totalExpenses);
+    const netCashFlow = this.money(report?.netCashFlow);
+    const max = Math.max(Math.abs(income), Math.abs(expenses), Math.abs(netCashFlow), 1);
+    const values = {
+      income,
+      expenses,
+      net: netCashFlow
+    };
 
-  chartHeight(item: ReportBreakdownItem, report: FinancialReport | null): number {
-    const max = Math.max(...this.chartItems(report).map((entry) => Math.abs(entry.amount)), 1);
-    return Math.max(12, (Math.abs(item.amount) / max) * 82);
-  }
-
-  trendPoints(report: FinancialReport | null): string {
-    const items = this.chartItems(report);
-    if (items.length === 0) {
-      return '';
-    }
-    const max = Math.max(...items.map((item) => Math.abs(item.amount)), 1);
-    return items
-      .map((item, index) => {
-        const x = items.length === 1 ? 320 : (index / (items.length - 1)) * 640;
-        const y = 160 - (Math.abs(item.amount) / max) * 120;
-        return `${x},${y}`;
-      })
-      .join(' ');
+    return Math.max(16, (Math.abs(values[metric]) / max) * 100);
   }
 
   stripWeight(item: ReportBreakdownItem): number {

@@ -703,50 +703,75 @@ nav a.active {
   border-bottom: 1px solid #e7eef1;
   background:
     repeating-linear-gradient(to bottom, transparent 0, transparent 39px, #eef3f5 40px),
-    linear-gradient(180deg, rgba(15, 118, 110, 0.04), transparent 45%);
+    linear-gradient(180deg, #f8fbfc 0%, #ffffff 100%);
   overflow: hidden;
 }
 
-.bar-chart {
+.cashflow-bars {
   position: absolute;
-  inset: 36px 16px 28px;
-  display: flex;
-  align-items: end;
-  justify-content: space-around;
-  gap: 18px;
-}
-
-.bar-chart span {
+  inset: 18px 18px 20px;
   display: grid;
+  grid-template-columns: repeat(3, minmax(90px, 1fr));
   align-items: end;
-  width: min(34px, 7%);
-  min-height: 18px;
+  gap: 18px;
+  border-bottom: 1px solid #dce7ec;
+  padding: 12px 18px 18px;
 }
 
-.bar-chart b {
-  display: block;
-  width: 100%;
+.cashflow-bar {
+  --bar-height: 16%;
+  display: grid;
+  grid-template-rows: auto minmax(28px, 1fr) auto;
+  align-items: end;
+  justify-items: center;
   height: 100%;
-  border-radius: 8px 8px 0 0;
+  min-width: 0;
+  gap: 10px;
+}
+
+.cashflow-bar span {
+  align-self: start;
+  max-width: 100%;
+  border-radius: 999px;
+  color: #15202b;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
+  box-shadow: 0 8px 16px rgba(16, 33, 43, 0.06);
+}
+
+.cashflow-bar i {
+  display: block;
+  width: min(64px, 58%);
+  height: var(--bar-height);
+  min-height: 18px;
+  border-radius: 10px 10px 3px 3px;
   background: linear-gradient(180deg, #45b68c, #0f766e);
-  box-shadow: 0 10px 18px rgba(15, 118, 110, 0.18);
+  box-shadow: 0 16px 24px rgba(15, 118, 110, 0.16);
 }
 
-.trend-line {
-  position: absolute;
-  inset: 26px 18px 34px;
-  width: calc(100% - 36px);
-  height: calc(100% - 60px);
-  overflow: visible;
+.cashflow-bar.expense i {
+  background: linear-gradient(180deg, #f87171, #b42318);
+  box-shadow: 0 16px 24px rgba(180, 35, 24, 0.14);
 }
 
-.trend-line polyline {
-  fill: none;
-  stroke: #ef4fa3;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 8px 10px rgba(239, 79, 163, 0.2));
+.cashflow-bar.net i {
+  background: linear-gradient(180deg, #64748b, #10212b);
+  box-shadow: 0 16px 24px rgba(16, 33, 43, 0.16);
+}
+
+.cashflow-bar.net.negative i {
+  background: linear-gradient(180deg, #fb7185, #b42318);
+}
+
+.cashflow-bar small {
+  color: #52657a;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
 }
 
 .health-panel {
