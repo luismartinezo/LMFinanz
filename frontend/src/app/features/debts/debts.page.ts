@@ -288,6 +288,9 @@ export class DebtsPage {
   }
 
   payInstallment(debtId: string, installmentId: string): void {
+    if (!confirm(this.i18n.t('confirm.payInstallment'))) {
+      return;
+    }
     this.debts
       .payInstallment(debtId, installmentId, {
         paidDate: this.today(),

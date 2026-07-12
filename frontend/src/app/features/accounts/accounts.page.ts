@@ -205,6 +205,9 @@ export class AccountsPage {
   }
 
   closeAccount(accountId: string): void {
+    if (!confirm(this.i18n.t('confirm.closeAccount'))) {
+      return;
+    }
     this.accounts.close(accountId).subscribe(() => this.reload$.next());
   }
 

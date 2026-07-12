@@ -218,6 +218,9 @@ export class SavingsPage {
   }
 
   cancelGoal(goalId: string): void {
+    if (!confirm(this.i18n.t('confirm.cancelSavingsGoal'))) {
+      return;
+    }
     this.savings.cancel(goalId).subscribe(() => this.reload$.next());
   }
 

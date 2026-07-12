@@ -308,6 +308,9 @@ export class TransactionsPage {
   }
 
   cancelTransaction(transactionId: string): void {
+    if (!confirm(this.i18n.t('confirm.cancelTransaction'))) {
+      return;
+    }
     this.transactions.cancel(transactionId).subscribe(() => this.reload$.next());
   }
 

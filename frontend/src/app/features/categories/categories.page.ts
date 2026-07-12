@@ -200,6 +200,9 @@ export class CategoriesPage {
   }
 
   deactivate(categoryId: string): void {
+    if (!confirm(this.i18n.t('confirm.deactivateCategory'))) {
+      return;
+    }
     this.categories.deactivate(categoryId).subscribe(() => this.reload$.next());
   }
 

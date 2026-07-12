@@ -245,6 +245,9 @@ export class AssetsPage {
   }
 
   retireAsset(assetId: string): void {
+    if (!confirm(this.i18n.t('confirm.retireAsset'))) {
+      return;
+    }
     this.assets.retire(assetId).subscribe(() => this.reload$.next());
   }
 
