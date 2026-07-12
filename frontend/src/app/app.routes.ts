@@ -29,6 +29,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/transactions/transactions.page').then((m) => m.TransactionsPage)
       },
       {
+        path: 'categories',
+        loadComponent: () => import('./features/categories/categories.page').then((m) => m.CategoriesPage)
+      },
+      {
         path: 'debts',
         loadComponent: () => import('./features/debts/debts.page').then((m) => m.DebtsPage)
       },

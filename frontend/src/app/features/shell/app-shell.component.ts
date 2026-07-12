@@ -19,6 +19,7 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ i18n.t('app.dashboard') }}</a>
           <a routerLink="/accounts" routerLinkActive="active">{{ i18n.t('app.accounts') }}</a>
           <a routerLink="/transactions" routerLinkActive="active">{{ i18n.t('app.transactions') }}</a>
+          <a routerLink="/categories" routerLinkActive="active">{{ i18n.t('app.categories') }}</a>
           <a routerLink="/debts" routerLinkActive="active">{{ i18n.t('app.debts') }}</a>
           <a routerLink="/savings" routerLinkActive="active">{{ i18n.t('app.savings') }}</a>
           <a routerLink="/assets" routerLinkActive="active">{{ i18n.t('app.assets') }}</a>
