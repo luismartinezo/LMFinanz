@@ -624,6 +624,45 @@ nav a.active {
     minmax(100px, 0.6fr);
 }
 
+.savings-row {
+  grid-template-columns:
+    minmax(160px, 1fr)
+    minmax(150px, 1fr)
+    minmax(130px, 0.8fr)
+    minmax(120px, 0.7fr)
+    minmax(180px, 1.1fr);
+}
+
+.progress-track {
+  display: block;
+  height: 7px;
+  margin: 6px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dce8e6;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1c7c6d, #45b68c);
+}
+
+.table-actions,
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-form input {
+  width: 100px;
+  min-height: 34px;
+  padding: 8px 10px;
+}
+
 .data-row.heading {
   border: 0;
   color: #64727c;
