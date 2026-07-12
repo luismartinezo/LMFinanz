@@ -271,10 +271,144 @@ nav a.active {
   font-weight: 900;
 }
 
+.topbar .user-avatar {
+  color: white;
+}
+
+.user-avatar.compact {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0f766e, #6d5dfc);
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.18);
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-icon,
+.topbar-avatar-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  border: 1px solid #d8e2ea;
+  border-radius: 6px;
+  color: #52657a;
+  background: #ffffff;
+  padding: 0;
+  box-shadow: 0 8px 18px rgba(16, 33, 43, 0.04);
+}
+
+.topbar-icon:disabled {
+  opacity: 0.9;
+}
+
+.topbar-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.topbar-icon:hover:not(:disabled),
+.topbar-avatar-button:hover,
+.profile-menu[open] .topbar-avatar-button {
+  border-color: #9bb6c4;
+  color: #0f766e;
+  background: #f8fbfc;
+}
+
+.topbar-badge {
+  position: absolute;
+  top: -7px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  border: 2px solid white;
+  border-radius: 999px;
+  color: white;
+  background: #6d5dfc;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.topbar .topbar-badge {
+  color: white;
+}
+
+.topbar-badge.alert {
+  background: #f05282;
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu summary {
+  list-style: none;
+}
+
+.profile-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 4;
+  display: grid;
+  gap: 8px;
+  width: 260px;
+  border: 1px solid #dfe8ec;
+  border-radius: 8px;
+  background: white;
+  padding: 14px;
+  box-shadow: 0 18px 42px rgba(16, 33, 43, 0.16);
+}
+
+.profile-summary {
+  border-bottom: 1px solid #edf2f4;
+  padding: 2px 4px 12px;
+}
+
+.profile-summary strong {
+  display: block;
+  color: #15202b;
+}
+
+.profile-summary span {
+  overflow-wrap: anywhere;
+}
+
+.profile-dropdown button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 38px;
+  border-radius: 6px;
+  color: #15202b;
+  background: #f8fbfc;
+  text-align: left;
+}
+
+.profile-dropdown button:not(:disabled):hover {
+  color: white;
+  background: #0f766e;
 }
 
 .language-select {
@@ -299,6 +433,56 @@ nav a.active {
   width: auto;
   min-width: 120px;
   background: white;
+}
+
+.topbar-actions .language-select {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  border: 1px solid #d8e2ea;
+  border-radius: 6px;
+  color: #52657a;
+  background: white;
+  padding: 0;
+  box-shadow: 0 8px 18px rgba(16, 33, 43, 0.04);
+}
+
+.topbar-actions .language-select::before {
+  content: "A";
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  color: #52657a;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.topbar-actions .language-select:hover {
+  border-color: #9bb6c4;
+  background: #f8fbfc;
+}
+
+.topbar-actions .language-select span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.topbar-actions .language-select select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .auth-page-language .language-select select {
@@ -1120,10 +1304,29 @@ nav a.active {
   }
 
   .page-heading,
-  .panel-title,
-  .topbar-actions {
+  .panel-title {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .topbar {
+    height: auto;
+    min-height: 76px;
+    gap: 16px;
+    padding: 14px 18px;
+  }
+
+  .topbar-user {
+    min-width: 0;
+  }
+
+  .topbar-actions {
+    flex-wrap: wrap;
+  }
+
+  .profile-dropdown {
+    right: -46px;
+    width: min(260px, calc(100vw - 36px));
   }
 
   .table-empty {
