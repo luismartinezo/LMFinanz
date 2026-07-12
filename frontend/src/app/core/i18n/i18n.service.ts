@@ -239,7 +239,28 @@ const en = {
   'reports.monthly': 'Monthly',
   'reports.monthlyHint': 'Monthly balance by category.',
   'reports.yearly': 'Yearly',
-  'reports.yearlyHint': 'Trends by currency and country.'
+  'reports.yearlyHint': 'Trends by currency and country.',
+  'reports.refresh': 'Refresh',
+  'reports.mode': 'View',
+  'reports.modeSummary': 'Summary',
+  'reports.modeCurrency': 'By currency',
+  'reports.modeCountry': 'By country',
+  'reports.period': 'Period',
+  'reports.custom': 'Custom',
+  'reports.from': 'From',
+  'reports.to': 'To',
+  'reports.apply': 'Apply',
+  'reports.totalIncome': 'Income',
+  'reports.totalIncomeHint': 'Posted income in the selected range.',
+  'reports.totalExpenses': 'Expenses',
+  'reports.totalExpensesHint': 'Posted expenses in the selected range.',
+  'reports.netCashFlow': 'Net cash flow',
+  'reports.netCashFlowHint': 'Income minus expenses.',
+  'reports.breakdown': 'Breakdown',
+  'reports.label': 'Label',
+  'reports.emptyTitle': 'No report data yet',
+  'reports.emptyHint': 'Post transactions or change filters to see the report.',
+  'reports.loadError': 'Reports could not be loaded. Check that the backend is running.'
 };
 
 type TranslationKey = keyof typeof en;
@@ -466,7 +487,28 @@ const es: Record<TranslationKey, string> = {
   'reports.monthly': 'Mensual',
   'reports.monthlyHint': 'Balance mensual por categoria.',
   'reports.yearly': 'Anual',
-  'reports.yearlyHint': 'Tendencias por moneda y pais.'
+  'reports.yearlyHint': 'Tendencias por moneda y pais.',
+  'reports.refresh': 'Actualizar',
+  'reports.mode': 'Vista',
+  'reports.modeSummary': 'Resumen',
+  'reports.modeCurrency': 'Por moneda',
+  'reports.modeCountry': 'Por pais',
+  'reports.period': 'Periodo',
+  'reports.custom': 'Personalizado',
+  'reports.from': 'Desde',
+  'reports.to': 'Hasta',
+  'reports.apply': 'Aplicar',
+  'reports.totalIncome': 'Ingresos',
+  'reports.totalIncomeHint': 'Ingresos publicados en el rango seleccionado.',
+  'reports.totalExpenses': 'Gastos',
+  'reports.totalExpensesHint': 'Gastos publicados en el rango seleccionado.',
+  'reports.netCashFlow': 'Flujo neto',
+  'reports.netCashFlowHint': 'Ingresos menos gastos.',
+  'reports.breakdown': 'Desglose',
+  'reports.label': 'Etiqueta',
+  'reports.emptyTitle': 'Aun no hay datos',
+  'reports.emptyHint': 'Publica movimientos o cambia los filtros para ver el reporte.',
+  'reports.loadError': 'No se pudieron cargar los reportes. Verifica que el backend este corriendo.'
 };
 
 const de: Record<TranslationKey, string> = {
@@ -697,7 +739,28 @@ const de: Record<TranslationKey, string> = {
   'reports.monthly': 'Monatlich',
   'reports.monthlyHint': 'Monatssaldo nach Kategorie.',
   'reports.yearly': 'Jaehrlich',
-  'reports.yearlyHint': 'Trends nach Waehrung und Land.'
+  'reports.yearlyHint': 'Trends nach Waehrung und Land.',
+  'reports.refresh': 'Aktualisieren',
+  'reports.mode': 'Ansicht',
+  'reports.modeSummary': 'Uebersicht',
+  'reports.modeCurrency': 'Nach Waehrung',
+  'reports.modeCountry': 'Nach Land',
+  'reports.period': 'Zeitraum',
+  'reports.custom': 'Benutzerdefiniert',
+  'reports.from': 'Von',
+  'reports.to': 'Bis',
+  'reports.apply': 'Anwenden',
+  'reports.totalIncome': 'Einnahmen',
+  'reports.totalIncomeHint': 'Gebuchte Einnahmen im gewaehlten Zeitraum.',
+  'reports.totalExpenses': 'Ausgaben',
+  'reports.totalExpensesHint': 'Gebuchte Ausgaben im gewaehlten Zeitraum.',
+  'reports.netCashFlow': 'Netto-Cashflow',
+  'reports.netCashFlowHint': 'Einnahmen minus Ausgaben.',
+  'reports.breakdown': 'Aufschluesselung',
+  'reports.label': 'Bezeichnung',
+  'reports.emptyTitle': 'Noch keine Berichtsdaten',
+  'reports.emptyHint': 'Buche Transaktionen oder aendere Filter, um den Bericht zu sehen.',
+  'reports.loadError': 'Berichte konnten nicht geladen werden. Pruefe, ob das Backend laeuft.'
 };
 
 const translations: Record<SupportedLanguage, Record<TranslationKey, string>> = { en, es, de };
