@@ -1,0 +1,9 @@
+target
+.git
+.idea
+.vscode
+frontend/node_modules
+frontend/dist
+frontend/.angular
+*.log
+.env

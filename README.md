@@ -2,7 +2,7 @@
 
 LMFinanz is a personal finance system built with Java 21, Spring Boot 3, and Angular 21. The project is designed as a production-ready foundation for managing accounts, transactions, categories, debts, savings goals, assets, countries, currencies, and financial reports.
 
-The current repository contains the Spring Boot backend and the Angular frontend base.
+The current repository contains the Spring Boot backend, Angular frontend, Docker setup, Flyway migrations, JWT security, Swagger documentation, and the first production-oriented finance modules.
 
 ## Tech Stack
 
@@ -224,6 +224,24 @@ Backend URL:
 http://localhost:8080
 ```
 
+Frontend URL:
+
+```text
+http://localhost:4200
+```
+
+Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -240,6 +258,17 @@ http://localhost:8080
 | `SERVER_PORT` | `8080` | Backend HTTP port |
 
 For production, always provide a strong `JWT_SECRET` through the deployment environment.
+
+Minimum production checklist:
+
+- Use JDK 21 for backend builds.
+- Use Node.js 22 LTS for frontend builds.
+- Set a strong `JWT_SECRET`; do not reuse the development value.
+- Keep MySQL credentials outside source control.
+- Run `mvn test` before backend deployment.
+- Run `npm test -- --watch=false` or `ng test --watch=false` before frontend deployment.
+- Verify CORS origins match the deployed frontend URL.
+- Verify Flyway migrations run successfully against the target database.
 
 ## Database Migrations
 
