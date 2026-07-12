@@ -3,7 +3,15 @@ import { Component, inject } from '@angular/core';
 import { Observable, catchError, map, of, startWith } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { DashboardService } from './dashboard.service';
-import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboard.models';
+import {
+  DashboardAccount,
+  DashboardAsset,
+  DashboardDebt,
+  DashboardSavingsGoal,
+  DashboardState,
+  FinancialReport,
+  ReportBreakdownItem
+} from './dashboard.models';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -32,7 +40,7 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
             <span>{{ i18n.t('dashboard.income') }}</span>
             <b>IN</b>
           </div>
-          <strong>{{ money(state.report?.totalIncome) | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+          <strong>{{ money(state.report?.totalIncome) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
           <small>{{ i18n.t('dashboard.incomeHint') }}</small>
         </article>
         <article class="metric-card expense">
@@ -40,7 +48,7 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
             <span>{{ i18n.t('dashboard.expenses') }}</span>
             <b>EX</b>
           </div>
-          <strong>{{ money(state.report?.totalExpenses) | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+          <strong>{{ money(state.report?.totalExpenses) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
           <small>{{ i18n.t('dashboard.expensesHint') }}</small>
         </article>
         <article class="metric-card cashflow">
@@ -49,21 +57,61 @@ import { DashboardState, FinancialReport, ReportBreakdownItem } from './dashboar
             <b>CF</b>
           </div>
           <strong [class.negative]="money(state.report?.netCashFlow) < 0">
-            {{ money(state.report?.netCashFlow) | currency: 'EUR' : 'symbol' : '1.2-2' }}
+            {{ money(state.report?.netCashFlow) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}
           </strong>
           <small>{{ i18n.t('dashboard.netCashFlowHint') }}</small>
         </article>
         <article class="metric-card reports">
           <div class="metric-topline">
-            <span>{{ i18n.t('dashboard.reportLines') }}</span>
-            <b>RP</b>
+            <span>{{ i18n.t('dashboard.netWorth') }}</span>
+            <b>NW</b>
           </div>
-          <strong>{{ state.report?.breakdown?.length ?? 0 | number }}</strong>
-          <small>{{ i18n.t('dashboard.reportLinesHint') }}</small>
+          <strong [class.negative]="netWorth(state, primaryCurrency(state)) < 0">
+            {{ netWorth(state, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}
+          </strong>
+          <small>{{ i18n.t('dashboard.netWorthHint') }}</small>
         </article>
       </div>
 
       <section class="content-grid">
+        <article class="panel">
+          <div class="panel-title">
+            <h3>{{ i18n.t('dashboard.balanceByCurrency') }}</h3>
+            <span>{{ state.accounts.length }} {{ i18n.t('app.accounts') }}</span>
+          </div>
+          <ul class="status-list compact">
+            <li *ngFor="let currency of currencies(state)">
+              <span>{{ currency }}</span>
+              <strong>{{ accountBalance(state.accounts, currency) | currency: currency : 'symbol' : '1.2-2' }}</strong>
+            </li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">
+            <h3>{{ i18n.t('dashboard.portfolioSnapshot') }}</h3>
+            <span>{{ primaryCurrency(state) }}</span>
+          </div>
+          <ul class="status-list compact">
+            <li>
+              <span>{{ i18n.t('app.assets') }}</span>
+              <strong>{{ assetValue(state.assets, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+            </li>
+            <li>
+              <span>{{ i18n.t('app.debts') }}</span>
+              <strong>{{ debtBalance(state.debts, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+            </li>
+            <li>
+              <span>{{ i18n.t('app.savings') }}</span>
+              <strong>{{ savingsBalance(state.savingsGoals, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+            </li>
+            <li>
+              <span>{{ i18n.t('dashboard.activeCountries') }}</span>
+              <strong>{{ countries(state.accounts).join(' · ') || '-' }}</strong>
+            </li>
+          </ul>
+        </article>
+
         <article class="panel">
           <div class="panel-title">
             <h3>{{ i18n.t('dashboard.monthlyMovement') }}</h3>
@@ -106,13 +154,25 @@ export class DashboardPage {
   private readonly range = this.currentMonthRange();
   readonly i18n = inject(I18nService);
 
-  readonly state$: Observable<DashboardState> = this.dashboard.monthlySummary(this.range.from, this.range.to).pipe(
-    map((report) => ({ loading: false, report, error: null })),
-    startWith({ loading: true, report: null, error: null }),
+  readonly state$: Observable<DashboardState> = this.dashboard.overview(this.range.from, this.range.to).pipe(
+    map((overview) => ({ loading: false, ...overview, error: null })),
+    startWith({
+      loading: true,
+      report: null,
+      accounts: [],
+      debts: [],
+      savingsGoals: [],
+      assets: [],
+      error: null
+    }),
     catchError(() =>
       of({
         loading: false,
         report: null,
+        accounts: [],
+        debts: [],
+        savingsGoals: [],
+        assets: [],
         error: this.i18n.t('dashboard.loadError')
       })
     )
@@ -120,6 +180,56 @@ export class DashboardPage {
 
   money(value: number | null | undefined): number {
     return Number(value ?? 0);
+  }
+
+  primaryCurrency(state: DashboardState): string {
+    return (
+      state.accounts.find((account) => account.active)?.currencyCode ??
+      state.report?.breakdown.find((item) => item.currencyCode)?.currencyCode ??
+      'EUR'
+    );
+  }
+
+  currencies(state: DashboardState): string[] {
+    const values = state.accounts.filter((account) => account.active).map((account) => account.currencyCode);
+    return [...new Set(values.length > 0 ? values : ['EUR', 'COP', 'USD'])];
+  }
+
+  countries(accounts: DashboardAccount[]): string[] {
+    return [...new Set(accounts.filter((account) => account.active).map((account) => account.countryCode))];
+  }
+
+  accountBalance(accounts: DashboardAccount[], currencyCode: string): number {
+    return accounts
+      .filter((account) => account.active && account.currencyCode === currencyCode)
+      .reduce((total, account) => total + this.money(account.currentBalance), 0);
+  }
+
+  debtBalance(debts: DashboardDebt[], currencyCode: string): number {
+    return debts
+      .filter((debt) => debt.status === 'ACTIVE' && debt.currencyCode === currencyCode)
+      .reduce((total, debt) => total + this.money(debt.remainingBalance), 0);
+  }
+
+  savingsBalance(goals: DashboardSavingsGoal[], currencyCode: string): number {
+    return goals
+      .filter((goal) => goal.status === 'ACTIVE' && goal.currencyCode === currencyCode)
+      .reduce((total, goal) => total + this.money(goal.currentAmount), 0);
+  }
+
+  assetValue(assets: DashboardAsset[], currencyCode: string): number {
+    return assets
+      .filter((asset) => asset.active && asset.currencyCode === currencyCode)
+      .reduce((total, asset) => total + this.money(asset.estimatedValue), 0);
+  }
+
+  netWorth(state: DashboardState, currencyCode: string): number {
+    return (
+      this.accountBalance(state.accounts, currencyCode) +
+      this.assetValue(state.assets, currencyCode) +
+      this.savingsBalance(state.savingsGoals, currencyCode) -
+      this.debtBalance(state.debts, currencyCode)
+    );
   }
 
   isEmpty(report: FinancialReport | null): boolean {
