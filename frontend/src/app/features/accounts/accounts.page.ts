@@ -40,6 +40,27 @@ import { AccountsService } from './accounts.service';
         </article>
       </section>
 
+      <section class="panel account-balance-summary">
+        <div>
+          <p class="eyebrow">{{ i18n.t('accounts.availableEyebrow') }}</p>
+          <h3>{{ i18n.t('accounts.availableTitle') }}</h3>
+        </div>
+        <div class="account-balance-grid">
+          <article>
+            <span>{{ i18n.t('accounts.countryGermany') }} · EUR</span>
+            <strong>{{ totalAvailable(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+          </article>
+          <article>
+            <span>{{ i18n.t('accounts.countryColombia') }} · COP</span>
+            <strong>{{ totalAvailable(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}</strong>
+          </article>
+          <article>
+            <span>USD</span>
+            <strong>{{ totalByCurrency(state.accounts, 'USD') | currency: 'USD' : 'symbol' : '1.2-2' }}</strong>
+          </article>
+        </div>
+      </section>
+
       <section class="content-grid accounts-layout">
         <article class="panel" *ngIf="showForm">
           <div class="panel-title">
@@ -271,6 +292,18 @@ export class AccountsPage {
 
   countByType(accounts: Account[], type: AccountType): number {
     return accounts.filter((account) => account.type === type).length;
+  }
+
+  totalAvailable(accounts: Account[], countryCode: CountryCode, currencyCode: CurrencyCode): number {
+    return accounts
+      .filter((account) => account.active && account.countryCode === countryCode && account.currencyCode === currencyCode)
+      .reduce((sum, account) => sum + account.currentBalance, 0);
+  }
+
+  totalByCurrency(accounts: Account[], currencyCode: CurrencyCode): number {
+    return accounts
+      .filter((account) => account.active && account.currencyCode === currencyCode)
+      .reduce((sum, account) => sum + account.currentBalance, 0);
   }
 
   closeAccount(accountId: string): void {

@@ -1110,6 +1110,43 @@ nav a.active {
   grid-template-columns: minmax(280px, 0.45fr) minmax(0, 1fr);
 }
 
+.account-balance-summary {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.55fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.account-balance-summary h3 {
+  margin: 4px 0 0;
+}
+
+.account-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.account-balance-grid article {
+  border: 1px solid #e1e9ed;
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8fbfc;
+}
+
+.account-balance-grid span {
+  color: #64727c;
+  font-size: 13px;
+}
+
+.account-balance-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #0f766e;
+  font-size: 24px;
+}
+
 .budget-heading {
   background:
     radial-gradient(circle at 90% 36%, rgba(15, 118, 110, 0.14), transparent 24%),
@@ -1531,8 +1568,11 @@ nav a.active {
     align-items: stretch;
   }
 
-  .budget-income-panel {
+  .budget-income-panel,
+  .account-balance-summary,
+  .account-balance-grid {
     display: grid;
+    grid-template-columns: 1fr;
   }
 
   .table-empty {
