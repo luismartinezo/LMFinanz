@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { API_BASE_URL } from '../api/api.config';
 import { AuthService } from './auth.service';
@@ -8,6 +9,7 @@ import { TokenStorageService } from './token-storage.service';
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const tokens = inject(TokenStorageService);
   const auth = inject(AuthService);
+  const router = inject(Router);
   const isApiRequest = request.url.startsWith(API_BASE_URL);
   const isPublicAuthRequest =
     request.url.endsWith('/api/auth/login') ||
@@ -32,7 +34,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
           next(request.clone({ setHeaders: { Authorization: `Bearer ${response.accessToken}` } }))
         ),
         catchError((refreshError) => {
-          auth.logout();
+          auth.clearSession();
+          router.navigateByUrl('/auth/login');
           return throwError(() => refreshError);
         })
       );

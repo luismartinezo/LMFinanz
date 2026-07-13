@@ -45,6 +45,11 @@ export class AuthService {
     this.userState.set(null);
   }
 
+  clearSession(): void {
+    this.tokens.clear();
+    this.userState.set(null);
+  }
+
   private saveSession(response: AuthResponse): void {
     this.tokens.save(response);
     this.userState.set(this.tokens.user);
