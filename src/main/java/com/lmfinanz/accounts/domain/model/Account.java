@@ -88,6 +88,15 @@ public class Account extends BaseEntity {
         this.name = name;
     }
 
+    public void updateDetails(String name, AccountType type, BigDecimal currentBalance) {
+        if (currentBalance.signum() < 0 && type != AccountType.CREDIT_CARD) {
+            throw new DomainException("Only credit cards can have a negative balance");
+        }
+        this.name = name;
+        this.type = type;
+        this.currentBalance = currentBalance;
+    }
+
     public void close() {
         active = false;
     }

@@ -22,4 +22,6 @@ export interface AccountRequest {
 
 export interface AccountUpdateRequest {
   name: string;
+  type: AccountType;
+  currentBalance: number;
 }

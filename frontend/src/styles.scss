@@ -1293,7 +1293,8 @@ nav a.active {
     minmax(260px, 1.1fr);
 }
 
-.account-row input {
+.account-row input,
+.account-row select {
   width: 100%;
   min-width: 0;
 }

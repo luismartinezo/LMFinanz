@@ -62,7 +62,7 @@ public class AccountService implements AccountUseCase {
     @Override
     public AccountResponse update(UUID userId, UUID accountId, AccountUpdateRequest request) {
         Account account = findAccount(userId, accountId);
-        account.rename(request.name().trim());
+        account.updateDetails(request.name().trim(), request.type(), request.currentBalance());
         return toResponse(accountRepository.save(account));
     }
 

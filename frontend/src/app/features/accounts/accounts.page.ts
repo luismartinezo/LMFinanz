@@ -118,9 +118,27 @@ import { AccountsService } from './accounts.service';
                 <input *ngIf="editingAccountId === account.id" formControlName="name" />
                 <small>{{ account.active ? i18n.t('common.active') : i18n.t('common.closed') }}</small>
               </span>
-              <span>{{ labelFor(account.type) }}</span>
+              <span>
+                <ng-container *ngIf="editingAccountId !== account.id; else typeEdit">
+                  {{ labelFor(account.type) }}
+                </ng-container>
+                <ng-template #typeEdit>
+                  <select formControlName="type">
+                    <option value="BANK_ACCOUNT">{{ i18n.t('accounts.typeBank') }}</option>
+                    <option value="CASH_ACCOUNT">{{ i18n.t('accounts.typeCash') }}</option>
+                    <option value="CREDIT_CARD">{{ i18n.t('accounts.typeCredit') }}</option>
+                  </select>
+                </ng-template>
+              </span>
               <span>{{ account.countryCode }}</span>
-              <span>{{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' }}</span>
+              <span>
+                <ng-container *ngIf="editingAccountId !== account.id; else balanceEdit">
+                  {{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' }}
+                </ng-container>
+                <ng-template #balanceEdit>
+                  <input type="number" step="0.01" formControlName="currentBalance" />
+                </ng-template>
+              </span>
               <span class="table-actions">
                 <button class="table-action" type="button" *ngIf="editingAccountId !== account.id" (click)="startEdit(account)">
                   {{ i18n.t('accounts.editAccount') }}
@@ -165,7 +183,9 @@ export class AccountsPage {
   });
 
   readonly editForm = this.formBuilder.nonNullable.group({
-    name: ['', [Validators.required, Validators.maxLength(120)]]
+    name: ['', [Validators.required, Validators.maxLength(120)]],
+    type: ['BANK_ACCOUNT' as AccountType, Validators.required],
+    currentBalance: [0, Validators.required]
   });
 
   readonly state$: Observable<{ loading: boolean; accounts: Account[]; error: string | null }> = this.reload$.pipe(
@@ -218,7 +238,11 @@ export class AccountsPage {
 
   startEdit(account: Account): void {
     this.editingAccountId = account.id;
-    this.editForm.reset({ name: account.name });
+    this.editForm.reset({
+      name: account.name,
+      type: account.type,
+      currentBalance: account.currentBalance
+    });
   }
 
   saveEdit(accountId: string): void {
@@ -242,7 +266,7 @@ export class AccountsPage {
 
   cancelEdit(): void {
     this.editingAccountId = null;
-    this.editForm.reset({ name: '' });
+    this.editForm.reset({ name: '', type: 'BANK_ACCOUNT', currentBalance: 0 });
   }
 
   countByType(accounts: Account[], type: AccountType): number {

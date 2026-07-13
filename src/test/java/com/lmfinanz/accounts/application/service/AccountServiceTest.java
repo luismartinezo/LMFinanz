@@ -57,7 +57,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void updatesAccountName() {
+    void updatesAccountDetails() {
         AccountService service = new AccountService(accountRepository, referenceDataRepository);
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
@@ -72,10 +72,39 @@ class AccountServiceTest {
         when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var response = service.update(userId, accountId, new AccountUpdateRequest("Updated name"));
+        var response = service.update(
+                userId,
+                accountId,
+                new AccountUpdateRequest("Updated name", AccountType.CASH_ACCOUNT, new BigDecimal("250.50"))
+        );
 
         assertThat(response.name()).isEqualTo("Updated name");
-        assertThat(response.currentBalance()).isEqualByComparingTo("100.00");
+        assertThat(response.type()).isEqualTo(AccountType.CASH_ACCOUNT);
+        assertThat(response.currentBalance()).isEqualByComparingTo("250.50");
+    }
+
+    @Test
+    void rejectsNegativeBalanceForNonCreditCardAccount() {
+        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        Account account = new Account(
+                userId,
+                "Main account",
+                AccountType.BANK_ACCOUNT,
+                "EUR",
+                "DE",
+                new BigDecimal("100.00")
+        );
+        when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+
+        assertThatThrownBy(() -> service.update(
+                userId,
+                accountId,
+                new AccountUpdateRequest("Main account", AccountType.BANK_ACCOUNT, new BigDecimal("-10.00"))
+        ))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Only credit cards can have a negative balance");
     }
 
     @Test
