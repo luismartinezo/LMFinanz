@@ -353,7 +353,7 @@ export class BudgetsPage {
       name: item.name,
       plannedAmount: item.plannedAmount,
       actualAmount: item.actualAmount,
-      dueDate: item.dueDay ? this.dateFromDay(item.dueDay) : this.defaultDueDate(),
+      dueDate: item.dueDate || (item.dueDay ? this.dateFromDay(item.dueDay) : this.defaultDueDate()),
       paidDate: item.paidDate || '',
       notes: item.notes || ''
     });
@@ -442,6 +442,7 @@ export class BudgetsPage {
       plannedAmount: value.plannedAmount,
       actualAmount: 0,
       dueDay: this.dayFromDate(value.dueDate),
+      dueDate: value.dueDate,
       paid: false,
       paidDate: null,
       notes: value.notes || null
@@ -459,6 +460,7 @@ export class BudgetsPage {
       plannedAmount: value.plannedAmount,
       actualAmount: value.actualAmount,
       dueDay: this.dayFromDate(value.dueDate),
+      dueDate: value.dueDate,
       paid: value.actualAmount >= value.plannedAmount,
       paidDate: value.actualAmount > 0 ? value.paidDate || this.today() : null,
       notes: value.notes || null
@@ -466,10 +468,10 @@ export class BudgetsPage {
   }
 
   private daysUntilDue(item: BudgetItem): number | null {
-    if (!item.dueDay) {
+    const dueDate = this.resolveDueDate(item);
+    if (!dueDate) {
       return null;
     }
-    const dueDate = new Date(this.budgetYear, this.budgetMonth - 1, item.dueDay);
     const today = new Date();
     dueDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
@@ -485,6 +487,21 @@ export class BudgetsPage {
 
   private dateFromDay(day: number): string {
     return `${this.budgetYear}-${String(this.budgetMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
+  private resolveDueDate(item: BudgetItem): Date | null {
+    if (item.dueDate) {
+      return this.dateFromIso(item.dueDate);
+    }
+    if (!item.dueDay) {
+      return null;
+    }
+    return new Date(this.budgetYear, this.budgetMonth - 1, item.dueDay);
+  }
+
+  private dateFromIso(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
   }
 
   private defaultDueDate(): string {

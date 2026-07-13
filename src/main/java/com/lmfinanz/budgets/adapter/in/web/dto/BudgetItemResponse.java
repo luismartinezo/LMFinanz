@@ -15,6 +15,7 @@ public record BudgetItemResponse(
         BigDecimal actualAmount,
         BigDecimal remainingAmount,
         Integer dueDay,
+        LocalDate dueDate,
         boolean paid,
         LocalDate paidDate,
         String notes

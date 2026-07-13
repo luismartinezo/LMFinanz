@@ -19,6 +19,7 @@ public record BudgetItemRequest(
         @NotNull @DecimalMin(value = "0.0000") BigDecimal plannedAmount,
         @DecimalMin(value = "0.0000") BigDecimal actualAmount,
         @Min(1) @Max(31) Integer dueDay,
+        LocalDate dueDate,
         boolean paid,
         LocalDate paidDate,
         @Size(max = 500) String notes

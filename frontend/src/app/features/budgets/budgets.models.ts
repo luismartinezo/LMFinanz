@@ -12,6 +12,7 @@ export interface BudgetItem {
   actualAmount: number;
   remainingAmount: number;
   dueDay: number | null;
+  dueDate: string | null;
   paid: boolean;
   paidDate: string | null;
   notes: string | null;
@@ -26,6 +27,7 @@ export interface BudgetItemRequest {
   plannedAmount: number;
   actualAmount: number;
   dueDay: number | null;
+  dueDate: string | null;
   paid: boolean;
   paidDate: string | null;
   notes: string | null;

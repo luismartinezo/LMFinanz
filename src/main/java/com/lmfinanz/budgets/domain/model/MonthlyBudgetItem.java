@@ -39,6 +39,8 @@ public class MonthlyBudgetItem extends BaseEntity {
 
     private Integer dueDay;
 
+    private LocalDate dueDate;
+
     @Column(nullable = false)
     private boolean paid;
 
@@ -52,7 +54,7 @@ public class MonthlyBudgetItem extends BaseEntity {
 
     public MonthlyBudgetItem(UUID userId, int budgetYear, int budgetMonth, String countryCode, String currencyCode,
                              String name, BigDecimal plannedAmount, BigDecimal actualAmount,
-                             Integer dueDay, boolean paid, LocalDate paidDate, String notes) {
+                             Integer dueDay, LocalDate dueDate, boolean paid, LocalDate paidDate, String notes) {
         this.userId = userId;
         this.budgetYear = budgetYear;
         this.budgetMonth = budgetMonth;
@@ -62,6 +64,7 @@ public class MonthlyBudgetItem extends BaseEntity {
         this.plannedAmount = plannedAmount;
         this.actualAmount = actualAmount == null ? BigDecimal.ZERO : actualAmount;
         this.dueDay = dueDay;
+        this.dueDate = dueDate;
         this.paidDate = paidDate;
         this.notes = notes;
         validatePeriod();
@@ -104,6 +107,10 @@ public class MonthlyBudgetItem extends BaseEntity {
         return dueDay;
     }
 
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
     public boolean isPaid() {
         return paid;
     }
@@ -122,7 +129,7 @@ public class MonthlyBudgetItem extends BaseEntity {
 
     public void update(int budgetYear, int budgetMonth, String countryCode, String currencyCode, String name,
                        BigDecimal plannedAmount, BigDecimal actualAmount, Integer dueDay,
-                       boolean paid, LocalDate paidDate, String notes) {
+                       LocalDate dueDate, boolean paid, LocalDate paidDate, String notes) {
         this.budgetYear = budgetYear;
         this.budgetMonth = budgetMonth;
         this.countryCode = countryCode;
@@ -131,6 +138,7 @@ public class MonthlyBudgetItem extends BaseEntity {
         this.plannedAmount = plannedAmount;
         this.actualAmount = actualAmount == null ? BigDecimal.ZERO : actualAmount;
         this.dueDay = dueDay;
+        this.dueDate = dueDate;
         this.paidDate = paidDate;
         this.notes = notes;
         validatePeriod();

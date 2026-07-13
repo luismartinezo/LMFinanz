@@ -51,6 +51,7 @@ public class BudgetService implements BudgetUseCase, BudgetSummaryUseCase {
                 request.plannedAmount(),
                 request.actualAmount(),
                 request.dueDay(),
+                request.dueDate(),
                 request.paid(),
                 request.paidDate(),
                 normalizeText(request.notes())
@@ -81,6 +82,7 @@ public class BudgetService implements BudgetUseCase, BudgetSummaryUseCase {
                 request.plannedAmount(),
                 request.actualAmount(),
                 request.dueDay(),
+                request.dueDate(),
                 request.paid(),
                 request.paidDate(),
                 normalizeText(request.notes())
@@ -184,6 +186,7 @@ public class BudgetService implements BudgetUseCase, BudgetSummaryUseCase {
                 item.getActualAmount(),
                 item.remainingAmount(),
                 item.getDueDay(),
+                item.getDueDate(),
                 item.isPaid(),
                 item.getPaidDate(),
                 item.getNotes()
