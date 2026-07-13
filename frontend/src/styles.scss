@@ -1124,7 +1124,34 @@ nav a.active {
 }
 
 .budget-summary {
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
   margin-bottom: 16px;
+}
+
+.budget-income-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.budget-income-panel h3 {
+  margin: 0 0 6px;
+}
+
+.budget-income-panel p {
+  margin: 0;
+  color: #64727c;
+}
+
+.budget-income-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) auto;
+  gap: 12px;
+  align-items: end;
+  margin: 0;
+  width: auto;
 }
 
 .budget-layout {
@@ -1146,15 +1173,15 @@ nav a.active {
 .budget-row {
   display: grid;
   grid-template-columns:
-    minmax(190px, 1.3fr)
-    minmax(120px, 0.75fr)
-    minmax(120px, 0.75fr)
-    minmax(120px, 0.75fr)
-    minmax(82px, 0.45fr)
-    minmax(120px, 0.7fr);
+    minmax(230px, 1.35fr)
+    minmax(140px, 0.75fr)
+    minmax(140px, 0.75fr)
+    minmax(140px, 0.75fr)
+    minmax(170px, 0.8fr)
+    minmax(150px, 0.7fr);
   gap: 12px;
   align-items: center;
-  min-width: 820px;
+  min-width: 1020px;
   border: 1px solid #e1e9ed;
   border-radius: 8px;
   background: white;
@@ -1173,6 +1200,29 @@ nav a.active {
 .budget-row.paid {
   border-color: #cbe8dc;
   background: #f7fcf9;
+}
+
+.budget-row.due-safe {
+  border-left: 4px solid #0f7f72;
+}
+
+.budget-row.due-warning {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+}
+
+.budget-row.due-danger {
+  border-left: 4px solid #dc2626;
+  background: #fff5f5;
+}
+
+.budget-row input {
+  min-width: 0;
+  width: 100%;
+}
+
+.budget-row input + input {
+  margin-top: 6px;
 }
 
 .budget-row small {
@@ -1448,6 +1498,20 @@ nav a.active {
   .profile-dropdown {
     right: -46px;
     width: min(260px, calc(100vw - 36px));
+  }
+
+  .budget-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .budget-income-panel,
+  .budget-income-form {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .budget-income-panel {
+    display: grid;
   }
 
   .table-empty {

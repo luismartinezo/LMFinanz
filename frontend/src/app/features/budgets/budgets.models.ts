@@ -30,3 +30,22 @@ export interface BudgetItemRequest {
   paidDate: string | null;
   notes: string | null;
 }
+
+export interface BudgetSummary {
+  id: string | null;
+  budgetYear: number;
+  budgetMonth: number;
+  countryCode: CountryCode;
+  currencyCode: CurrencyCode;
+  incomeAmount: number;
+  notes: string | null;
+}
+
+export interface BudgetSummaryRequest {
+  budgetYear: number;
+  budgetMonth: number;
+  countryCode: CountryCode;
+  currencyCode: CurrencyCode;
+  incomeAmount: number;
+  notes: string | null;
+}

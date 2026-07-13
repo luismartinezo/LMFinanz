@@ -62,10 +62,10 @@ public class MonthlyBudgetItem extends BaseEntity {
         this.plannedAmount = plannedAmount;
         this.actualAmount = actualAmount == null ? BigDecimal.ZERO : actualAmount;
         this.dueDay = dueDay;
-        this.paid = paid;
         this.paidDate = paidDate;
         this.notes = notes;
         validatePeriod();
+        syncPaymentStatus(paid);
     }
 
     public UUID getUserId() {
@@ -131,22 +131,32 @@ public class MonthlyBudgetItem extends BaseEntity {
         this.plannedAmount = plannedAmount;
         this.actualAmount = actualAmount == null ? BigDecimal.ZERO : actualAmount;
         this.dueDay = dueDay;
-        this.paid = paid;
         this.paidDate = paidDate;
         this.notes = notes;
         validatePeriod();
+        syncPaymentStatus(paid);
     }
 
     public void markPaid(BigDecimal actualAmount, LocalDate paidDate) {
         this.actualAmount = actualAmount == null ? plannedAmount : actualAmount;
-        this.paid = true;
         this.paidDate = paidDate == null ? LocalDate.now() : paidDate;
+        syncPaymentStatus(false);
     }
 
     public void markUnpaid() {
         this.paid = false;
         this.paidDate = null;
         this.actualAmount = BigDecimal.ZERO;
+    }
+
+    private void syncPaymentStatus(boolean requestedPaid) {
+        paid = requestedPaid || actualAmount.compareTo(plannedAmount) >= 0;
+        if (paid && paidDate == null) {
+            paidDate = LocalDate.now();
+        }
+        if (actualAmount.compareTo(BigDecimal.ZERO) == 0 && !requestedPaid) {
+            paidDate = null;
+        }
     }
 
     private void validatePeriod() {
