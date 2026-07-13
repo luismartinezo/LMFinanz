@@ -1,5 +1,4 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, finalize, map, of, startWith, switchMap } from 'rxjs';
@@ -195,11 +194,7 @@ export class BudgetsPage {
       this.budgets.list(this.budgetYear, this.budgetMonth, this.countryCode, this.currencyCode).pipe(
         map((items) => ({ loading: false, items, error: null })),
         startWith({ loading: true, items: [], error: null }),
-        catchError((error: HttpErrorResponse) =>
-          error.status === 401
-            ? of({ loading: false, items: [], error: null })
-            : of({ loading: false, items: [], error: this.i18n.t('budget.loadError') })
-        )
+        catchError(() => of({ loading: false, items: [], error: this.i18n.t('budget.loadError') }))
       )
     )
   );
