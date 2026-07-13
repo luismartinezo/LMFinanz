@@ -1147,6 +1147,10 @@ nav a.active {
   font-size: 24px;
 }
 
+.account-balance-grid strong.negative {
+  color: #b42318;
+}
+
 .budget-heading {
   background:
     radial-gradient(circle at 90% 36%, rgba(15, 118, 110, 0.14), transparent 24%),

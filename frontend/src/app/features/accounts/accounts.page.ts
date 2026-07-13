@@ -48,15 +48,21 @@ import { AccountsService } from './accounts.service';
         <div class="account-balance-grid">
           <article>
             <span>{{ i18n.t('accounts.countryGermany') }} · EUR</span>
-            <strong>{{ totalAvailable(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+            <strong [class.negative]="totalAvailable(state.accounts, 'DE', 'EUR') < 0">
+              {{ totalAvailable(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}
+            </strong>
           </article>
           <article>
             <span>{{ i18n.t('accounts.countryColombia') }} · COP</span>
-            <strong>{{ totalAvailable(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}</strong>
+            <strong [class.negative]="totalAvailable(state.accounts, 'CO', 'COP') < 0">
+              {{ totalAvailable(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}
+            </strong>
           </article>
           <article>
             <span>USD</span>
-            <strong>{{ totalByCurrency(state.accounts, 'USD') | currency: 'USD' : 'symbol' : '1.2-2' }}</strong>
+            <strong [class.negative]="totalByCurrency(state.accounts, 'USD') < 0">
+              {{ totalByCurrency(state.accounts, 'USD') | currency: 'USD' : 'symbol' : '1.2-2' }}
+            </strong>
           </article>
         </div>
       </section>
