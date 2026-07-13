@@ -1189,6 +1189,10 @@ nav a.active {
 .data-table {
   display: grid;
   gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-color: #b8c9d1 transparent;
 }
 
 .data-row {
@@ -1196,47 +1200,53 @@ nav a.active {
   grid-template-columns: minmax(160px, 1.4fr) minmax(120px, 0.8fr) minmax(90px, 0.5fr) minmax(130px, 0.8fr);
   gap: 12px;
   align-items: center;
+  min-width: 620px;
   border: 1px solid #e1e9ed;
   border-radius: 8px;
+  background: white;
   padding: 12px 14px;
 }
 
 .transaction-row {
+  min-width: 940px;
   grid-template-columns:
-    minmax(105px, 0.7fr)
-    minmax(110px, 0.7fr)
-    minmax(150px, 1.1fr)
-    minmax(120px, 0.8fr)
-    minmax(95px, 0.6fr)
-    minmax(86px, 0.5fr);
+    minmax(112px, 0.7fr)
+    minmax(120px, 0.75fr)
+    minmax(180px, 1.15fr)
+    minmax(140px, 0.85fr)
+    minmax(110px, 0.65fr)
+    minmax(150px, 0.9fr);
 }
 
 .account-row {
+  min-width: 760px;
   grid-template-columns:
-    minmax(160px, 1.2fr)
-    minmax(120px, 0.8fr)
+    minmax(190px, 1.2fr)
+    minmax(140px, 0.8fr)
     minmax(90px, 0.5fr)
-    minmax(130px, 0.8fr)
-    minmax(95px, 0.6fr);
+    minmax(160px, 0.85fr)
+    minmax(130px, 0.7fr);
 }
 
 .category-row {
+  min-width: 760px;
   grid-template-columns:
-    minmax(150px, 1.2fr)
-    minmax(100px, 0.7fr)
-    minmax(130px, 0.9fr)
-    minmax(95px, 0.6fr)
-    minmax(110px, 0.7fr);
+    minmax(180px, 1.2fr)
+    minmax(110px, 0.7fr)
+    minmax(150px, 0.9fr)
+    minmax(100px, 0.55fr)
+    minmax(150px, 0.8fr);
 }
 
 .debt-row {
+  min-width: 960px;
   grid-template-columns:
-    minmax(170px, 1.2fr)
-    minmax(130px, 0.8fr)
-    minmax(95px, 0.5fr)
-    minmax(130px, 0.8fr)
-    minmax(100px, 0.6fr)
-    minmax(130px, 0.8fr);
+    minmax(210px, 1.25fr)
+    minmax(140px, 0.8fr)
+    minmax(105px, 0.55fr)
+    minmax(150px, 0.85fr)
+    minmax(110px, 0.6fr)
+    minmax(160px, 0.9fr);
 }
 
 .installment-list {
@@ -1248,39 +1258,43 @@ nav a.active {
 }
 
 .installment-row {
+  min-width: 760px;
   grid-template-columns:
-    minmax(45px, 0.3fr)
-    minmax(130px, 0.8fr)
-    minmax(130px, 0.8fr)
-    minmax(100px, 0.6fr)
-    minmax(140px, 0.8fr);
+    minmax(60px, 0.35fr)
+    minmax(145px, 0.8fr)
+    minmax(145px, 0.8fr)
+    minmax(110px, 0.6fr)
+    minmax(160px, 0.85fr);
   background: #f8fbfa;
 }
 
 .savings-row {
+  min-width: 920px;
   grid-template-columns:
-    minmax(160px, 1fr)
-    minmax(150px, 1fr)
-    minmax(130px, 0.8fr)
-    minmax(120px, 0.7fr)
-    minmax(180px, 1.1fr);
+    minmax(190px, 1fr)
+    minmax(170px, 0.95fr)
+    minmax(140px, 0.75fr)
+    minmax(130px, 0.65fr)
+    minmax(220px, 1.15fr);
 }
 
 .asset-row {
+  min-width: 790px;
   grid-template-columns:
-    minmax(160px, 1.1fr)
-    minmax(120px, 0.7fr)
-    minmax(85px, 0.45fr)
-    minmax(140px, 0.9fr)
-    minmax(110px, 0.7fr);
+    minmax(190px, 1.1fr)
+    minmax(140px, 0.75fr)
+    minmax(90px, 0.45fr)
+    minmax(160px, 0.9fr)
+    minmax(140px, 0.75fr);
 }
 
 .report-row {
+  min-width: 650px;
   grid-template-columns:
-    minmax(180px, 1.2fr)
-    minmax(100px, 0.6fr)
-    minmax(100px, 0.6fr)
-    minmax(140px, 0.8fr);
+    minmax(220px, 1.2fr)
+    minmax(110px, 0.6fr)
+    minmax(110px, 0.6fr)
+    minmax(160px, 0.8fr);
 }
 
 .report-filters form {
@@ -1323,6 +1337,7 @@ nav a.active {
 .data-row.heading {
   border: 0;
   color: #64727c;
+  background: transparent;
   font-size: 13px;
   font-weight: 700;
   padding-bottom: 4px;
@@ -1381,8 +1396,7 @@ nav a.active {
   .budget-controls,
   .accounts-layout,
   .budget-layout,
-  .form-row,
-  .data-row {
+  .form-row {
     grid-template-columns: 1fr;
   }
 
@@ -1432,5 +1446,26 @@ nav a.active {
 
   .table-empty {
     grid-template-columns: 1fr;
+  }
+
+  .data-table,
+  .budget-table {
+    overflow-x: visible;
+  }
+
+  .data-row,
+  .budget-row {
+    grid-template-columns: 1fr;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .data-row.heading,
+  .budget-row.heading {
+    display: none;
+  }
+
+  .table-actions {
+    justify-content: flex-start;
   }
 }
