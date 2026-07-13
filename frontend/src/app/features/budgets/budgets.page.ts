@@ -196,11 +196,12 @@ interface BudgetState {
               <span>
                 <ng-container *ngIf="editingItemId !== item.id; else dateEdit">
                   <strong>{{ dueLabel(item) }}</strong>
-                  <small *ngIf="item.paidDate">{{ item.paidDate | date: 'dd MMM y' }}</small>
                 </ng-container>
                 <ng-template #dateEdit>
-                  <input type="date" formControlName="dueDate" />
-                  <input type="date" formControlName="paidDate" />
+                  <label class="budget-date-field">
+                    <small>{{ i18n.t('budget.dueDate') }}</small>
+                    <input type="date" formControlName="dueDate" />
+                  </label>
                 </ng-template>
               </span>
               <span class="table-actions">
@@ -268,7 +269,6 @@ export class BudgetsPage {
     plannedAmount: [0, [Validators.required, Validators.min(0)]],
     actualAmount: [0, [Validators.required, Validators.min(0)]],
     dueDate: ['', Validators.required],
-    paidDate: [''],
     notes: ['', Validators.maxLength(500)]
   });
 
@@ -354,7 +354,6 @@ export class BudgetsPage {
       plannedAmount: item.plannedAmount,
       actualAmount: item.actualAmount,
       dueDate: item.dueDate || (item.dueDay ? this.dateFromDay(item.dueDay) : this.defaultDueDate()),
-      paidDate: item.paidDate || '',
       notes: item.notes || ''
     });
   }
@@ -462,7 +461,7 @@ export class BudgetsPage {
       dueDay: this.dayFromDate(value.dueDate),
       dueDate: value.dueDate,
       paid: value.actualAmount >= value.plannedAmount,
-      paidDate: value.actualAmount > 0 ? value.paidDate || this.today() : null,
+      paidDate: value.actualAmount > 0 ? this.today() : null,
       notes: value.notes || null
     };
   }
@@ -490,6 +489,12 @@ export class BudgetsPage {
   }
 
   private resolveDueDate(item: BudgetItem): Date | null {
+    if (this.editingItemId === item.id) {
+      const editingDueDate = this.editForm.controls.dueDate.value;
+      if (editingDueDate) {
+        return this.dateFromIso(editingDueDate);
+      }
+    }
     if (item.dueDate) {
       return this.dateFromIso(item.dueDate);
     }

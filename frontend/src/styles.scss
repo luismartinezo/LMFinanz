@@ -1225,6 +1225,15 @@ nav a.active {
   margin-top: 6px;
 }
 
+.budget-date-field {
+  display: grid;
+  gap: 4px;
+}
+
+.budget-date-field small {
+  margin: 0;
+}
+
 .budget-row small {
   display: block;
   color: #64727c;
