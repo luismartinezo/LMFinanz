@@ -19,3 +19,7 @@ export interface AccountRequest {
   countryCode: CountryCode;
   openingBalance: number;
 }
+
+export interface AccountUpdateRequest {
+  name: string;
+}

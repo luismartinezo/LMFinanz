@@ -112,19 +112,29 @@ import { AccountsService } from './accounts.service';
               <span>{{ i18n.t('transactions.actions') }}</span>
             </div>
 
-            <div class="data-row account-row" *ngFor="let account of state.accounts">
+            <div class="data-row account-row" *ngFor="let account of state.accounts" [formGroup]="editForm">
               <span>
-                <strong>{{ account.name }}</strong>
+                <strong *ngIf="editingAccountId !== account.id">{{ account.name }}</strong>
+                <input *ngIf="editingAccountId === account.id" formControlName="name" />
                 <small>{{ account.active ? i18n.t('common.active') : i18n.t('common.closed') }}</small>
               </span>
               <span>{{ labelFor(account.type) }}</span>
               <span>{{ account.countryCode }}</span>
               <span>{{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' }}</span>
-              <span>
-                <button class="table-action" type="button" *ngIf="account.active" (click)="closeAccount(account.id)">
+              <span class="table-actions">
+                <button class="table-action" type="button" *ngIf="editingAccountId !== account.id" (click)="startEdit(account)">
+                  {{ i18n.t('accounts.editAccount') }}
+                </button>
+                <button class="table-action" type="button" *ngIf="editingAccountId === account.id" (click)="saveEdit(account.id)">
+                  {{ savingEdit ? i18n.t('common.saving') : i18n.t('accounts.saveAccount') }}
+                </button>
+                <button class="table-action muted" type="button" *ngIf="editingAccountId === account.id" (click)="cancelEdit()">
+                  {{ i18n.t('accounts.cancelEdit') }}
+                </button>
+                <button class="table-action danger" type="button" *ngIf="account.active && editingAccountId !== account.id" (click)="closeAccount(account.id)">
                   {{ i18n.t('accounts.closeAccount') }}
                 </button>
-                <button class="table-action" type="button" *ngIf="!account.active" (click)="reopenAccount(account.id)">
+                <button class="table-action" type="button" *ngIf="!account.active && editingAccountId !== account.id" (click)="reopenAccount(account.id)">
                   {{ i18n.t('accounts.reopenAccount') }}
                 </button>
               </span>
@@ -143,6 +153,8 @@ export class AccountsPage {
 
   showForm = false;
   saving = false;
+  savingEdit = false;
+  editingAccountId: string | null = null;
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
@@ -150,6 +162,10 @@ export class AccountsPage {
     currencyCode: ['EUR' as CurrencyCode, Validators.required],
     countryCode: ['DE' as CountryCode, Validators.required],
     openingBalance: [0, Validators.required]
+  });
+
+  readonly editForm = this.formBuilder.nonNullable.group({
+    name: ['', [Validators.required, Validators.maxLength(120)]]
   });
 
   readonly state$: Observable<{ loading: boolean; accounts: Account[]; error: string | null }> = this.reload$.pipe(
@@ -198,6 +214,35 @@ export class AccountsPage {
         })
       )
       .subscribe();
+  }
+
+  startEdit(account: Account): void {
+    this.editingAccountId = account.id;
+    this.editForm.reset({ name: account.name });
+  }
+
+  saveEdit(accountId: string): void {
+    if (this.editForm.invalid || this.savingEdit) {
+      return;
+    }
+    this.savingEdit = true;
+    this.accounts
+      .update(accountId, this.editForm.getRawValue())
+      .pipe(
+        tap(() => {
+          this.cancelEdit();
+          this.reload$.next();
+        }),
+        finalize(() => {
+          this.savingEdit = false;
+        })
+      )
+      .subscribe();
+  }
+
+  cancelEdit(): void {
+    this.editingAccountId = null;
+    this.editForm.reset({ name: '' });
   }
 
   countByType(accounts: Account[], type: AccountType): number {

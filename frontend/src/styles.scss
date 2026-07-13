@@ -1284,13 +1284,18 @@ nav a.active {
 }
 
 .account-row {
-  min-width: 760px;
+  min-width: 900px;
   grid-template-columns:
-    minmax(190px, 1.2fr)
+    minmax(220px, 1.2fr)
     minmax(140px, 0.8fr)
     minmax(90px, 0.5fr)
     minmax(160px, 0.85fr)
-    minmax(130px, 0.7fr);
+    minmax(260px, 1.1fr);
+}
+
+.account-row input {
+  width: 100%;
+  min-width: 0;
 }
 
 .category-row {
@@ -1417,6 +1422,12 @@ nav a.active {
 .table-action {
   min-height: 34px;
   padding: 0 10px;
+}
+
+.table-action.danger {
+  border-color: #fecaca;
+  color: #b42318;
+  background: #fff5f5;
 }
 
 @media (max-width: 800px) {
