@@ -1,0 +1,21 @@
+CREATE TABLE monthly_budget_items (
+    id BINARY(16) PRIMARY KEY,
+    user_id BINARY(16) NOT NULL,
+    budget_year INT NOT NULL,
+    budget_month INT NOT NULL,
+    country_code CHAR(2) NOT NULL,
+    currency_code CHAR(3) NOT NULL,
+    name VARCHAR(140) NOT NULL,
+    planned_amount DECIMAL(19,4) NOT NULL,
+    actual_amount DECIMAL(19,4) NOT NULL,
+    due_day INT,
+    paid BOOLEAN NOT NULL,
+    paid_date DATE,
+    notes VARCHAR(500),
+    created_at TIMESTAMP(6) NOT NULL,
+    updated_at TIMESTAMP(6) NOT NULL,
+    created_by BINARY(16) NULL,
+    updated_by BINARY(16) NULL,
+    INDEX idx_monthly_budget_user_period (user_id, budget_year, budget_month),
+    INDEX idx_monthly_budget_user_country_currency (user_id, country_code, currency_code)
+);

@@ -1106,6 +1106,80 @@ nav a.active {
   grid-template-columns: minmax(280px, 0.45fr) minmax(0, 1fr);
 }
 
+.budget-heading {
+  background:
+    radial-gradient(circle at 90% 36%, rgba(15, 118, 110, 0.14), transparent 24%),
+    white;
+}
+
+.budget-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.budget-summary {
+  margin-bottom: 16px;
+}
+
+.budget-layout {
+  grid-template-columns: minmax(300px, 0.45fr) minmax(0, 1fr);
+}
+
+.budget-table-panel {
+  min-width: 0;
+}
+
+.budget-table {
+  display: grid;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.budget-row {
+  display: grid;
+  grid-template-columns:
+    minmax(190px, 1.3fr)
+    minmax(120px, 0.75fr)
+    minmax(120px, 0.75fr)
+    minmax(120px, 0.75fr)
+    minmax(82px, 0.45fr)
+    minmax(120px, 0.7fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 820px;
+  border: 1px solid #e1e9ed;
+  border-radius: 8px;
+  background: white;
+  padding: 12px 14px;
+}
+
+.budget-row.heading {
+  border: 0;
+  color: #64727c;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 800;
+  padding-bottom: 4px;
+}
+
+.budget-row.paid {
+  border-color: #cbe8dc;
+  background: #f7fcf9;
+}
+
+.budget-row small {
+  display: block;
+  color: #64727c;
+  margin-top: 4px;
+}
+
+.budget-row .negative,
+.budget-summary .negative {
+  color: #b42318;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1304,7 +1378,9 @@ nav a.active {
   .module-grid,
   .content-grid,
   .dashboard-pro-grid,
+  .budget-controls,
   .accounts-layout,
+  .budget-layout,
   .form-row,
   .data-row {
     grid-template-columns: 1fr;
