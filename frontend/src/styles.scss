@@ -638,6 +638,10 @@ nav a.active {
   margin-top: 16px;
 }
 
+.content-grid > .panel:only-child {
+  grid-column: 1 / -1;
+}
+
 .dashboard-pro {
   color: #182334;
 }
@@ -1128,12 +1132,14 @@ nav a.active {
 }
 
 .budget-table-panel {
+  width: 100%;
   min-width: 0;
 }
 
 .budget-table {
   display: grid;
   gap: 8px;
+  width: 100%;
   overflow-x: auto;
 }
 
