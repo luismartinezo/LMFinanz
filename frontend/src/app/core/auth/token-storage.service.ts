@@ -20,6 +20,20 @@ export class TokenStorageService {
     return raw ? JSON.parse(raw) : null;
   }
 
+  isAccessTokenValid(leewaySeconds = 30): boolean {
+    const token = this.accessToken;
+    if (!token) {
+      return false;
+    }
+
+    const expiresAt = this.jwtExpiration(token);
+    if (!expiresAt) {
+      return false;
+    }
+
+    return expiresAt * 1000 > Date.now() + leewaySeconds * 1000;
+  }
+
   save(response: AuthResponse): void {
     localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
@@ -38,5 +52,19 @@ export class TokenStorageService {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+  }
+
+  private jwtExpiration(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return null;
+      }
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = JSON.parse(atob(normalized));
+      return typeof decoded.exp === 'number' ? decoded.exp : null;
+    } catch {
+      return null;
+    }
   }
 }
