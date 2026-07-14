@@ -9,6 +9,7 @@ import com.lmfinanz.accounts.domain.model.Account;
 import com.lmfinanz.reference.application.port.out.ReferenceDataRepositoryPort;
 import com.lmfinanz.shared.domain.exception.DomainException;
 import com.lmfinanz.shared.domain.exception.NotFoundException;
+import com.lmfinanz.transactions.application.port.out.TransactionRepositoryPort;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,16 @@ public class AccountService implements AccountUseCase {
 
     private final AccountRepositoryPort accountRepository;
     private final ReferenceDataRepositoryPort referenceDataRepository;
+    private final TransactionRepositoryPort transactionRepository;
 
     public AccountService(
             AccountRepositoryPort accountRepository,
-            ReferenceDataRepositoryPort referenceDataRepository
+            ReferenceDataRepositoryPort referenceDataRepository,
+            TransactionRepositoryPort transactionRepository
     ) {
         this.accountRepository = accountRepository;
         this.referenceDataRepository = referenceDataRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -78,6 +82,15 @@ public class AccountService implements AccountUseCase {
         Account account = findAccount(userId, accountId);
         account.reopen();
         return toResponse(accountRepository.save(account));
+    }
+
+    @Override
+    public void delete(UUID userId, UUID accountId) {
+        Account account = findAccount(userId, accountId);
+        if (transactionRepository.existsByUserIdAndAccountId(userId, accountId)) {
+            throw new DomainException("Accounts with transactions cannot be deleted. Close the account instead.");
+        }
+        accountRepository.delete(account);
     }
 
     private void validateReferenceData(String currencyCode, String countryCode) {

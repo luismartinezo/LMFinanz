@@ -19,4 +19,6 @@ public interface AccountUseCase {
     AccountResponse close(UUID userId, UUID accountId);
 
     AccountResponse reopen(UUID userId, UUID accountId);
+
+    void delete(UUID userId, UUID accountId);
 }

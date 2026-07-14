@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -86,5 +87,15 @@ public class AccountController {
             @PathVariable UUID accountId
     ) {
         return accountUseCase.reopen(principal.userId(), accountId);
+    }
+
+    @DeleteMapping("/{accountId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete account", description = "Deletes an account only when it has no transaction history.")
+    public void delete(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID accountId
+    ) {
+        accountUseCase.delete(principal.userId(), accountId);
     }
 }

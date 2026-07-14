@@ -3,6 +3,7 @@ package com.lmfinanz.accounts.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.lmfinanz.accounts.adapter.in.web.dto.AccountRequest;
@@ -14,6 +15,7 @@ import com.lmfinanz.reference.application.port.out.ReferenceDataRepositoryPort;
 import com.lmfinanz.reference.domain.model.Country;
 import com.lmfinanz.reference.domain.model.Currency;
 import com.lmfinanz.shared.domain.exception.DomainException;
+import com.lmfinanz.transactions.application.port.out.TransactionRepositoryPort;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,9 +33,12 @@ class AccountServiceTest {
     @Mock
     private ReferenceDataRepositoryPort referenceDataRepository;
 
+    @Mock
+    private TransactionRepositoryPort transactionRepository;
+
     @Test
     void createsAccountForSupportedCountryAndCurrency() {
-        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
         when(referenceDataRepository.findCurrencyByCode("EUR"))
                 .thenReturn(Optional.of(new Currency("EUR", "Euro", "EUR", 2)));
         when(referenceDataRepository.findCountryByCode("DE"))
@@ -48,7 +53,7 @@ class AccountServiceTest {
 
     @Test
     void rejectsUnsupportedCurrency() {
-        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
         when(referenceDataRepository.findCurrencyByCode("GBP")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.create(UUID.randomUUID(), request("GBP", "DE")))
@@ -58,7 +63,7 @@ class AccountServiceTest {
 
     @Test
     void updatesAccountDetails() {
-        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
         Account account = new Account(
@@ -85,7 +90,7 @@ class AccountServiceTest {
 
     @Test
     void rejectsNegativeBalanceForNonCreditCardAccount() {
-        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
         Account account = new Account(
@@ -109,7 +114,7 @@ class AccountServiceTest {
 
     @Test
     void closesAndReopensAccount() {
-        AccountService service = new AccountService(accountRepository, referenceDataRepository);
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
         Account account = new Account(
@@ -128,6 +133,48 @@ class AccountServiceTest {
 
         assertThat(closed.active()).isFalse();
         assertThat(reopened.active()).isTrue();
+    }
+
+    @Test
+    void deletesAccountWithoutTransactions() {
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        Account account = new Account(
+                userId,
+                "Wrong card",
+                AccountType.CREDIT_CARD,
+                "EUR",
+                "DE",
+                BigDecimal.ZERO
+        );
+        when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+        when(transactionRepository.existsByUserIdAndAccountId(userId, accountId)).thenReturn(false);
+
+        service.delete(userId, accountId);
+
+        verify(accountRepository).delete(account);
+    }
+
+    @Test
+    void rejectsDeletingAccountWithTransactions() {
+        AccountService service = new AccountService(accountRepository, referenceDataRepository, transactionRepository);
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        Account account = new Account(
+                userId,
+                "Used card",
+                AccountType.CREDIT_CARD,
+                "EUR",
+                "DE",
+                BigDecimal.ZERO
+        );
+        when(accountRepository.findByIdAndUserId(accountId, userId)).thenReturn(Optional.of(account));
+        when(transactionRepository.existsByUserIdAndAccountId(userId, accountId)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.delete(userId, accountId))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Accounts with transactions cannot be deleted. Close the account instead.");
     }
 
     private AccountRequest request(String currency, String country) {

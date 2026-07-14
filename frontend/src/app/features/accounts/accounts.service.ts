@@ -27,4 +27,8 @@ export class AccountsService {
   reopen(accountId: string): Observable<Account> {
     return this.http.patch<Account>(`${API_BASE_URL}/api/accounts/${accountId}/reopen`, {});
   }
+
+  delete(accountId: string): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/api/accounts/${accountId}`);
+  }
 }

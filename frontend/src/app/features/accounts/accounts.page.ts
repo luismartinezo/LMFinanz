@@ -182,6 +182,9 @@ import { AccountsService } from './accounts.service';
                 <button class="table-action" type="button" *ngIf="!account.active && editingAccountId !== account.id" (click)="reopenAccount(account.id)">
                   {{ i18n.t('accounts.reopenAccount') }}
                 </button>
+                <button class="table-action danger" type="button" *ngIf="editingAccountId !== account.id" (click)="deleteAccount(account.id)">
+                  {{ i18n.t('accounts.deleteAccount') }}
+                </button>
               </span>
             </div>
           </div>
@@ -343,6 +346,19 @@ export class AccountsPage {
 
   reopenAccount(accountId: string): void {
     this.accounts.reopen(accountId).subscribe(() => this.reload$.next());
+  }
+
+  deleteAccount(accountId: string): void {
+    if (!confirm(this.i18n.t('confirm.deleteAccount'))) {
+      return;
+    }
+    this.accounts.delete(accountId).pipe(
+      tap(() => this.reload$.next()),
+      catchError(() => {
+        alert(this.i18n.t('accounts.deleteBlocked'));
+        return of(null);
+      })
+    ).subscribe();
   }
 
   labelFor(type: AccountType): string {

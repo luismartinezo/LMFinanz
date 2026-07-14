@@ -13,4 +13,6 @@ public interface TransactionRepositoryPort {
     Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
 
     List<Transaction> findAllByUserIdAndDateRange(UUID userId, LocalDate from, LocalDate to);
+
+    boolean existsByUserIdAndAccountId(UUID userId, UUID accountId);
 }

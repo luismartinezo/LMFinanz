@@ -35,4 +35,14 @@ public class TransactionPersistenceAdapter implements TransactionRepositoryPort 
                 to
         );
     }
+
+    @Override
+    public boolean existsByUserIdAndAccountId(UUID userId, UUID accountId) {
+        return repository.existsByUserIdAndSourceAccountIdOrUserIdAndTargetAccountId(
+                userId,
+                accountId,
+                userId,
+                accountId
+        );
+    }
 }

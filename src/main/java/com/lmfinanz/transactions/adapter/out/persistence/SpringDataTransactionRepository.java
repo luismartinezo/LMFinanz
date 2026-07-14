@@ -16,4 +16,11 @@ interface SpringDataTransactionRepository extends JpaRepository<Transaction, UUI
             LocalDate from,
             LocalDate to
     );
+
+    boolean existsByUserIdAndSourceAccountIdOrUserIdAndTargetAccountId(
+            UUID sourceUserId,
+            UUID sourceAccountId,
+            UUID targetUserId,
+            UUID targetAccountId
+    );
 }

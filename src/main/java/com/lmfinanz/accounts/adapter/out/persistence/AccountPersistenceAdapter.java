@@ -30,4 +30,9 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     public List<Account> findAllByUserId(UUID userId) {
         return repository.findAllByUserIdOrderByNameAsc(userId);
     }
+
+    @Override
+    public void delete(Account account) {
+        repository.delete(account);
+    }
 }
