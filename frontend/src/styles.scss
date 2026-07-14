@@ -712,7 +712,7 @@ nav a.active {
     #ffffff;
 }
 
-.dashboard-income-editor {
+.dashboard-income-summary {
   display: grid;
   grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1fr);
   gap: 18px;
@@ -720,21 +720,38 @@ nav a.active {
   margin-top: 16px;
 }
 
-.dashboard-income-editor h3 {
+.dashboard-income-summary h3 {
   margin: 4px 0 6px;
 }
 
-.dashboard-income-editor p:not(.eyebrow) {
+.dashboard-income-summary p:not(.eyebrow) {
   margin: 0;
   color: #64727c;
 }
 
-.dashboard-income-form {
+.dashboard-income-readonly {
   display: grid;
-  grid-template-columns: repeat(2, minmax(160px, 1fr)) auto;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
   gap: 12px;
-  align-items: end;
-  margin: 0;
+}
+
+.dashboard-income-readonly article {
+  border: 1px solid #dce9e7;
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 14px;
+}
+
+.dashboard-income-readonly span {
+  color: #64727c;
+  font-size: 13px;
+}
+
+.dashboard-income-readonly strong {
+  display: block;
+  margin-top: 8px;
+  color: #0f766e;
+  font-size: 24px;
 }
 
 .dashboard-pro-grid {
@@ -1599,8 +1616,8 @@ nav a.active {
 
   .pro-hero,
   .hero-balance-grid,
-  .dashboard-income-editor,
-  .dashboard-income-form,
+  .dashboard-income-summary,
+  .dashboard-income-readonly,
   .mini-stat-grid,
   .legend-list {
     grid-template-columns: 1fr;

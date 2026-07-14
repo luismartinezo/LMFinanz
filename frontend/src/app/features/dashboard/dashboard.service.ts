@@ -58,17 +58,6 @@ export class DashboardService {
     });
   }
 
-  saveBudgetSummary(request: {
-    budgetYear: number;
-    budgetMonth: number;
-    countryCode: string;
-    currencyCode: string;
-    incomeAmount: number;
-    notes: string | null;
-  }): Observable<DashboardBudgetSummary> {
-    return this.http.put<DashboardBudgetSummary>(`${API_BASE_URL}/api/budget-summaries`, request);
-  }
-
   private dateParams(from: string, to: string): HttpParams {
     return new HttpParams().set('from', from).set('to', to);
   }

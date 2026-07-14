@@ -1,7 +1,6 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, catchError, finalize, map, of, startWith, switchMap, tap } from 'rxjs';
+import { Observable, catchError, map, of, startWith } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { DashboardService } from './dashboard.service';
 import {
@@ -18,7 +17,7 @@ import {
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf, ReactiveFormsModule],
+  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf],
   template: `
     <main class="dashboard dashboard-pro" *ngIf="state$ | async as state">
       <section class="dashboard-hero pro-hero">
@@ -50,25 +49,22 @@ import {
 
       <p class="notice error" *ngIf="state.error">{{ state.error }}</p>
 
-      <section class="panel dashboard-income-editor">
+      <section class="panel dashboard-income-summary">
         <div>
           <p class="eyebrow">{{ i18n.t('dashboard.plannedIncomeEyebrow') }}</p>
           <h3>{{ i18n.t('dashboard.plannedIncomeTitle') }}</h3>
           <p>{{ i18n.t('dashboard.plannedIncomeHint') }}</p>
         </div>
-        <form [formGroup]="incomeForm" (ngSubmit)="saveIncome()" class="dashboard-income-form">
-          <label>
-            {{ i18n.t('accounts.countryGermany') }} · EUR
-            <input type="number" min="0" step="0.01" formControlName="deIncome" />
-          </label>
-          <label>
-            {{ i18n.t('accounts.countryColombia') }} · COP
-            <input type="number" min="0" step="0.01" formControlName="coIncome" />
-          </label>
-          <button type="submit" [disabled]="incomeForm.invalid || savingIncome">
-            {{ savingIncome ? i18n.t('common.saving') : i18n.t('dashboard.saveIncome') }}
-          </button>
-        </form>
+        <div class="dashboard-income-readonly">
+          <article>
+            <span>{{ i18n.t('accounts.countryGermany') }} · EUR</span>
+            <strong>{{ plannedIncome(state.incomeSummaries, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+          </article>
+          <article>
+            <span>{{ i18n.t('accounts.countryColombia') }} · COP</span>
+            <strong>{{ plannedIncome(state.incomeSummaries, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}</strong>
+          </article>
+        </div>
       </section>
 
       <div class="metric-grid pro-metrics">
@@ -77,7 +73,7 @@ import {
             <span>{{ i18n.t('dashboard.income') }}</span>
             <b>IN</b>
           </div>
-          <strong>{{ money(state.report?.totalIncome) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
+          <strong>{{ plannedIncomeByCurrency(state.incomeSummaries, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
           <small>{{ i18n.t('dashboard.incomeHint') }}</small>
         </article>
         <article class="metric-card expense">
@@ -211,103 +207,36 @@ import {
 })
 export class DashboardPage {
   private readonly dashboard = inject(DashboardService);
-  private readonly formBuilder = inject(FormBuilder);
   private readonly range = this.currentMonthRange();
-  private readonly reload$ = new BehaviorSubject<void>(undefined);
   readonly i18n = inject(I18nService);
-  savingIncome = false;
 
-  readonly incomeForm = this.formBuilder.nonNullable.group({
-    deIncome: [0, [Validators.required, Validators.min(0)]],
-    coIncome: [0, [Validators.required, Validators.min(0)]]
-  });
-
-  readonly state$: Observable<DashboardState> = this.reload$.pipe(
-    switchMap(() =>
-      this.dashboard.overview(this.range.from, this.range.to).pipe(
-        tap((overview) => this.patchIncomeForm(overview.incomeSummaries)),
-        map((overview) => ({ loading: false, ...overview, error: null })),
-        startWith({
-          loading: true,
-          report: null,
-          incomeSummaries: [],
-          accounts: [],
-          debts: [],
-          savingsGoals: [],
-          assets: [],
-          transactions: [],
-          error: null
-        }),
-        catchError(() =>
-          of({
-            loading: false,
-            report: null,
-            incomeSummaries: [],
-            accounts: [],
-            debts: [],
-            savingsGoals: [],
-            assets: [],
-            transactions: [],
-            error: this.i18n.t('dashboard.loadError')
-          })
-        )
-      )
+  readonly state$: Observable<DashboardState> = this.dashboard.overview(this.range.from, this.range.to).pipe(
+    map((overview) => ({ loading: false, ...overview, error: null })),
+    startWith({
+      loading: true,
+      report: null,
+      incomeSummaries: [],
+      accounts: [],
+      debts: [],
+      savingsGoals: [],
+      assets: [],
+      transactions: [],
+      error: null
+    }),
+    catchError(() =>
+      of({
+        loading: false,
+        report: null,
+        incomeSummaries: [],
+        accounts: [],
+        debts: [],
+        savingsGoals: [],
+        assets: [],
+        transactions: [],
+        error: this.i18n.t('dashboard.loadError')
+      })
     )
   );
-
-  saveIncome(): void {
-    if (this.incomeForm.invalid || this.savingIncome) {
-      return;
-    }
-    const value = this.incomeForm.getRawValue();
-    const period = this.dashboardPeriod();
-    this.savingIncome = true;
-    this.dashboard
-      .saveBudgetSummary({
-        ...period,
-        countryCode: 'DE',
-        currencyCode: 'EUR',
-        incomeAmount: value.deIncome,
-        notes: null
-      })
-      .pipe(
-        switchMap(() =>
-          this.dashboard.saveBudgetSummary({
-            ...period,
-            countryCode: 'CO',
-            currencyCode: 'COP',
-            incomeAmount: value.coIncome,
-            notes: null
-          })
-        ),
-        finalize(() => {
-          this.savingIncome = false;
-        })
-      )
-      .subscribe(() => this.reload$.next());
-  }
-
-  private patchIncomeForm(summaries: DashboardBudgetSummary[]): void {
-    this.incomeForm.patchValue(
-      {
-        deIncome: this.incomeFor(summaries, 'DE', 'EUR'),
-        coIncome: this.incomeFor(summaries, 'CO', 'COP')
-      },
-      { emitEvent: false }
-    );
-  }
-
-  private incomeFor(summaries: DashboardBudgetSummary[], countryCode: string, currencyCode: string): number {
-    return summaries.find((summary) => summary.countryCode === countryCode && summary.currencyCode === currencyCode)?.incomeAmount ?? 0;
-  }
-
-  private dashboardPeriod(): { budgetYear: number; budgetMonth: number } {
-    const date = new Date(`${this.range.from}T00:00:00`);
-    return {
-      budgetYear: date.getFullYear(),
-      budgetMonth: date.getMonth() + 1
-    };
-  }
 
   money(value: number | null | undefined): number {
     return Number(value ?? 0);
@@ -336,6 +265,16 @@ export class DashboardPage {
     return accounts
       .filter((account) => account.active && account.countryCode === countryCode && account.currencyCode === currencyCode)
       .reduce((total, account) => total + this.money(account.currentBalance), 0);
+  }
+
+  plannedIncome(summaries: DashboardBudgetSummary[], countryCode: string, currencyCode: string): number {
+    return summaries.find((summary) => summary.countryCode === countryCode && summary.currencyCode === currencyCode)?.incomeAmount ?? 0;
+  }
+
+  plannedIncomeByCurrency(summaries: DashboardBudgetSummary[], currencyCode: string): number {
+    return summaries
+      .filter((summary) => summary.currencyCode === currencyCode)
+      .reduce((total, summary) => total + this.money(summary.incomeAmount), 0);
   }
 
   debtBalance(debts: DashboardDebt[], currencyCode: string): number {
