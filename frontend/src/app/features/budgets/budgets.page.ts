@@ -1,4 +1,4 @@
-import { AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, finalize, forkJoin, map, of, startWith, switchMap, tap } from 'rxjs';
@@ -15,7 +15,7 @@ interface BudgetState {
 
 @Component({
   selector: 'app-budgets-page',
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf, ReactiveFormsModule],
+  imports: [AsyncPipe, CurrencyPipe, NgFor, NgIf, ReactiveFormsModule],
   template: `
     <main class="module-page budget-page" *ngIf="state$ | async as state">
       <section class="page-heading budget-heading">

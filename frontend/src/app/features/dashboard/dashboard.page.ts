@@ -1,4 +1,4 @@
-import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Observable, catchError, map, of, startWith } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -17,7 +17,7 @@ import {
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf],
+  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf],
   template: `
     <main class="dashboard dashboard-pro" *ngIf="state$ | async as state">
       <section class="dashboard-hero pro-hero">
