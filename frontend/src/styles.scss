@@ -712,6 +712,31 @@ nav a.active {
     #ffffff;
 }
 
+.dashboard-income-editor {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.dashboard-income-editor h3 {
+  margin: 4px 0 6px;
+}
+
+.dashboard-income-editor p:not(.eyebrow) {
+  margin: 0;
+  color: #64727c;
+}
+
+.dashboard-income-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  margin: 0;
+}
+
 .dashboard-pro-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr) minmax(320px, 0.8fr);
@@ -1574,6 +1599,8 @@ nav a.active {
 
   .pro-hero,
   .hero-balance-grid,
+  .dashboard-income-editor,
+  .dashboard-income-form,
   .mini-stat-grid,
   .legend-list {
     grid-template-columns: 1fr;

@@ -18,12 +18,23 @@ export interface ReportBreakdownItem {
 export interface DashboardState {
   loading: boolean;
   report: FinancialReport | null;
+  incomeSummaries: DashboardBudgetSummary[];
   accounts: DashboardAccount[];
   debts: DashboardDebt[];
   savingsGoals: DashboardSavingsGoal[];
   assets: DashboardAsset[];
   transactions: DashboardTransaction[];
   error: string | null;
+}
+
+export interface DashboardBudgetSummary {
+  id: string | null;
+  budgetYear: number;
+  budgetMonth: number;
+  countryCode: string;
+  currencyCode: string;
+  incomeAmount: number;
+  notes: string | null;
 }
 
 export interface DashboardAccount {
