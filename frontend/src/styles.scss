@@ -1276,7 +1276,7 @@ nav a.active {
 
 .budget-income-form {
   display: grid;
-  grid-template-columns: minmax(180px, 260px) auto;
+  grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
   gap: 12px;
   align-items: end;
   margin: 0;
@@ -1372,6 +1372,44 @@ nav a.active {
 .budget-row .negative,
 .budget-summary .negative {
   color: #b42318;
+}
+
+.transaction-summary-panel {
+  grid-column: 1 / -1;
+}
+
+.transaction-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.transaction-summary-grid section {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #e1e9ed;
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 14px;
+}
+
+.transaction-summary-grid span {
+  color: #596b78;
+  font-weight: 700;
+}
+
+.transaction-summary-grid strong {
+  color: #0f7b70;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.transaction-summary-grid strong.negative {
+  color: #b42318;
+}
+
+.transaction-summary-grid small {
+  color: #465967;
 }
 
 .form-row {

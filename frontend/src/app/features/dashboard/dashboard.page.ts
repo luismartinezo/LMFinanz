@@ -257,14 +257,18 @@ export class DashboardPage {
 
   accountBalance(accounts: DashboardAccount[], currencyCode: string): number {
     return accounts
-      .filter((account) => account.active && account.currencyCode === currencyCode)
+      .filter((account) => this.isAvailableAccount(account) && account.currencyCode === currencyCode)
       .reduce((total, account) => total + this.money(account.currentBalance), 0);
   }
 
   accountBalanceByCountryCurrency(accounts: DashboardAccount[], countryCode: string, currencyCode: string): number {
     return accounts
-      .filter((account) => account.active && account.countryCode === countryCode && account.currencyCode === currencyCode)
+      .filter((account) => this.isAvailableAccount(account) && account.countryCode === countryCode && account.currencyCode === currencyCode)
       .reduce((total, account) => total + this.money(account.currentBalance), 0);
+  }
+
+  private isAvailableAccount(account: DashboardAccount): boolean {
+    return account.active && account.type !== 'CREDIT_CARD';
   }
 
   plannedIncome(summaries: DashboardBudgetSummary[], countryCode: string, currencyCode: string): number {

@@ -38,6 +38,7 @@ export interface DashboardBudgetSummary {
 }
 
 export interface DashboardAccount {
+  type: 'BANK_ACCOUNT' | 'CASH_ACCOUNT' | 'CREDIT_CARD';
   currencyCode: string;
   countryCode: string;
   currentBalance: number;

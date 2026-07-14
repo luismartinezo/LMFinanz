@@ -98,6 +98,21 @@ interface BudgetState {
         </div>
         <form [formGroup]="incomeForm" (ngSubmit)="saveIncome()" class="budget-income-form">
           <label>
+            {{ i18n.t('budget.country') }}
+            <select [value]="countryCode" (change)="setCountry($event)">
+              <option value="DE">{{ i18n.t('accounts.countryGermany') }}</option>
+              <option value="CO">{{ i18n.t('accounts.countryColombia') }}</option>
+            </select>
+          </label>
+          <label>
+            {{ i18n.t('budget.currency') }}
+            <select [value]="currencyCode" (change)="setCurrency($event)">
+              <option value="EUR">EUR</option>
+              <option value="COP">COP</option>
+              <option value="USD">USD</option>
+            </select>
+          </label>
+          <label>
             {{ i18n.t('budget.income') }}
             <input type="number" min="0" step="0.01" formControlName="incomeAmount" />
           </label>

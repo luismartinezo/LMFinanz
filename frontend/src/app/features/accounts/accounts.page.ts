@@ -302,14 +302,18 @@ export class AccountsPage {
 
   totalAvailable(accounts: Account[], countryCode: CountryCode, currencyCode: CurrencyCode): number {
     return accounts
-      .filter((account) => account.active && account.countryCode === countryCode && account.currencyCode === currencyCode)
+      .filter((account) => this.isAvailableAccount(account) && account.countryCode === countryCode && account.currencyCode === currencyCode)
       .reduce((sum, account) => sum + account.currentBalance, 0);
   }
 
   totalByCurrency(accounts: Account[], currencyCode: CurrencyCode): number {
     return accounts
-      .filter((account) => account.active && account.currencyCode === currencyCode)
+      .filter((account) => this.isAvailableAccount(account) && account.currencyCode === currencyCode)
       .reduce((sum, account) => sum + account.currentBalance, 0);
+  }
+
+  private isAvailableAccount(account: Account): boolean {
+    return account.active && account.type !== 'CREDIT_CARD';
   }
 
   closeAccount(accountId: string): void {
