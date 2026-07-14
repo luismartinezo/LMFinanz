@@ -49,13 +49,13 @@ import { AccountsService } from './accounts.service';
           <article>
             <span>{{ i18n.t('accounts.countryGermany') }} · EUR</span>
             <strong [class.negative]="totalAvailable(state.accounts, 'DE', 'EUR') < 0">
-              {{ totalAvailable(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}
+              {{ totalAvailable(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' : localeFor('DE') }}
             </strong>
           </article>
           <article>
             <span>{{ i18n.t('accounts.countryColombia') }} · COP</span>
             <strong [class.negative]="totalAvailable(state.accounts, 'CO', 'COP') < 0">
-              {{ totalAvailable(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}
+              {{ totalAvailable(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' : localeFor('CO') }}
             </strong>
           </article>
           <article>
@@ -92,7 +92,7 @@ import { AccountsService } from './accounts.service';
             <div class="form-row">
               <label>
                 {{ i18n.t('accounts.currency') }}
-                <select formControlName="currencyCode">
+                <select formControlName="currencyCode" (change)="syncCountryWithCurrency()">
                   <option value="EUR">EUR</option>
                   <option value="COP">COP</option>
                   <option value="USD">USD</option>
@@ -101,7 +101,7 @@ import { AccountsService } from './accounts.service';
 
               <label>
                 {{ i18n.t('accounts.country') }}
-                <select formControlName="countryCode">
+                <select formControlName="countryCode" (change)="syncCurrencyWithCountry()">
                   <option value="DE">{{ i18n.t('accounts.countryGermany') }}</option>
                   <option value="CO">{{ i18n.t('accounts.countryColombia') }}</option>
                 </select>
@@ -160,7 +160,7 @@ import { AccountsService } from './accounts.service';
               <span>{{ account.countryCode }}</span>
               <span>
                 <ng-container *ngIf="editingAccountId !== account.id; else balanceEdit">
-                  {{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' }}
+                  {{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' : localeFor(account.countryCode) }}
                 </ng-container>
                 <ng-template #balanceEdit>
                   <input type="number" step="0.01" formControlName="currentBalance" />
@@ -233,6 +233,24 @@ export class AccountsPage {
 
   toggleForm(): void {
     this.showForm = !this.showForm;
+  }
+
+  syncCurrencyWithCountry(): void {
+    const currencyByCountry: Record<CountryCode, CurrencyCode> = {
+      DE: 'EUR',
+      CO: 'COP'
+    };
+    this.form.patchValue({ currencyCode: currencyByCountry[this.form.controls.countryCode.value] });
+  }
+
+  syncCountryWithCurrency(): void {
+    const currency = this.form.controls.currencyCode.value;
+    if (currency === 'EUR') {
+      this.form.patchValue({ countryCode: 'DE' });
+    }
+    if (currency === 'COP') {
+      this.form.patchValue({ countryCode: 'CO' });
+    }
   }
 
   createAccount(): void {
@@ -334,5 +352,13 @@ export class AccountsPage {
       CREDIT_CARD: this.i18n.t('accounts.typeCredit')
     };
     return labels[type];
+  }
+
+  localeFor(countryCode: CountryCode): string {
+    const locales: Record<CountryCode, string> = {
+      DE: 'de-DE',
+      CO: 'es-CO'
+    };
+    return locales[countryCode];
   }
 }
