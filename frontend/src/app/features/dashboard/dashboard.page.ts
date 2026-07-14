@@ -31,10 +31,17 @@ import {
           </p>
         </div>
         <div class="hero-summary">
-          <span>{{ i18n.t('dashboard.netWorth') }}</span>
-          <strong [class.negative]="netWorth(state, primaryCurrency(state)) < 0">
-            {{ netWorth(state, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}
-          </strong>
+          <span>{{ i18n.t('dashboard.availableNow') }}</span>
+          <div class="hero-balance-grid">
+            <strong [class.negative]="accountBalanceByCountryCurrency(state.accounts, 'DE', 'EUR') < 0">
+              {{ accountBalanceByCountryCurrency(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}
+              <small>{{ i18n.t('accounts.countryGermany') }}</small>
+            </strong>
+            <strong [class.negative]="accountBalanceByCountryCurrency(state.accounts, 'CO', 'COP') < 0">
+              {{ accountBalanceByCountryCurrency(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}
+              <small>{{ i18n.t('accounts.countryColombia') }}</small>
+            </strong>
+          </div>
           <button type="button">{{ i18n.t('dashboard.newTransaction') }}</button>
         </div>
       </section>
@@ -68,13 +75,15 @@ import {
           </strong>
           <small>{{ i18n.t('dashboard.netCashFlowHint') }}</small>
         </article>
-        <article class="metric-card reports">
+        <article class="metric-card cash">
           <div class="metric-topline">
-            <span>{{ i18n.t('dashboard.reportLines') }}</span>
-            <b>RP</b>
+            <span>{{ i18n.t('dashboard.availableNow') }}</span>
+            <b>AV</b>
           </div>
-          <strong>{{ state.report?.breakdown?.length ?? 0 | number }}</strong>
-          <small>{{ i18n.t('dashboard.reportLinesHint') }}</small>
+          <strong [class.negative]="accountBalance(state.accounts, primaryCurrency(state)) < 0">
+            {{ accountBalance(state.accounts, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}
+          </strong>
+          <small>{{ i18n.t('dashboard.availableHint') }}</small>
         </article>
       </div>
 
@@ -109,19 +118,30 @@ import {
           </div>
         </article>
 
-        <article class="panel health-panel">
+        <article class="panel liquidity-panel">
           <div class="panel-title">
-            <h3>{{ i18n.t('dashboard.financialHealth') }}</h3>
-            <span>{{ healthLabel(state.report) }}</span>
+            <h3>{{ i18n.t('dashboard.availableByCountry') }}</h3>
+            <span>{{ i18n.t('dashboard.availableNow') }}</span>
           </div>
-          <div class="gauge" [style.--value.%]="healthScore(state.report)">
-            <strong>{{ healthScore(state.report) | number: '1.0-0' }}%</strong>
-            <span>{{ i18n.t('dashboard.savingsCapacity') }}</span>
-          </div>
-          <ul class="legend-list">
-            <li><i class="legend-income"></i>{{ i18n.t('dashboard.savingsCapacity') }}</li>
-            <li><i class="legend-expense"></i>{{ i18n.t('dashboard.expensePressure') }}</li>
-            <li><i class="legend-cash"></i>{{ i18n.t('dashboard.netPosition') }}</li>
+          <ul class="status-list liquidity-list">
+            <li>
+              <span>{{ i18n.t('accounts.countryGermany') }} · EUR</span>
+              <strong [class.negative]="accountBalanceByCountryCurrency(state.accounts, 'DE', 'EUR') < 0">
+                {{ accountBalanceByCountryCurrency(state.accounts, 'DE', 'EUR') | currency: 'EUR' : 'symbol' : '1.2-2' }}
+              </strong>
+            </li>
+            <li>
+              <span>{{ i18n.t('accounts.countryColombia') }} · COP</span>
+              <strong [class.negative]="accountBalanceByCountryCurrency(state.accounts, 'CO', 'COP') < 0">
+                {{ accountBalanceByCountryCurrency(state.accounts, 'CO', 'COP') | currency: 'COP' : 'symbol' : '1.2-2' }}
+              </strong>
+            </li>
+            <li>
+              <span>USD</span>
+              <strong [class.negative]="accountBalance(state.accounts, 'USD') < 0">
+                {{ accountBalance(state.accounts, 'USD') | currency: 'USD' : 'symbol' : '1.2-2' }}
+              </strong>
+            </li>
           </ul>
         </article>
 
@@ -162,32 +182,6 @@ import {
           </ul>
         </article>
 
-        <article class="panel portfolio-panel">
-          <div class="panel-title">
-            <h3>{{ i18n.t('dashboard.portfolioSnapshot') }}</h3>
-            <span>{{ primaryCurrency(state) }}</span>
-          </div>
-          <div class="mini-stat-grid">
-            <div>
-              <span>{{ i18n.t('app.assets') }}</span>
-              <strong>{{ assetValue(state.assets, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
-            </div>
-            <div>
-              <span>{{ i18n.t('app.debts') }}</span>
-              <strong>{{ debtBalance(state.debts, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
-            </div>
-            <div>
-              <span>{{ i18n.t('app.savings') }}</span>
-              <strong>{{ savingsBalance(state.savingsGoals, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
-            </div>
-          </div>
-          <ul class="status-list compact">
-            <li *ngFor="let currency of currencies(state)">
-              <span>{{ currency }}</span>
-              <strong>{{ accountBalance(state.accounts, currency) | currency: currency : 'symbol' : '1.2-2' }}</strong>
-            </li>
-          </ul>
-        </article>
       </section>
     </main>
   `
@@ -243,6 +237,12 @@ export class DashboardPage {
   accountBalance(accounts: DashboardAccount[], currencyCode: string): number {
     return accounts
       .filter((account) => account.active && account.currencyCode === currencyCode)
+      .reduce((total, account) => total + this.money(account.currentBalance), 0);
+  }
+
+  accountBalanceByCountryCurrency(accounts: DashboardAccount[], countryCode: string, currencyCode: string): number {
+    return accounts
+      .filter((account) => account.active && account.countryCode === countryCode && account.currencyCode === currencyCode)
       .reduce((total, account) => total + this.money(account.currentBalance), 0);
   }
 

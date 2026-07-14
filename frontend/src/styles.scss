@@ -681,6 +681,29 @@ nav a.active {
   color: #b42318;
 }
 
+.hero-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.hero-balance-grid strong {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid #dce9e7;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 10px 12px;
+  text-align: right;
+}
+
+.hero-balance-grid small {
+  color: #64727c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .pro-metrics .metric-card {
   min-height: 116px;
   border-color: #e4ebf0;
@@ -780,6 +803,29 @@ nav a.active {
 
 .health-panel {
   min-height: 320px;
+}
+
+.liquidity-panel {
+  min-height: 320px;
+}
+
+.liquidity-list {
+  gap: 14px;
+}
+
+.liquidity-list li {
+  border: 1px solid #e1e9ed;
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 14px;
+}
+
+.liquidity-list strong {
+  color: #0f766e;
+}
+
+.liquidity-list strong.negative {
+  color: #b42318;
 }
 
 .gauge {
@@ -1527,6 +1573,7 @@ nav a.active {
   }
 
   .pro-hero,
+  .hero-balance-grid,
   .mini-stat-grid,
   .legend-list {
     grid-template-columns: 1fr;
@@ -1534,6 +1581,10 @@ nav a.active {
 
   .hero-summary {
     justify-items: start;
+  }
+
+  .hero-balance-grid strong {
+    text-align: left;
   }
 
   .page-heading,
