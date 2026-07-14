@@ -178,7 +178,7 @@ import { TransactionsService } from './transactions.service';
           </div>
         </article>
 
-        <article class="panel">
+        <article class="panel transaction-ledger-panel">
         <div class="panel-title">
           <h3>{{ i18n.t('transactions.ledger') }}</h3>
           <span>{{ state.loading ? i18n.t('common.loading') : filteredTransactions(state.transactions).length + ' ' + i18n.t('common.total') }}</span>

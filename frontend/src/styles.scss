@@ -1198,6 +1198,10 @@ nav a.active {
   grid-template-columns: minmax(280px, 0.45fr) minmax(0, 1fr);
 }
 
+.transaction-ledger-panel {
+  grid-column: 1 / -1;
+}
+
 .account-balance-summary {
   display: grid;
   grid-template-columns: minmax(220px, 0.55fr) minmax(0, 1fr);
@@ -1440,14 +1444,14 @@ nav a.active {
 }
 
 .transaction-row {
-  min-width: 940px;
+  min-width: 1120px;
   grid-template-columns:
-    minmax(112px, 0.7fr)
-    minmax(120px, 0.75fr)
-    minmax(180px, 1.15fr)
-    minmax(140px, 0.85fr)
-    minmax(110px, 0.65fr)
-    minmax(150px, 0.9fr);
+    minmax(130px, 0.75fr)
+    minmax(140px, 0.75fr)
+    minmax(260px, 1.4fr)
+    minmax(170px, 0.9fr)
+    minmax(140px, 0.75fr)
+    minmax(210px, 1fr);
 }
 
 .account-row {
