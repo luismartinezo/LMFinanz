@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, finalize, forkJoin, map, of, startWith, switchMap, tap } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
-import { BudgetItem, BudgetItemRequest, BudgetSummary, CountryCode, CurrencyCode } from './budgets.models';
+import { BudgetItem, BudgetItemRequest, BudgetItemType, BudgetSummary, CountryCode, CurrencyCode } from './budgets.models';
 import { BudgetsService } from './budgets.service';
 
 interface BudgetState {
@@ -135,6 +135,16 @@ interface BudgetState {
               <input formControlName="name" />
             </label>
 
+            <label>
+              {{ i18n.t('budget.itemType') }}
+              <select formControlName="itemType">
+                <option value="EXPENSE">{{ i18n.t('budget.typeExpense') }}</option>
+                <option value="DEBT_PAYMENT">{{ i18n.t('budget.typeDebtPayment') }}</option>
+                <option value="SAVINGS">{{ i18n.t('budget.typeSavings') }}</option>
+                <option value="TRANSFER">{{ i18n.t('budget.typeTransfer') }}</option>
+              </select>
+            </label>
+
             <div class="form-row">
               <label>
                 {{ i18n.t('budget.planned') }}
@@ -189,6 +199,7 @@ interface BudgetState {
               <span>
                 <strong *ngIf="editingItemId !== item.id">{{ item.name }}</strong>
                 <input *ngIf="editingItemId === item.id" formControlName="name" />
+                <small>{{ labelForItemType(item.itemType) }}</small>
                 <small *ngIf="item.notes">{{ item.notes }}</small>
               </span>
               <span>
@@ -273,6 +284,7 @@ export class BudgetsPage {
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(140)]],
+    itemType: ['EXPENSE' as BudgetItemType, Validators.required],
     plannedAmount: [0, [Validators.required, Validators.min(0)]],
     dueDate: [this.defaultDueDate(), Validators.required],
     notes: ['', Validators.maxLength(500)]
@@ -284,6 +296,7 @@ export class BudgetsPage {
 
   readonly editForm = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(140)]],
+    itemType: ['EXPENSE' as BudgetItemType, Validators.required],
     plannedAmount: [0, [Validators.required, Validators.min(0)]],
     actualAmount: [0, [Validators.required, Validators.min(0)]],
     dueDate: ['', Validators.required],
@@ -341,7 +354,7 @@ export class BudgetsPage {
       .pipe(finalize(() => (this.saving = false)))
       .subscribe({
         next: () => {
-          this.form.reset({ name: '', plannedAmount: 0, dueDate: this.defaultDueDate(), notes: '' });
+          this.form.reset({ name: '', itemType: 'EXPENSE', plannedAmount: 0, dueDate: this.defaultDueDate(), notes: '' });
           this.reload$.next();
         }
       });
@@ -369,6 +382,7 @@ export class BudgetsPage {
     this.editingItemId = item.id;
     this.editForm.reset({
       name: item.name,
+      itemType: item.itemType,
       plannedAmount: item.plannedAmount,
       actualAmount: item.actualAmount,
       dueDate: item.dueDate || (item.dueDay ? this.dateFromDay(item.dueDay) : this.defaultDueDate()),
@@ -455,6 +469,16 @@ export class BudgetsPage {
     return 'danger';
   }
 
+  labelForItemType(type: BudgetItemType): string {
+    const labels: Record<BudgetItemType, string> = {
+      EXPENSE: this.i18n.t('budget.typeExpense'),
+      DEBT_PAYMENT: this.i18n.t('budget.typeDebtPayment'),
+      SAVINGS: this.i18n.t('budget.typeSavings'),
+      TRANSFER: this.i18n.t('budget.typeTransfer')
+    };
+    return labels[type];
+  }
+
   private buildRequest(): BudgetItemRequest {
     const value = this.form.getRawValue();
     return {
@@ -463,6 +487,7 @@ export class BudgetsPage {
       countryCode: this.countryCode,
       currencyCode: this.currencyCode,
       name: value.name,
+      itemType: value.itemType,
       plannedAmount: value.plannedAmount,
       actualAmount: 0,
       dueDay: this.dayFromDate(value.dueDate),
@@ -481,6 +506,7 @@ export class BudgetsPage {
       countryCode: this.countryCode,
       currencyCode: this.currencyCode,
       name: value.name,
+      itemType: value.itemType,
       plannedAmount: value.plannedAmount,
       actualAmount: value.actualAmount,
       dueDay: this.dayFromDate(value.dueDate),

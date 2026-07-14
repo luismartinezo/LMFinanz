@@ -1,5 +1,6 @@
 export type CurrencyCode = 'EUR' | 'COP' | 'USD';
 export type CountryCode = 'DE' | 'CO';
+export type BudgetItemType = 'EXPENSE' | 'DEBT_PAYMENT' | 'SAVINGS' | 'TRANSFER';
 
 export interface BudgetItem {
   id: string;
@@ -8,6 +9,7 @@ export interface BudgetItem {
   countryCode: CountryCode;
   currencyCode: CurrencyCode;
   name: string;
+  itemType: BudgetItemType;
   plannedAmount: number;
   actualAmount: number;
   remainingAmount: number;
@@ -24,6 +26,7 @@ export interface BudgetItemRequest {
   countryCode: CountryCode;
   currencyCode: CurrencyCode;
   name: string;
+  itemType: BudgetItemType;
   plannedAmount: number;
   actualAmount: number;
   dueDay: number | null;

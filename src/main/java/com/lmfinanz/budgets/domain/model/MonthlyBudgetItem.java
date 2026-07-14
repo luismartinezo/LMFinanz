@@ -4,6 +4,8 @@ import com.lmfinanz.shared.domain.exception.DomainException;
 import com.lmfinanz.shared.domain.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,6 +33,10 @@ public class MonthlyBudgetItem extends BaseEntity {
     @Column(nullable = false, length = 140)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private BudgetItemType itemType = BudgetItemType.EXPENSE;
+
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal plannedAmount;
 
@@ -53,7 +59,7 @@ public class MonthlyBudgetItem extends BaseEntity {
     }
 
     public MonthlyBudgetItem(UUID userId, int budgetYear, int budgetMonth, String countryCode, String currencyCode,
-                             String name, BigDecimal plannedAmount, BigDecimal actualAmount,
+                             String name, BudgetItemType itemType, BigDecimal plannedAmount, BigDecimal actualAmount,
                              Integer dueDay, LocalDate dueDate, boolean paid, LocalDate paidDate, String notes) {
         this.userId = userId;
         this.budgetYear = budgetYear;
@@ -61,6 +67,7 @@ public class MonthlyBudgetItem extends BaseEntity {
         this.countryCode = countryCode;
         this.currencyCode = currencyCode;
         this.name = name;
+        this.itemType = itemType == null ? BudgetItemType.EXPENSE : itemType;
         this.plannedAmount = plannedAmount;
         this.actualAmount = actualAmount == null ? BigDecimal.ZERO : actualAmount;
         this.dueDay = dueDay;
@@ -93,6 +100,10 @@ public class MonthlyBudgetItem extends BaseEntity {
 
     public String getName() {
         return name;
+    }
+
+    public BudgetItemType getItemType() {
+        return itemType;
     }
 
     public BigDecimal getPlannedAmount() {
@@ -128,13 +139,14 @@ public class MonthlyBudgetItem extends BaseEntity {
     }
 
     public void update(int budgetYear, int budgetMonth, String countryCode, String currencyCode, String name,
-                       BigDecimal plannedAmount, BigDecimal actualAmount, Integer dueDay,
+                       BudgetItemType itemType, BigDecimal plannedAmount, BigDecimal actualAmount, Integer dueDay,
                        LocalDate dueDate, boolean paid, LocalDate paidDate, String notes) {
         this.budgetYear = budgetYear;
         this.budgetMonth = budgetMonth;
         this.countryCode = countryCode;
         this.currencyCode = currencyCode;
         this.name = name;
+        this.itemType = itemType == null ? BudgetItemType.EXPENSE : itemType;
         this.plannedAmount = plannedAmount;
         this.actualAmount = actualAmount == null ? BigDecimal.ZERO : actualAmount;
         this.dueDay = dueDay;

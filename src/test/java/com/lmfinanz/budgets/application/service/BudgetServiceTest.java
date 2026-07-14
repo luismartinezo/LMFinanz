@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.lmfinanz.budgets.application.port.out.BudgetRepositoryPort;
 import com.lmfinanz.budgets.application.port.out.BudgetSummaryRepositoryPort;
+import com.lmfinanz.budgets.domain.model.BudgetItemType;
 import com.lmfinanz.budgets.domain.model.MonthlyBudgetItem;
 import com.lmfinanz.reference.application.port.out.ReferenceDataRepositoryPort;
 import java.math.BigDecimal;
@@ -40,6 +41,7 @@ class BudgetServiceTest {
                 "DE",
                 "EUR",
                 "Rent",
+                BudgetItemType.EXPENSE,
                 new BigDecimal("775.00"),
                 BigDecimal.ZERO,
                 1,

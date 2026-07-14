@@ -1,5 +1,6 @@
 package com.lmfinanz.budgets.adapter.in.web.dto;
 
+import com.lmfinanz.budgets.domain.model.BudgetItemType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -16,6 +17,7 @@ public record BudgetItemRequest(
         @NotBlank @Pattern(regexp = "^[A-Z]{2}$") String countryCode,
         @NotBlank @Pattern(regexp = "^[A-Z]{3}$") String currencyCode,
         @NotBlank @Size(max = 140) String name,
+        BudgetItemType itemType,
         @NotNull @DecimalMin(value = "0.0000") BigDecimal plannedAmount,
         @DecimalMin(value = "0.0000") BigDecimal actualAmount,
         @Min(1) @Max(31) Integer dueDay,
