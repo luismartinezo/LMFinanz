@@ -1199,7 +1199,8 @@ nav a.active {
 }
 
 .transaction-ledger-panel {
-  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 16px;
 }
 
 .account-balance-summary {
