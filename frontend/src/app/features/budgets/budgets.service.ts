@@ -27,6 +27,10 @@ export class BudgetsService {
     return this.http.put<BudgetItem>(`${API_BASE_URL}/api/budget-items/${itemId}`, request);
   }
 
+  delete(itemId: string): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/api/budget-items/${itemId}`);
+  }
+
   getSummary(budgetYear: number, budgetMonth: number, countryCode: CountryCode, currencyCode: CurrencyCode): Observable<BudgetSummary> {
     const params = new HttpParams()
       .set('budgetYear', budgetYear)

@@ -229,6 +229,9 @@ interface BudgetState {
                 <button class="table-action muted" type="button" *ngIf="editingItemId === item.id" (click)="cancelEdit()">
                   {{ i18n.t('budget.cancel') }}
                 </button>
+                <button class="table-action danger" type="button" *ngIf="editingItemId !== item.id" (click)="deleteItem(item.id)">
+                  {{ i18n.t('budget.delete') }}
+                </button>
               </span>
             </div>
           </div>
@@ -385,6 +388,13 @@ export class BudgetsPage {
         this.cancelEdit();
         this.reload$.next();
       });
+  }
+
+  deleteItem(itemId: string): void {
+    if (!confirm(this.i18n.t('confirm.deleteBudgetItem'))) {
+      return;
+    }
+    this.budgets.delete(itemId).subscribe(() => this.reload$.next());
   }
 
   cancelEdit(): void {

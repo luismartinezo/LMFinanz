@@ -17,4 +17,6 @@ public interface BudgetUseCase {
     BudgetItemResponse markPaid(UUID userId, UUID itemId, BudgetItemPaymentRequest request);
 
     BudgetItemResponse markUnpaid(UUID userId, UUID itemId);
+
+    void delete(UUID userId, UUID itemId);
 }

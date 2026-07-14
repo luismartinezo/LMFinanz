@@ -34,4 +34,9 @@ public class BudgetPersistenceAdapter implements BudgetRepositoryPort {
                 budgetMonth
         );
     }
+
+    @Override
+    public void delete(MonthlyBudgetItem item) {
+        repository.delete(item);
+    }
 }

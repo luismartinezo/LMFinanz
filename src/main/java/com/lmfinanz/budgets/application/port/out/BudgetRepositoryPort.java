@@ -12,4 +12,6 @@ public interface BudgetRepositoryPort {
     Optional<MonthlyBudgetItem> findByIdAndUserId(UUID id, UUID userId);
 
     List<MonthlyBudgetItem> findAllByPeriod(UUID userId, int budgetYear, int budgetMonth);
+
+    void delete(MonthlyBudgetItem item);
 }

@@ -105,6 +105,12 @@ public class BudgetService implements BudgetUseCase, BudgetSummaryUseCase {
     }
 
     @Override
+    public void delete(UUID userId, UUID itemId) {
+        MonthlyBudgetItem item = findItem(userId, itemId);
+        budgetRepository.delete(item);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public BudgetSummaryResponse get(UUID userId, int budgetYear, int budgetMonth, String countryCode, String currencyCode) {
         validateReferenceData(currencyCode, countryCode);
