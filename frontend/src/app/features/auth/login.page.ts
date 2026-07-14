@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { LanguageSelectorComponent } from '../../core/i18n/language-selector.component';
@@ -52,9 +52,10 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
     </main>
   `
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly i18n = inject(I18nService);
   readonly loading = signal(false);
@@ -63,6 +64,12 @@ export class LoginPage {
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required]
   });
+
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('expired') === '1') {
+      this.error.set(this.i18n.t('auth.sessionExpired'));
+    }
+  }
 
   submit(): void {
     if (this.form.invalid) {
