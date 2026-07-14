@@ -1,0 +1,3 @@
+ALTER TABLE debts
+    ADD COLUMN debt_type VARCHAR(30) NOT NULL DEFAULT 'OTHER' AFTER name,
+    ADD COLUMN country_code VARCHAR(2) NOT NULL DEFAULT 'DE' AFTER currency_code;

@@ -43,7 +43,9 @@ public class DebtService implements DebtUseCase {
         Debt debt = new Debt(
                 userId,
                 request.name().trim(),
+                request.debtType(),
                 request.currencyCode(),
+                request.countryCode(),
                 request.principalAmount(),
                 request.annualInterestRate(),
                 request.installments(),
@@ -105,6 +107,9 @@ public class DebtService implements DebtUseCase {
         if (referenceDataRepository.findCurrencyByCode(request.currencyCode()).isEmpty()) {
             throw new DomainException("Unsupported currency: " + request.currencyCode());
         }
+        if (referenceDataRepository.findCountryByCode(request.countryCode()).isEmpty()) {
+            throw new DomainException("Unsupported country: " + request.countryCode());
+        }
         if (request.finalDueDate().isBefore(request.startDate())) {
             throw new DomainException("Final due date must be after or equal to start date");
         }
@@ -162,7 +167,9 @@ public class DebtService implements DebtUseCase {
         return new DebtResponse(
                 debt.getId(),
                 debt.getName(),
+                debt.getDebtType(),
                 debt.getCurrencyCode(),
+                debt.getCountryCode(),
                 debt.getPrincipalAmount(),
                 debt.getAnnualInterestRate(),
                 debt.getInstallments(),

@@ -1477,9 +1477,10 @@ nav a.active {
 }
 
 .debt-row {
-  min-width: 960px;
+  min-width: 1120px;
   grid-template-columns:
     minmax(210px, 1.25fr)
+    minmax(170px, 0.9fr)
     minmax(140px, 0.8fr)
     minmax(105px, 0.55fr)
     minmax(150px, 0.85fr)

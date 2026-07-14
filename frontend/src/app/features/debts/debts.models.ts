@@ -1,10 +1,13 @@
 export type DebtStatus = 'ACTIVE' | 'PAID' | 'DEFAULTED' | 'CANCELLED';
+export type DebtType = 'CREDIT_CARD' | 'MORTGAGE' | 'PERSONAL_LOAN' | 'VEHICLE_LOAN' | 'INSTALLMENT_PURCHASE' | 'FAMILY_LOAN' | 'OTHER';
 export type InstallmentStatus = 'PENDING' | 'PAID' | 'OVERDUE';
 
 export interface Debt {
   id: string;
   name: string;
+  debtType: DebtType;
   currencyCode: string;
+  countryCode: string;
   principalAmount: number;
   annualInterestRate: number;
   installments: number;
@@ -16,7 +19,9 @@ export interface Debt {
 
 export interface DebtRequest {
   name: string;
+  debtType: DebtType;
   currencyCode: string;
+  countryCode: string;
   principalAmount: number;
   annualInterestRate: number;
   installments: number;

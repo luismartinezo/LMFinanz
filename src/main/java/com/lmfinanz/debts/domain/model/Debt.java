@@ -21,8 +21,15 @@ public class Debt extends BaseEntity {
     @Column(nullable = false, length = 140)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private DebtType debtType;
+
     @Column(nullable = false, length = 3)
     private String currencyCode;
+
+    @Column(nullable = false, length = 2)
+    private String countryCode;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal principalAmount;
@@ -49,11 +56,13 @@ public class Debt extends BaseEntity {
     protected Debt() {
     }
 
-    public Debt(UUID userId, String name, String currencyCode, BigDecimal principalAmount,
+    public Debt(UUID userId, String name, DebtType debtType, String currencyCode, String countryCode, BigDecimal principalAmount,
                 BigDecimal annualInterestRate, int installments, LocalDate startDate, LocalDate finalDueDate) {
         this.userId = userId;
         this.name = name;
+        this.debtType = debtType;
         this.currencyCode = currencyCode;
+        this.countryCode = countryCode;
         this.principalAmount = principalAmount;
         this.annualInterestRate = annualInterestRate;
         this.installments = installments;
@@ -70,8 +79,16 @@ public class Debt extends BaseEntity {
         return name;
     }
 
+    public DebtType getDebtType() {
+        return debtType;
+    }
+
     public String getCurrencyCode() {
         return currencyCode;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
     }
 
     public BigDecimal getPrincipalAmount() {

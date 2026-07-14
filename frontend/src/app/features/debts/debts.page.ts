@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, map, of, startWith, switchMap, tap } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
-import { Debt, DebtInstallment, DebtRequest, DebtStatus, InstallmentStatus } from './debts.models';
+import { Debt, DebtInstallment, DebtRequest, DebtStatus, DebtType, InstallmentStatus } from './debts.models';
 import { DebtsService } from './debts.service';
 
 @Component({
@@ -59,8 +59,31 @@ import { DebtsService } from './debts.service';
 
             <div class="form-row">
               <label>
+                {{ i18n.t('debts.type') }}
+                <select formControlName="debtType">
+                  <option value="CREDIT_CARD">{{ i18n.t('debts.typeCreditCard') }}</option>
+                  <option value="MORTGAGE">{{ i18n.t('debts.typeMortgage') }}</option>
+                  <option value="PERSONAL_LOAN">{{ i18n.t('debts.typePersonalLoan') }}</option>
+                  <option value="VEHICLE_LOAN">{{ i18n.t('debts.typeVehicleLoan') }}</option>
+                  <option value="INSTALLMENT_PURCHASE">{{ i18n.t('debts.typeInstallmentPurchase') }}</option>
+                  <option value="FAMILY_LOAN">{{ i18n.t('debts.typeFamilyLoan') }}</option>
+                  <option value="OTHER">{{ i18n.t('debts.typeOther') }}</option>
+                </select>
+              </label>
+
+              <label>
+                {{ i18n.t('accounts.country') }}
+                <select formControlName="countryCode" (change)="syncCurrencyWithCountry()">
+                  <option value="DE">{{ i18n.t('accounts.countryGermany') }}</option>
+                  <option value="CO">{{ i18n.t('accounts.countryColombia') }}</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
                 {{ i18n.t('accounts.currency') }}
-                <select formControlName="currencyCode">
+                <select formControlName="currencyCode" (change)="syncCountryWithCurrency()">
                   <option value="EUR">EUR</option>
                   <option value="COP">COP</option>
                   <option value="USD">USD</option>
@@ -117,6 +140,7 @@ import { DebtsService } from './debts.service';
           <div class="data-table" *ngIf="state.debts.length > 0">
             <div class="data-row debt-row heading">
               <span>{{ i18n.t('debts.name') }}</span>
+              <span>{{ i18n.t('debts.type') }}</span>
               <span>{{ i18n.t('debts.remainingBalance') }}</span>
               <span>{{ i18n.t('debts.interestRate') }}</span>
               <span>{{ i18n.t('debts.finalDueDate') }}</span>
@@ -129,6 +153,10 @@ import { DebtsService } from './debts.service';
                 <span>
                   <strong>{{ debt.name }}</strong>
                   <small>{{ debt.installments }} {{ i18n.t('debts.installments').toLowerCase() }}</small>
+                </span>
+                <span>
+                  {{ labelForType(debt.debtType) }}
+                  <small>{{ debt.countryCode }}</small>
                 </span>
                 <span>{{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</span>
                 <span>{{ debt.annualInterestRate | number: '1.2-2' }}%</span>
@@ -186,7 +214,9 @@ export class DebtsPage {
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(140)]],
+    debtType: ['INSTALLMENT_PURCHASE' as DebtType, Validators.required],
     currencyCode: ['EUR', Validators.required],
+    countryCode: ['DE', Validators.required],
     principalAmount: [0, [Validators.required, Validators.min(0.01)]],
     annualInterestRate: [0, [Validators.required, Validators.min(0)]],
     installments: [1, [Validators.required, Validators.min(1)]],
@@ -226,7 +256,9 @@ export class DebtsPage {
         tap(() => {
           this.form.reset({
             name: '',
+            debtType: 'INSTALLMENT_PURCHASE',
             currencyCode: 'EUR',
+            countryCode: 'DE',
             principalAmount: 0,
             annualInterestRate: 0,
             installments: 1,
@@ -241,6 +273,24 @@ export class DebtsPage {
       .subscribe(() => {
         this.saving = false;
       });
+  }
+
+  syncCurrencyWithCountry(): void {
+    const currencyByCountry: Record<string, string> = {
+      DE: 'EUR',
+      CO: 'COP'
+    };
+    this.form.patchValue({ currencyCode: currencyByCountry[this.form.controls.countryCode.value] });
+  }
+
+  syncCountryWithCurrency(): void {
+    const currency = this.form.controls.currencyCode.value;
+    if (currency === 'EUR') {
+      this.form.patchValue({ countryCode: 'DE' });
+    }
+    if (currency === 'COP') {
+      this.form.patchValue({ countryCode: 'CO' });
+    }
   }
 
   primaryCurrency(debts: Debt[]): string {
@@ -272,6 +322,19 @@ export class DebtsPage {
       CANCELLED: this.i18n.t('debts.statusCancelled')
     };
     return labels[status];
+  }
+
+  labelForType(type: DebtType): string {
+    const labels: Record<DebtType, string> = {
+      CREDIT_CARD: this.i18n.t('debts.typeCreditCard'),
+      MORTGAGE: this.i18n.t('debts.typeMortgage'),
+      PERSONAL_LOAN: this.i18n.t('debts.typePersonalLoan'),
+      VEHICLE_LOAN: this.i18n.t('debts.typeVehicleLoan'),
+      INSTALLMENT_PURCHASE: this.i18n.t('debts.typeInstallmentPurchase'),
+      FAMILY_LOAN: this.i18n.t('debts.typeFamilyLoan'),
+      OTHER: this.i18n.t('debts.typeOther')
+    };
+    return labels[type];
   }
 
   toggleInstallments(debtId: string): void {

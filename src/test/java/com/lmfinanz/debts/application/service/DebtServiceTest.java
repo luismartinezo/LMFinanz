@@ -13,8 +13,10 @@ import com.lmfinanz.debts.application.port.out.DebtRepositoryPort;
 import com.lmfinanz.debts.domain.model.Debt;
 import com.lmfinanz.debts.domain.model.DebtInstallment;
 import com.lmfinanz.debts.domain.model.DebtStatus;
+import com.lmfinanz.debts.domain.model.DebtType;
 import com.lmfinanz.debts.domain.model.InstallmentStatus;
 import com.lmfinanz.reference.application.port.out.ReferenceDataRepositoryPort;
+import com.lmfinanz.reference.domain.model.Country;
 import com.lmfinanz.reference.domain.model.Currency;
 import com.lmfinanz.shared.domain.exception.DomainException;
 import java.math.BigDecimal;
@@ -42,6 +44,8 @@ class DebtServiceTest {
         DebtService service = new DebtService(debtRepository, referenceDataRepository);
         when(referenceDataRepository.findCurrencyByCode("EUR"))
                 .thenReturn(Optional.of(new Currency("EUR", "Euro", "EUR", 2)));
+        when(referenceDataRepository.findCountryByCode("DE"))
+                .thenReturn(Optional.of(new Country("DE", "Germany", "EUR")));
         when(debtRepository.save(any(Debt.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(debtRepository.saveInstallment(any(DebtInstallment.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -56,6 +60,8 @@ class DebtServiceTest {
         ));
 
         assertThat(response.name()).isEqualTo("Car loan");
+        assertThat(response.debtType()).isEqualTo(DebtType.PERSONAL_LOAN);
+        assertThat(response.countryCode()).isEqualTo("DE");
         assertThat(response.remainingBalance()).isEqualByComparingTo("1000.00");
         ArgumentCaptor<DebtInstallment> captor = ArgumentCaptor.forClass(DebtInstallment.class);
         verify(debtRepository, times(2)).saveInstallment(captor.capture());
@@ -88,6 +94,8 @@ class DebtServiceTest {
         DebtService service = new DebtService(debtRepository, referenceDataRepository);
         when(referenceDataRepository.findCurrencyByCode("EUR"))
                 .thenReturn(Optional.of(new Currency("EUR", "Euro", "EUR", 2)));
+        when(referenceDataRepository.findCountryByCode("DE"))
+                .thenReturn(Optional.of(new Country("DE", "Germany", "EUR")));
 
         assertThatThrownBy(() -> service.create(UUID.randomUUID(), request(
                 "Loan",
@@ -99,6 +107,27 @@ class DebtServiceTest {
         )))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Installments cannot exceed the number of months in the debt period");
+    }
+
+    @Test
+    void rejectsUnsupportedCountry() {
+        DebtService service = new DebtService(debtRepository, referenceDataRepository);
+        when(referenceDataRepository.findCurrencyByCode("EUR"))
+                .thenReturn(Optional.of(new Currency("EUR", "Euro", "EUR", 2)));
+        when(referenceDataRepository.findCountryByCode("XX")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.create(UUID.randomUUID(), request(
+                "Loan",
+                "1000.00",
+                "5.00",
+                3,
+                LocalDate.of(2026, 7, 1),
+                LocalDate.of(2026, 9, 1),
+                "EUR",
+                "XX"
+        )))
+                .isInstanceOf(DomainException.class)
+                .hasMessage("Unsupported country: XX");
     }
 
     @Test
@@ -193,9 +222,24 @@ class DebtServiceTest {
             LocalDate finalDueDate,
             String currencyCode
     ) {
+        return request(name, principalAmount, annualInterestRate, installments, startDate, finalDueDate, currencyCode, "DE");
+    }
+
+    private DebtRequest request(
+            String name,
+            String principalAmount,
+            String annualInterestRate,
+            int installments,
+            LocalDate startDate,
+            LocalDate finalDueDate,
+            String currencyCode,
+            String countryCode
+    ) {
         return new DebtRequest(
                 name,
+                DebtType.PERSONAL_LOAN,
                 currencyCode,
+                countryCode,
                 new BigDecimal(principalAmount),
                 new BigDecimal(annualInterestRate),
                 installments,
@@ -208,7 +252,9 @@ class DebtServiceTest {
         return new Debt(
                 userId,
                 "Loan",
+                DebtType.PERSONAL_LOAN,
                 "EUR",
+                "DE",
                 new BigDecimal(principalAmount),
                 new BigDecimal("12.00"),
                 installments,
