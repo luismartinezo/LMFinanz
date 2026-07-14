@@ -72,8 +72,8 @@ import { TransactionsService } from './transactions.service';
         </form>
       </section>
 
-      <section class="content-grid accounts-layout">
-        <article class="panel" *ngIf="showForm">
+      <section class="content-grid transaction-form-grid" *ngIf="showForm">
+        <article class="panel">
           <div class="panel-title">
             <h3>{{ i18n.t('transactions.newMovement') }}</h3>
             <span>{{ i18n.t('common.requiredFields') }}</span>
@@ -154,29 +154,6 @@ import { TransactionsService } from './transactions.service';
           </form>
         </article>
 
-        <article class="panel transaction-summary-panel" *ngIf="filteredTransactions(state.transactions).length > 0">
-          <div class="panel-title">
-            <h3>{{ i18n.t('transactions.periodSummary') }}</h3>
-            <span>{{ i18n.t('transactions.postedOnly') }}</span>
-          </div>
-
-          <div class="transaction-summary-grid">
-            <section *ngFor="let currency of transactionCurrencies(filteredTransactions(state.transactions))">
-              <span>{{ currency }}</span>
-              <strong [class.negative]="postedNetByCurrency(filteredTransactions(state.transactions), currency) < 0">
-                {{ postedNetByCurrency(filteredTransactions(state.transactions), currency) | currency: currency : 'symbol' : '1.2-2' }}
-              </strong>
-              <small>
-                {{ i18n.t('transactions.typeIncome') }}:
-                {{ postedIncomeByCurrency(filteredTransactions(state.transactions), currency) | currency: currency : 'symbol' : '1.2-2' }}
-              </small>
-              <small>
-                {{ i18n.t('transactions.typeExpense') }}:
-                {{ postedExpenseByCurrency(filteredTransactions(state.transactions), currency) | currency: currency : 'symbol' : '1.2-2' }}
-              </small>
-            </section>
-          </div>
-        </article>
       </section>
 
       <article class="panel transaction-ledger-panel">
@@ -403,27 +380,6 @@ export class TransactionsPage {
     return transaction.amount;
   }
 
-  transactionCurrencies(transactions: Transaction[]): string[] {
-    const currencies = new Set(
-      transactions
-        .filter((transaction) => transaction.status === 'POSTED')
-        .map((transaction) => transaction.currencyCode)
-    );
-    return currencies.size > 0 ? [...currencies] : ['EUR'];
-  }
-
-  postedIncomeByCurrency(transactions: Transaction[], currencyCode: string): number {
-    return this.postedTotalByCurrency(transactions, currencyCode, 'INCOME');
-  }
-
-  postedExpenseByCurrency(transactions: Transaction[], currencyCode: string): number {
-    return this.postedTotalByCurrency(transactions, currencyCode, 'EXPENSE');
-  }
-
-  postedNetByCurrency(transactions: Transaction[], currencyCode: string): number {
-    return this.postedIncomeByCurrency(transactions, currencyCode) - this.postedExpenseByCurrency(transactions, currencyCode);
-  }
-
   labelForType(type: TransactionType): string {
     const labels: Record<TransactionType, string> = {
       INCOME: this.i18n.t('transactions.typeIncome'),
@@ -455,16 +411,6 @@ export class TransactionsPage {
       transactionDate: value.transactionDate,
       description: value.description || null
     };
-  }
-
-  private postedTotalByCurrency(transactions: Transaction[], currencyCode: string, type: 'INCOME' | 'EXPENSE'): number {
-    return transactions
-      .filter((transaction) =>
-        transaction.status === 'POSTED' &&
-        transaction.type === type &&
-        transaction.currencyCode === currencyCode
-      )
-      .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
   }
 
   private currentMonthRange(): { from: string; to: string } {
