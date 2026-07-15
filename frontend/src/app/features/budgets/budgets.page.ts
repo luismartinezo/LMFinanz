@@ -76,6 +76,13 @@ interface BudgetState {
           <small>{{ i18n.t('budget.paidAmountHint') }}</small>
         </article>
         <article>
+          <span>{{ i18n.t('budget.pendingAmount') }}</span>
+          <strong [class.negative]="totalRemaining(state.items) < 0">
+            {{ totalRemaining(state.items) | currency: currencyCode : 'symbol' : '1.2-2' }}
+          </strong>
+          <small>{{ i18n.t('budget.pendingAmountHint') }}</small>
+        </article>
+        <article>
           <span>{{ i18n.t('budget.available') }}</span>
           <strong [class.negative]="availableAfterPaid(state) < 0">
             {{ availableAfterPaid(state) | currency: currencyCode : 'symbol' : '1.2-2' }}
@@ -170,17 +177,18 @@ interface BudgetState {
         <article class="panel budget-table-panel">
           <div class="panel-title">
             <h3>{{ i18n.t('budget.tableTitle') }}</h3>
-            <span>{{ state.loading ? i18n.t('common.loading') : state.items.length + ' ' + i18n.t('common.total') }}</span>
+            <span>{{ state.loading ? i18n.t('common.loading') : sortedItems(state.items).length + ' ' + i18n.t('common.total') }}</span>
           </div>
 
-          <div class="empty-state" *ngIf="!state.loading && state.items.length === 0">
+          <div class="empty-state" *ngIf="!state.loading && sortedItems(state.items).length === 0">
             <strong>{{ i18n.t('budget.emptyTitle') }}</strong>
             <p>{{ i18n.t('budget.emptyHint') }}</p>
           </div>
 
-          <div class="budget-table" *ngIf="state.items.length > 0">
+          <div class="budget-table" *ngIf="sortedItems(state.items).length > 0">
             <div class="budget-row heading">
               <span>{{ i18n.t('budget.name') }}</span>
+              <span>{{ i18n.t('budget.itemType') }}</span>
               <span>{{ i18n.t('budget.planned') }}</span>
               <span>{{ i18n.t('budget.paidAmount') }}</span>
               <span>{{ i18n.t('budget.remaining') }}</span>
@@ -189,7 +197,7 @@ interface BudgetState {
             </div>
             <div
               class="budget-row"
-              *ngFor="let item of state.items"
+              *ngFor="let item of sortedItems(state.items)"
               [class.paid]="item.paid"
               [class.due-safe]="dueStatus(item) === 'safe'"
               [class.due-warning]="dueStatus(item) === 'warning'"
@@ -199,8 +207,20 @@ interface BudgetState {
               <span>
                 <strong *ngIf="editingItemId !== item.id">{{ item.name }}</strong>
                 <input *ngIf="editingItemId === item.id" formControlName="name" />
-                <small>{{ labelForItemType(item.itemType) }}</small>
                 <small *ngIf="item.notes">{{ item.notes }}</small>
+              </span>
+              <span>
+                <ng-container *ngIf="editingItemId !== item.id; else typeEdit">
+                  {{ labelForItemType(item.itemType) }}
+                </ng-container>
+                <ng-template #typeEdit>
+                  <select formControlName="itemType">
+                    <option value="EXPENSE">{{ i18n.t('budget.typeExpense') }}</option>
+                    <option value="DEBT_PAYMENT">{{ i18n.t('budget.typeDebtPayment') }}</option>
+                    <option value="SAVINGS">{{ i18n.t('budget.typeSavings') }}</option>
+                    <option value="TRANSFER">{{ i18n.t('budget.typeTransfer') }}</option>
+                  </select>
+                </ng-template>
               </span>
               <span>
                 <ng-container *ngIf="editingItemId !== item.id; else plannedEdit">
@@ -243,6 +263,12 @@ interface BudgetState {
                 <button class="table-action danger" type="button" *ngIf="editingItemId !== item.id" (click)="deleteItem(item.id)">
                   {{ i18n.t('budget.delete') }}
                 </button>
+              </span>
+              <span class="budget-notes-cell" *ngIf="editingItemId === item.id">
+                <label>
+                  {{ i18n.t('budget.notes') }}
+                  <textarea rows="2" formControlName="notes"></textarea>
+                </label>
               </span>
             </div>
           </div>
@@ -425,6 +451,26 @@ export class BudgetsPage {
 
   totalRemaining(items: BudgetItem[]): number {
     return items.reduce((sum, item) => sum + item.remainingAmount, 0);
+  }
+
+  sortedItems(items: BudgetItem[]): BudgetItem[] {
+    return [...items].sort((first, second) => {
+      const firstPaidRank = first.remainingAmount <= 0 ? 1 : 0;
+      const secondPaidRank = second.remainingAmount <= 0 ? 1 : 0;
+      if (firstPaidRank !== secondPaidRank) {
+        return firstPaidRank - secondPaidRank;
+      }
+
+      const firstDays = this.daysUntilDue(first);
+      const secondDays = this.daysUntilDue(second);
+      const firstSort = firstDays === null ? Number.MAX_SAFE_INTEGER : firstDays;
+      const secondSort = secondDays === null ? Number.MAX_SAFE_INTEGER : secondDays;
+      if (firstSort !== secondSort) {
+        return firstSort - secondSort;
+      }
+
+      return first.name.localeCompare(second.name);
+    });
   }
 
   availableAfterPaid(state: BudgetState): number {

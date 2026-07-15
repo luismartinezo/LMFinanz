@@ -1263,7 +1263,7 @@ nav a.active {
 }
 
 .budget-summary {
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-columns: repeat(6, minmax(145px, 1fr));
   margin-bottom: 16px;
 }
 
@@ -1312,15 +1312,18 @@ nav a.active {
 .budget-row {
   display: grid;
   grid-template-columns:
-    minmax(230px, 1.35fr)
-    minmax(140px, 0.75fr)
-    minmax(140px, 0.75fr)
-    minmax(140px, 0.75fr)
-    minmax(170px, 0.8fr)
-    minmax(150px, 0.7fr);
+    minmax(230px, 1.3fr)
+    minmax(150px, 0.75fr)
+    minmax(135px, 0.7fr)
+    minmax(135px, 0.7fr)
+    minmax(135px, 0.7fr)
+    minmax(165px, 0.8fr)
+    minmax(180px, 0.8fr);
   gap: 12px;
   align-items: center;
-  min-width: 1020px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 1180px;
   border: 1px solid #e1e9ed;
   border-radius: 8px;
   background: white;
@@ -1355,13 +1358,25 @@ nav a.active {
   background: #fff5f5;
 }
 
-.budget-row input {
+.budget-row input,
+.budget-row select,
+.budget-row textarea {
   min-width: 0;
   width: 100%;
 }
 
 .budget-row input + input {
   margin-top: 6px;
+}
+
+.budget-notes-cell {
+  grid-column: 1 / -1;
+}
+
+.budget-notes-cell label {
+  color: #465967;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .budget-date-field {
