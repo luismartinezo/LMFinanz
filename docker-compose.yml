@@ -18,6 +18,8 @@ services:
       retries: 10
 
   backend:
+    profiles:
+      - app
     build: .
     container_name: lmfinanz-backend
     depends_on:
@@ -42,6 +44,8 @@ services:
       retries: 10
 
   frontend:
+    profiles:
+      - app
     build:
       context: ./frontend
     container_name: lmfinanz-frontend

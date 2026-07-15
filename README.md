@@ -132,7 +132,13 @@ java -version
 
 ## Local Setup
 
-Start MySQL:
+Recommended development mode:
+
+- Docker runs only MySQL.
+- IntelliJ or Maven runs the Spring Boot backend on port `8080`.
+- Angular runs locally on port `4200`.
+
+Start only MySQL:
 
 ```bash
 docker compose up -d mysql
@@ -150,6 +156,19 @@ Run the backend:
 
 ```bash
 java -jar target/lmfinanz-backend-0.1.0-SNAPSHOT.jar
+```
+
+If port `8080` is already in use, check whether the Docker backend is running:
+
+```bash
+lsof -nP -iTCP:8080 -sTCP:LISTEN
+```
+
+For local development, stop the Docker backend and keep only MySQL running:
+
+```bash
+docker compose stop backend frontend
+docker compose up -d mysql
 ```
 
 Health check:
@@ -229,10 +248,16 @@ cp .env.example .env
 
 Update `JWT_SECRET` with a strong private value.
 
-Start the full stack:
+Start only MySQL for local development:
 
 ```bash
-docker compose up --build
+docker compose up -d
+```
+
+Start the full stack with backend and frontend containers:
+
+```bash
+docker compose --profile app up --build
 ```
 
 Backend URL:
@@ -258,6 +283,8 @@ Stop the stack:
 ```bash
 docker compose down
 ```
+
+Important: do not run the Docker backend and IntelliJ backend at the same time, because both use port `8080`.
 
 ## Environment Variables
 
