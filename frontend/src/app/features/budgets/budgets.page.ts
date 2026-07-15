@@ -3,6 +3,11 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, finalize, forkJoin, map, of, startWith, switchMap, tap } from 'rxjs';
 import { I18nService } from '../../core/i18n/i18n.service';
+import { Account } from '../accounts/accounts.models';
+import { AccountsService } from '../accounts/accounts.service';
+import { Category } from '../categories/categories.models';
+import { CategoriesService } from '../categories/categories.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import { BudgetItem, BudgetItemRequest, BudgetItemType, BudgetSummary, CountryCode, CurrencyCode } from './budgets.models';
 import { BudgetsService } from './budgets.service';
 
@@ -10,6 +15,8 @@ interface BudgetState {
   loading: boolean;
   items: BudgetItem[];
   summary: BudgetSummary;
+  accounts: Account[];
+  categories: Category[];
   error: string | null;
 }
 
@@ -254,6 +261,14 @@ interface BudgetState {
                 <button class="table-action" type="button" *ngIf="editingItemId !== item.id" (click)="startEdit(item)">
                   {{ i18n.t('budget.edit') }}
                 </button>
+                <button
+                  class="table-action"
+                  type="button"
+                  *ngIf="editingItemId !== item.id && item.remainingAmount > 0"
+                  (click)="startPayment(item, state.accounts, state.categories)"
+                >
+                  {{ i18n.t('budget.registerPayment') }}
+                </button>
                 <button class="table-action" type="button" *ngIf="editingItemId === item.id" (click)="saveEdit(item)">
                   {{ i18n.t('budget.save') }}
                 </button>
@@ -270,6 +285,42 @@ interface BudgetState {
                   <textarea rows="2" formControlName="notes"></textarea>
                 </label>
               </span>
+              <span class="budget-payment-cell" *ngIf="payingItemId === item.id" [formGroup]="paymentForm">
+                <label>
+                  {{ i18n.t('budget.paymentAccount') }}
+                  <select formControlName="sourceAccountId">
+                    <option value="">{{ i18n.t('transactions.selectAccount') }}</option>
+                    <option *ngFor="let account of paymentAccounts(state.accounts)" [value]="account.id">
+                      {{ account.name }} · {{ account.currencyCode }} · {{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' }}
+                    </option>
+                  </select>
+                </label>
+                <label>
+                  {{ i18n.t('budget.paymentCategory') }}
+                  <select formControlName="categoryId">
+                    <option value="">{{ i18n.t('transactions.selectCategory') }}</option>
+                    <option *ngFor="let category of paymentCategories(state.categories)" [value]="category.id">
+                      {{ category.name }}
+                    </option>
+                  </select>
+                </label>
+                <label>
+                  {{ i18n.t('budget.paymentAmount') }}
+                  <input type="number" min="0.01" step="0.01" formControlName="paidAmount" />
+                </label>
+                <label>
+                  {{ i18n.t('budget.paidDate') }}
+                  <input type="date" formControlName="paidDate" />
+                </label>
+                <div class="table-actions">
+                  <button class="table-action" type="button" (click)="registerPayment(item)" [disabled]="paymentForm.invalid || registeringPayment">
+                    {{ registeringPayment ? i18n.t('common.saving') : i18n.t('budget.savePayment') }}
+                  </button>
+                  <button class="table-action muted" type="button" (click)="cancelPayment()">
+                    {{ i18n.t('budget.cancel') }}
+                  </button>
+                </div>
+              </span>
             </div>
           </div>
         </article>
@@ -279,6 +330,9 @@ interface BudgetState {
 })
 export class BudgetsPage {
   private readonly budgets = inject(BudgetsService);
+  private readonly accounts = inject(AccountsService);
+  private readonly categories = inject(CategoriesService);
+  private readonly transactions = inject(TransactionsService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly reload$ = new BehaviorSubject<void>(undefined);
   readonly i18n = inject(I18nService);
@@ -306,7 +360,9 @@ export class BudgetsPage {
   saving = false;
   savingIncome = false;
   savingEdit = false;
+  registeringPayment = false;
   editingItemId: string | null = null;
+  payingItemId: string | null = null;
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(140)]],
@@ -329,16 +385,41 @@ export class BudgetsPage {
     notes: ['', Validators.maxLength(500)]
   });
 
+  readonly paymentForm = this.formBuilder.nonNullable.group({
+    sourceAccountId: ['', Validators.required],
+    categoryId: ['', Validators.required],
+    paidAmount: [0, [Validators.required, Validators.min(0.01)]],
+    paidDate: [this.today(), Validators.required]
+  });
+
   readonly state$: Observable<BudgetState> = this.reload$.pipe(
     switchMap(() =>
       forkJoin({
         items: this.budgets.list(this.budgetYear, this.budgetMonth, this.countryCode, this.currencyCode),
-        summary: this.budgets.getSummary(this.budgetYear, this.budgetMonth, this.countryCode, this.currencyCode)
+        summary: this.budgets.getSummary(this.budgetYear, this.budgetMonth, this.countryCode, this.currencyCode),
+        accounts: this.accounts.list(),
+        categories: this.categories.list()
       }).pipe(
         tap(({ summary }) => this.incomeForm.patchValue({ incomeAmount: summary.incomeAmount }, { emitEvent: false })),
-        map(({ items, summary }) => ({ loading: false, items, summary, error: null })),
-        startWith({ loading: true, items: [], summary: this.emptySummary(), error: null }),
-        catchError(() => of({ loading: false, items: [], summary: this.emptySummary(), error: this.i18n.t('budget.loadError') }))
+        map(({ items, summary, accounts, categories }) => ({
+          loading: false,
+          items,
+          summary,
+          accounts: accounts.filter((account) => account.active),
+          categories: categories.filter((category) => category.active),
+          error: null
+        })),
+        startWith({ loading: true, items: [], summary: this.emptySummary(), accounts: [], categories: [], error: null }),
+        catchError(() =>
+          of({
+            loading: false,
+            items: [],
+            summary: this.emptySummary(),
+            accounts: [],
+            categories: [],
+            error: this.i18n.t('budget.loadError')
+          })
+        )
       )
     )
   );
@@ -406,6 +487,7 @@ export class BudgetsPage {
 
   startEdit(item: BudgetItem): void {
     this.editingItemId = item.id;
+    this.cancelPayment();
     this.editForm.reset({
       name: item.name,
       itemType: item.itemType,
@@ -414,6 +496,52 @@ export class BudgetsPage {
       dueDate: item.dueDate || (item.dueDay ? this.dateFromDay(item.dueDay) : this.defaultDueDate()),
       notes: item.notes || ''
     });
+  }
+
+  startPayment(item: BudgetItem, accounts: Account[], categories: Category[]): void {
+    this.payingItemId = item.id;
+    this.cancelEdit();
+    this.paymentForm.reset({
+      sourceAccountId: this.paymentAccounts(accounts)[0]?.id ?? '',
+      categoryId: this.paymentCategories(categories)[0]?.id ?? '',
+      paidAmount: Math.max(item.remainingAmount, 0),
+      paidDate: this.today()
+    });
+  }
+
+  registerPayment(item: BudgetItem): void {
+    if (this.paymentForm.invalid || this.registeringPayment) {
+      return;
+    }
+
+    const value = this.paymentForm.getRawValue();
+    if (value.paidAmount > item.remainingAmount) {
+      this.paymentForm.patchValue({ paidAmount: item.remainingAmount });
+      return;
+    }
+
+    this.registeringPayment = true;
+    this.transactions
+      .create({
+        type: 'EXPENSE',
+        sourceAccountId: value.sourceAccountId,
+        targetAccountId: null,
+        categoryId: value.categoryId,
+        currencyCode: item.currencyCode,
+        countryCode: item.countryCode,
+        amount: value.paidAmount,
+        transactionDate: value.paidDate,
+        description: `${this.i18n.t('budget.transactionDescription')}: ${item.name}`
+      })
+      .pipe(
+        switchMap((transaction) => this.transactions.post(transaction.id)),
+        switchMap(() => this.budgets.markPaid(item.id, item.actualAmount + value.paidAmount, value.paidDate)),
+        finalize(() => (this.registeringPayment = false))
+      )
+      .subscribe(() => {
+        this.cancelPayment();
+        this.reload$.next();
+      });
   }
 
   saveEdit(item: BudgetItem): void {
@@ -439,6 +567,22 @@ export class BudgetsPage {
 
   cancelEdit(): void {
     this.editingItemId = null;
+  }
+
+  cancelPayment(): void {
+    this.payingItemId = null;
+  }
+
+  paymentAccounts(accounts: Account[]): Account[] {
+    return accounts.filter((account) =>
+      account.active &&
+      account.countryCode === this.countryCode &&
+      account.currencyCode === this.currencyCode
+    );
+  }
+
+  paymentCategories(categories: Category[]): Category[] {
+    return categories.filter((category) => category.active && category.type === 'EXPENSE');
   }
 
   totalPlanned(items: BudgetItem[]): number {

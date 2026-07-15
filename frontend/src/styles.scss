@@ -1379,6 +1379,23 @@ nav a.active {
   font-weight: 700;
 }
 
+.budget-payment-cell {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr) auto;
+  gap: 12px;
+  align-items: end;
+  border-top: 1px solid #e1e9ed;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.budget-payment-cell label {
+  color: #465967;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .budget-date-field {
   display: grid;
   gap: 4px;
@@ -1693,6 +1710,10 @@ nav a.active {
   .budget-income-form {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+
+  .budget-payment-cell {
+    grid-template-columns: 1fr;
   }
 
   .budget-income-panel,
