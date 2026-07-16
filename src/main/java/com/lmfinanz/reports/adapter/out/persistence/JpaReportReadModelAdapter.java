@@ -141,12 +141,16 @@ public class JpaReportReadModelAdapter implements ReportReadModelPort {
     }
 
     private String periodLabel(ReportPeriod period, Transaction transaction) {
-        return switch (period) {
-            case DAILY -> transaction.getTransactionDate().toString();
-            case MONTHLY -> transaction.getTransactionDate().format(MONTH_FORMAT);
-            case YEARLY -> String.valueOf(transaction.getTransactionDate().getYear());
-            case CUSTOM -> "Custom";
-        };
+        if (period == ReportPeriod.DAILY) {
+            return transaction.getTransactionDate().toString();
+        }
+        if (period == ReportPeriod.MONTHLY) {
+            return transaction.getTransactionDate().format(MONTH_FORMAT);
+        }
+        if (period == ReportPeriod.YEARLY) {
+            return String.valueOf(transaction.getTransactionDate().getYear());
+        }
+        return "Custom";
     }
 
     private record BreakdownKey(String label, String currencyCode, String countryCode) {
