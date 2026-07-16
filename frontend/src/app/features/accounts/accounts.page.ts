@@ -25,17 +25,17 @@ import { AccountsService } from './accounts.service';
       <section class="module-grid">
         <article class="module-card">
           <span>{{ i18n.t('accounts.bankAccounts') }}</span>
-          <strong>{{ countByType(state.accounts, 'BANK_ACCOUNT') }}</strong>
+          <strong>{{ countByType(activeAccounts(state.accounts), 'BANK_ACCOUNT') }}</strong>
           <p>{{ i18n.t('accounts.bankAccountsHint') }}</p>
         </article>
         <article class="module-card">
           <span>{{ i18n.t('accounts.cashAccounts') }}</span>
-          <strong>{{ countByType(state.accounts, 'CASH_ACCOUNT') }}</strong>
+          <strong>{{ countByType(activeAccounts(state.accounts), 'CASH_ACCOUNT') }}</strong>
           <p>{{ i18n.t('accounts.cashAccountsHint') }}</p>
         </article>
         <article class="module-card">
           <span>{{ i18n.t('accounts.creditCards') }}</span>
-          <strong>{{ countByType(state.accounts, 'CREDIT_CARD') }}</strong>
+          <strong>{{ countByType(activeAccounts(state.accounts), 'CREDIT_CARD') }}</strong>
           <p>{{ i18n.t('accounts.creditCardsHint') }}</p>
         </article>
       </section>
@@ -44,6 +44,7 @@ import { AccountsService } from './accounts.service';
         <div>
           <p class="eyebrow">{{ i18n.t('accounts.availableEyebrow') }}</p>
           <h3>{{ i18n.t('accounts.availableTitle') }}</h3>
+          <p>{{ i18n.t('accounts.availableHint') }}</p>
         </div>
         <div class="account-balance-grid">
           <article>
@@ -139,11 +140,12 @@ import { AccountsService } from './accounts.service';
               <span>{{ i18n.t('transactions.actions') }}</span>
             </div>
 
-            <div class="data-row account-row" *ngFor="let account of state.accounts" [formGroup]="editForm">
+            <div class="data-row account-row" *ngFor="let account of sortedAccounts(state.accounts)" [formGroup]="editForm">
               <span>
                 <strong *ngIf="editingAccountId !== account.id">{{ account.name }}</strong>
                 <input *ngIf="editingAccountId === account.id" formControlName="name" />
                 <small>{{ account.active ? i18n.t('common.active') : i18n.t('common.closed') }}</small>
+                <small *ngIf="!isAvailableAccount(account)">{{ i18n.t('accounts.notAvailable') }}</small>
               </span>
               <span>
                 <ng-container *ngIf="editingAccountId !== account.id; else typeEdit">
@@ -157,10 +159,12 @@ import { AccountsService } from './accounts.service';
                   </select>
                 </ng-template>
               </span>
-              <span>{{ account.countryCode }}</span>
+              <span>{{ countryLabel(account.countryCode) }} · {{ account.currencyCode }}</span>
               <span>
                 <ng-container *ngIf="editingAccountId !== account.id; else balanceEdit">
-                  {{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' : localeFor(account.countryCode) }}
+                  <strong class="account-balance-value" [class.negative]="account.currentBalance < 0">
+                    {{ account.currentBalance | currency: account.currencyCode : 'symbol' : '1.2-2' : localeFor(account.countryCode) }}
+                  </strong>
                 </ng-container>
                 <ng-template #balanceEdit>
                   <input type="number" step="0.01" formControlName="currentBalance" />
@@ -321,6 +325,27 @@ export class AccountsPage {
     return accounts.filter((account) => account.type === type).length;
   }
 
+  activeAccounts(accounts: Account[]): Account[] {
+    return accounts.filter((account) => account.active);
+  }
+
+  sortedAccounts(accounts: Account[]): Account[] {
+    return [...accounts].sort((first, second) => {
+      if (first.active !== second.active) {
+        return first.active ? -1 : 1;
+      }
+      const countryCompare = first.countryCode.localeCompare(second.countryCode);
+      if (countryCompare !== 0) {
+        return countryCompare;
+      }
+      const typeCompare = first.type.localeCompare(second.type);
+      if (typeCompare !== 0) {
+        return typeCompare;
+      }
+      return first.name.localeCompare(second.name);
+    });
+  }
+
   totalAvailable(accounts: Account[], countryCode: CountryCode, currencyCode: CurrencyCode): number {
     return accounts
       .filter((account) => this.isAvailableAccount(account) && account.countryCode === countryCode && account.currencyCode === currencyCode)
@@ -333,7 +358,7 @@ export class AccountsPage {
       .reduce((sum, account) => sum + account.currentBalance, 0);
   }
 
-  private isAvailableAccount(account: Account): boolean {
+  isAvailableAccount(account: Account): boolean {
     return account.active && account.type !== 'CREDIT_CARD';
   }
 
@@ -376,5 +401,9 @@ export class AccountsPage {
       CO: 'es-CO'
     };
     return locales[countryCode];
+  }
+
+  countryLabel(countryCode: CountryCode): string {
+    return countryCode === 'DE' ? this.i18n.t('accounts.countryGermany') : this.i18n.t('accounts.countryColombia');
   }
 }

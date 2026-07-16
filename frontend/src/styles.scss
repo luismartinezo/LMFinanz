@@ -1220,6 +1220,11 @@ nav a.active {
   margin: 4px 0 0;
 }
 
+.account-balance-summary p {
+  color: #64727c;
+  margin: 6px 0 0;
+}
+
 .account-balance-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1469,6 +1474,14 @@ nav a.active {
 .account-row select {
   width: 100%;
   min-width: 0;
+}
+
+.account-balance-value {
+  color: #0f766e;
+}
+
+.account-balance-value.negative {
+  color: #b42318;
 }
 
 .category-row {
