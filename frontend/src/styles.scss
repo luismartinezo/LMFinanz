@@ -301,8 +301,8 @@ nav a.active {
   min-height: 42px;
   border: 1px solid #d8e2ea;
   border-radius: 6px;
-  color: #52657a;
-  background: #ffffff;
+  color: #4f6380;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfe 100%);
   padding: 0;
   box-shadow: 0 8px 18px rgba(16, 33, 43, 0.04);
 }
@@ -312,13 +312,13 @@ nav a.active {
 }
 
 .topbar-icon svg {
-  width: 19px;
-  height: 19px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.8;
+  stroke-width: 1.9;
 }
 
 .topbar-icon:hover:not(:disabled),
@@ -451,14 +451,14 @@ nav a.active {
 }
 
 .topbar-actions .language-select::before {
-  content: "A";
+  content: "Aa";
   display: grid;
   place-items: center;
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  color: #52657a;
-  font-size: 15px;
+  color: #4f6380;
+  font-size: 14px;
   font-weight: 900;
 }
 
@@ -652,6 +652,7 @@ nav a.active {
   align-items: center;
   gap: 24px;
   min-height: 132px;
+  padding: 28px 30px;
   border-color: #dfe5ef;
   background:
     radial-gradient(circle at 88% 40%, rgba(15, 118, 110, 0.14), transparent 22%),

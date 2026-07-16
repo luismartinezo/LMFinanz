@@ -41,28 +41,30 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
             <app-language-selector />
             <button class="topbar-icon" type="button" [attr.aria-label]="i18n.t('topbar.theme')" [title]="i18n.t('topbar.theme')" disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 14.6A8.7 8.7 0 0 1 9.4 3a7.4 7.4 0 1 0 11.6 11.6Z" />
+                <path d="M12 3a6 6 0 0 0 9 7.4A9 9 0 1 1 12 3Z" />
               </svg>
             </button>
             <button class="topbar-icon" type="button" [attr.aria-label]="i18n.t('topbar.messages')" [title]="i18n.t('topbar.messages')" disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 5h16v11H7l-3 3V5Z" />
+                <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H9l-5 4V6.5Z" />
+                <path d="M8 9h8" />
+                <path d="M8 12h5" />
               </svg>
               <span class="topbar-badge">5</span>
             </button>
             <button class="topbar-icon" type="button" [attr.aria-label]="i18n.t('topbar.notifications')" [title]="i18n.t('topbar.notifications')" disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 2h16l-2-2Z" />
-                <path d="M9.5 20a2.5 2.5 0 0 0 5 0" />
+                <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" />
+                <path d="M10 21h4" />
               </svg>
               <span class="topbar-badge alert">3</span>
             </button>
             <button class="topbar-icon" type="button" (click)="toggleFullscreen()" [attr.aria-label]="i18n.t('topbar.fullscreen')" [title]="i18n.t('topbar.fullscreen')">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M8 3H3v5" />
-                <path d="M16 3h5v5" />
-                <path d="M21 16v5h-5" />
-                <path d="M3 16v5h5" />
+                <path d="M8 3H4a1 1 0 0 0-1 1v4" />
+                <path d="M16 3h4a1 1 0 0 1 1 1v4" />
+                <path d="M21 16v4a1 1 0 0 1-1 1h-4" />
+                <path d="M3 16v4a1 1 0 0 0 1 1h4" />
               </svg>
             </button>
             <details class="profile-menu">
@@ -81,8 +83,8 @@ import { LanguageSelectorComponent } from '../../core/i18n/language-selector.com
             </details>
             <button class="topbar-icon" type="button" [attr.aria-label]="i18n.t('topbar.settings')" [title]="i18n.t('topbar.settings')" disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Z" />
-                <path d="m19 12 .8-2.1-2-3.4-2.3.4a7 7 0 0 0-1.6-.9L13 4h-4l-.9 2a7 7 0 0 0-1.6.9l-2.3-.4-2 3.4L3 12l-.8 2.1 2 3.4 2.3-.4a7 7 0 0 0 1.6.9l.9 2h4l.9-2a7 7 0 0 0 1.6-.9l2.3.4 2-3.4L19 12Z" />
+                <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                <path d="M19.4 15a1.8 1.8 0 0 0 .4 2l-2 3.4a1.8 1.8 0 0 0-2.3-.4 1.8 1.8 0 0 0-.9 1.6H9.4a1.8 1.8 0 0 0-.9-1.6 1.8 1.8 0 0 0-2.3.4l-2-3.4a1.8 1.8 0 0 0 .4-2 1.8 1.8 0 0 0-1.6-1V10a1.8 1.8 0 0 0 1.6-1 1.8 1.8 0 0 0-.4-2l2-3.4a1.8 1.8 0 0 0 2.3.4 1.8 1.8 0 0 0 .9-1.6h5.2a1.8 1.8 0 0 0 .9 1.6 1.8 1.8 0 0 0 2.3-.4l2 3.4a1.8 1.8 0 0 0-.4 2 1.8 1.8 0 0 0 1.6 1v4a1.8 1.8 0 0 0-1.6 1Z" />
               </svg>
             </button>
           </div>
