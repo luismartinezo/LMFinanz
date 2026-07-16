@@ -43,7 +43,6 @@ import {
               <small>{{ i18n.t('accounts.countryColombia') }}</small>
             </strong>
           </div>
-          <button type="button">{{ i18n.t('dashboard.newTransaction') }}</button>
         </div>
       </section>
 
@@ -70,7 +69,7 @@ import {
       <div class="metric-grid pro-metrics">
         <article class="metric-card income">
           <div class="metric-topline">
-            <span>{{ i18n.t('dashboard.income') }}</span>
+            <span>{{ i18n.t('dashboard.plannedIncomeTitle') }}</span>
             <b>IN</b>
           </div>
           <strong>{{ plannedIncomeByCurrency(state.incomeSummaries, primaryCurrency(state)) | currency: primaryCurrency(state) : 'symbol' : '1.2-2' }}</strong>
@@ -183,7 +182,7 @@ import {
         <article class="panel recent-transactions">
           <div class="panel-title">
             <h3>{{ i18n.t('dashboard.latestTransactions') }}</h3>
-            <span>{{ state.transactions.length }}</span>
+            <span>{{ activeTransactions(state.transactions).length }}</span>
           </div>
           <ul class="transaction-list">
             <li *ngFor="let transaction of recentTransactions(state.transactions)">
@@ -335,7 +334,13 @@ export class DashboardPage {
   }
 
   recentTransactions(transactions: DashboardTransaction[]): DashboardTransaction[] {
-    return [...transactions].sort((left, right) => right.transactionDate.localeCompare(left.transactionDate)).slice(0, 6);
+    return this.activeTransactions(transactions)
+      .sort((left, right) => right.transactionDate.localeCompare(left.transactionDate))
+      .slice(0, 6);
+  }
+
+  activeTransactions(transactions: DashboardTransaction[]): DashboardTransaction[] {
+    return transactions.filter((transaction) => transaction.status !== 'CANCELLED');
   }
 
   signedTransactionAmount(transaction: DashboardTransaction): number {
