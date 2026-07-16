@@ -27,9 +27,11 @@ import { DebtsService } from './debts.service';
       <section class="module-grid">
         <article class="module-card">
           <span>{{ i18n.t('debts.totalDebt') }}</span>
-          <strong>
-            {{ totalRemaining(state.debts, primaryCurrency(state.debts)) | currency: primaryCurrency(state.debts) : 'symbol' : '1.2-2' }}
-          </strong>
+          <strong>{{ activeDebts(state.debts).length }}</strong>
+          <small *ngFor="let currency of debtCurrencies(state.debts)">
+            {{ currency }}:
+            {{ totalRemaining(state.debts, currency) | currency: currency : 'symbol' : '1.2-2' }}
+          </small>
           <p>{{ i18n.t('debts.totalDebtHint') }}</p>
         </article>
         <article class="module-card">
@@ -39,7 +41,7 @@ import { DebtsService } from './debts.service';
         </article>
         <article class="module-card">
           <span>{{ i18n.t('debts.installments') }}</span>
-          <strong>{{ totalInstallments(state.debts) | number }}</strong>
+          <strong>{{ pendingInstallments(state.debts) | number }}</strong>
           <p>{{ i18n.t('debts.installmentsHint') }}</p>
         </article>
       </section>
@@ -148,19 +150,33 @@ import { DebtsService } from './debts.service';
               <span>{{ i18n.t('transactions.actions') }}</span>
             </div>
 
-            <ng-container *ngFor="let debt of state.debts">
-              <div class="data-row debt-row">
+            <ng-container *ngFor="let debt of sortedDebts(state.debts)">
+              <div
+                class="data-row debt-row"
+                [class.paid]="debt.status === 'PAID'"
+                [class.due-safe]="debtDueStatus(debt) === 'safe'"
+                [class.due-warning]="debtDueStatus(debt) === 'warning'"
+                [class.due-danger]="debtDueStatus(debt) === 'danger'"
+              >
                 <span>
                   <strong>{{ debt.name }}</strong>
                   <small>{{ debt.installments }} {{ i18n.t('debts.installments').toLowerCase() }}</small>
+                  <small>{{ i18n.t('debts.monthlyPayment') }}: {{ monthlyPayment(debt) | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</small>
                 </span>
                 <span>
                   {{ labelForType(debt.debtType) }}
-                  <small>{{ debt.countryCode }}</small>
+                  <small>{{ countryLabel(debt.countryCode) }} · {{ debt.currencyCode }}</small>
                 </span>
-                <span>{{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</span>
+                <span>
+                  <strong [class.negative]="debt.remainingBalance < 0">
+                    {{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
+                  </strong>
+                </span>
                 <span>{{ debt.annualInterestRate | number: '1.2-2' }}%</span>
-                <span>{{ debt.finalDueDate | date: 'dd MMM y' }}</span>
+                <span>
+                  <strong>{{ debtDueLabel(debt) }}</strong>
+                  <small>{{ debt.finalDueDate | date: 'dd MMM y' }}</small>
+                </span>
                 <span>{{ labelForStatus(debt.status) }}</span>
                 <span>
                   <button class="table-action" type="button" (click)="toggleInstallments(debt.id)">
@@ -177,7 +193,13 @@ import { DebtsService } from './debts.service';
                   <span>{{ i18n.t('transactions.status') }}</span>
                   <span>{{ i18n.t('transactions.actions') }}</span>
                 </div>
-                <div class="data-row installment-row" *ngFor="let installment of selectedInstallments">
+                <div
+                  class="data-row installment-row"
+                  *ngFor="let installment of selectedInstallments"
+                  [class.paid]="installment.status === 'PAID'"
+                  [class.due-warning]="installmentDueStatus(installment) === 'warning'"
+                  [class.due-danger]="installmentDueStatus(installment) === 'danger'"
+                >
                   <span>{{ installment.installmentNumber }}</span>
                   <span>{{ installment.amount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</span>
                   <span>{{ installment.dueDate | date: 'dd MMM y' }}</span>
@@ -297,14 +319,36 @@ export class DebtsPage {
     return debts.find((debt) => debt.status === 'ACTIVE')?.currencyCode ?? debts[0]?.currencyCode ?? 'EUR';
   }
 
+  activeDebts(debts: Debt[]): Debt[] {
+    return debts.filter((debt) => debt.status === 'ACTIVE');
+  }
+
+  sortedDebts(debts: Debt[]): Debt[] {
+    return [...debts].sort((first, second) => {
+      if (first.status !== second.status) {
+        return first.status === 'ACTIVE' ? -1 : 1;
+      }
+      const dateCompare = first.finalDueDate.localeCompare(second.finalDueDate);
+      if (dateCompare !== 0) {
+        return dateCompare;
+      }
+      return first.name.localeCompare(second.name);
+    });
+  }
+
+  debtCurrencies(debts: Debt[]): string[] {
+    const currencies = this.activeDebts(debts).map((debt) => debt.currencyCode);
+    return [...new Set(currencies.length > 0 ? currencies : ['EUR'])];
+  }
+
   totalRemaining(debts: Debt[], currencyCode: string): number {
     return debts
-      .filter((debt) => debt.currencyCode === currencyCode)
+      .filter((debt) => debt.status === 'ACTIVE' && debt.currencyCode === currencyCode)
       .reduce((total, debt) => total + Number(debt.remainingBalance || 0), 0);
   }
 
-  totalInstallments(debts: Debt[]): number {
-    return debts.reduce((total, debt) => total + Number(debt.installments || 0), 0);
+  pendingInstallments(debts: Debt[]): number {
+    return this.activeDebts(debts).reduce((total, debt) => total + Number(debt.installments || 0), 0);
   }
 
   nextDueDate(debts: Debt[]): string | null {
@@ -312,6 +356,53 @@ export class DebtsPage {
       .filter((debt) => debt.status === 'ACTIVE')
       .map((debt) => debt.finalDueDate)
       .sort()[0] ?? null;
+  }
+
+  monthlyPayment(debt: Debt): number {
+    const totalInterest = Number(debt.principalAmount || 0) * (Number(debt.annualInterestRate || 0) / 100);
+    return (Number(debt.principalAmount || 0) + totalInterest) / Math.max(Number(debt.installments || 1), 1);
+  }
+
+  debtDueLabel(debt: Debt): string {
+    if (debt.status === 'PAID') {
+      return this.i18n.t('debts.statusPaid');
+    }
+    const days = this.daysUntil(debt.finalDueDate);
+    if (days === 0) {
+      return this.i18n.t('budget.dueToday');
+    }
+    if (days > 0) {
+      return this.i18n.t('budget.daysLeft').replace('{days}', String(days));
+    }
+    return this.i18n.t('budget.daysOverdue').replace('{days}', String(Math.abs(days)));
+  }
+
+  debtDueStatus(debt: Debt): 'safe' | 'warning' | 'danger' | 'paid' {
+    if (debt.status === 'PAID') {
+      return 'paid';
+    }
+    const days = this.daysUntil(debt.finalDueDate);
+    if (days > 10) {
+      return 'safe';
+    }
+    if (days >= 5) {
+      return 'warning';
+    }
+    return 'danger';
+  }
+
+  installmentDueStatus(installment: DebtInstallment): 'warning' | 'danger' | 'paid' | 'none' {
+    if (installment.status === 'PAID') {
+      return 'paid';
+    }
+    const days = this.daysUntil(installment.dueDate);
+    if (days < 5) {
+      return 'danger';
+    }
+    if (days <= 10) {
+      return 'warning';
+    }
+    return 'none';
   }
 
   labelForStatus(status: DebtStatus): string {
@@ -374,6 +465,19 @@ export class DebtsPage {
       OVERDUE: this.i18n.t('debts.statusOverdue')
     };
     return labels[status];
+  }
+
+  countryLabel(countryCode: string): string {
+    return countryCode === 'DE' ? this.i18n.t('accounts.countryGermany') : this.i18n.t('accounts.countryColombia');
+  }
+
+  private daysUntil(value: string): number {
+    const [year, month, day] = value.split('-').map(Number);
+    const dueDate = new Date(year, month - 1, day);
+    const today = new Date();
+    dueDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return Math.ceil((dueDate.getTime() - today.getTime()) / 86400000);
   }
 
   private today(): string {

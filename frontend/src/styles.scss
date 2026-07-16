@@ -1507,6 +1507,32 @@ nav a.active {
     minmax(160px, 0.9fr);
 }
 
+.debt-row.paid,
+.installment-row.paid {
+  border-color: #cbe8dc;
+  background: #f7fcf9;
+}
+
+.debt-row.due-safe {
+  border-left: 4px solid #0f7f72;
+}
+
+.debt-row.due-warning,
+.installment-row.due-warning {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+}
+
+.debt-row.due-danger,
+.installment-row.due-danger {
+  border-left: 4px solid #dc2626;
+  background: #fff5f5;
+}
+
+.debt-row .negative {
+  color: #b42318;
+}
+
 .installment-list {
   display: grid;
   gap: 6px;
