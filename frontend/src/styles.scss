@@ -1446,13 +1446,12 @@ nav a.active {
 }
 
 .transaction-row {
-  min-width: 1120px;
+  min-width: 960px;
   grid-template-columns:
     minmax(130px, 0.75fr)
     minmax(140px, 0.75fr)
     minmax(260px, 1.4fr)
     minmax(170px, 0.9fr)
-    minmax(140px, 0.75fr)
     minmax(210px, 1fr);
 }
 

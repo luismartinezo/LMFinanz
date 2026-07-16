@@ -7,7 +7,7 @@ import { Account } from '../accounts/accounts.models';
 import { AccountsService } from '../accounts/accounts.service';
 import { Category } from '../categories/categories.models';
 import { CategoriesService } from '../categories/categories.service';
-import { Transaction, TransactionRequest, TransactionStatus, TransactionType } from './transactions.models';
+import { Transaction, TransactionRequest, TransactionType } from './transactions.models';
 import { TransactionsService } from './transactions.service';
 
 @Component({
@@ -47,16 +47,6 @@ import { TransactionsService } from './transactions.service';
               <option value="INCOME">{{ i18n.t('transactions.typeIncome') }}</option>
               <option value="EXPENSE">{{ i18n.t('transactions.typeExpense') }}</option>
               <option value="TRANSFER">{{ i18n.t('transactions.typeTransfer') }}</option>
-            </select>
-          </label>
-
-          <label>
-            {{ i18n.t('transactions.status') }}
-            <select formControlName="status">
-              <option value="ALL">{{ i18n.t('common.all') }}</option>
-              <option value="DRAFT">{{ i18n.t('transactions.statusDraft') }}</option>
-              <option value="POSTED">{{ i18n.t('transactions.statusPosted') }}</option>
-              <option value="CANCELLED">{{ i18n.t('transactions.statusCancelled') }}</option>
             </select>
           </label>
 
@@ -149,7 +139,7 @@ import { TransactionsService } from './transactions.service';
             </label>
 
             <button type="submit" [disabled]="form.invalid || saving || state.accounts.length === 0">
-              {{ saving ? i18n.t('common.saving') : i18n.t('transactions.createDraft') }}
+              {{ saving ? i18n.t('common.saving') : i18n.t('transactions.createMovement') }}
             </button>
           </form>
         </article>
@@ -173,7 +163,6 @@ import { TransactionsService } from './transactions.service';
             <span>{{ i18n.t('transactions.type') }}</span>
             <span>{{ i18n.t('transactions.account') }}</span>
             <span>{{ i18n.t('transactions.amount') }}</span>
-            <span>{{ i18n.t('transactions.status') }}</span>
             <span>{{ i18n.t('transactions.actions') }}</span>
           </div>
 
@@ -182,16 +171,7 @@ import { TransactionsService } from './transactions.service';
             <span>{{ labelForType(transaction.type) }}</span>
             <span>{{ accountLabel(transaction, state.accounts) }}</span>
             <span>{{ signedAmount(transaction) | currency: transaction.currencyCode : 'symbol' : '1.2-2' }}</span>
-            <span>{{ labelForStatus(transaction.status) }}</span>
             <span>
-              <button
-                class="table-action"
-                type="button"
-                *ngIf="transaction.status === 'DRAFT'"
-                (click)="postTransaction(transaction.id)"
-              >
-                {{ i18n.t('transactions.post') }}
-              </button>
               <button
                 class="table-action"
                 type="button"
@@ -234,7 +214,6 @@ export class TransactionsPage {
     from: [this.currentMonthRange().from, Validators.required],
     to: [this.currentMonthRange().to, Validators.required],
     type: ['ALL' as TransactionType | 'ALL'],
-    status: ['ALL' as TransactionStatus | 'ALL'],
     categoryId: ['ALL']
   });
 
@@ -287,6 +266,7 @@ export class TransactionsPage {
     this.transactions
       .create(request)
       .pipe(
+        switchMap((transaction) => this.transactions.post(transaction.id)),
         tap(() => {
           this.form.patchValue({
             amount: 0,
@@ -302,10 +282,6 @@ export class TransactionsPage {
       .subscribe(() => {
         this.saving = false;
       });
-  }
-
-  postTransaction(transactionId: string): void {
-    this.transactions.post(transactionId).subscribe(() => this.reload$.next());
   }
 
   cancelTransaction(transactionId: string): void {
@@ -326,9 +302,8 @@ export class TransactionsPage {
     const filters = this.filterForm.getRawValue();
     return transactions.filter((transaction) => {
       const typeMatches = filters.type === 'ALL' || transaction.type === filters.type;
-      const statusMatches = filters.status === 'ALL' || transaction.status === filters.status;
       const categoryMatches = filters.categoryId === 'ALL' || transaction.categoryId === filters.categoryId;
-      return typeMatches && statusMatches && categoryMatches;
+      return transaction.status !== 'CANCELLED' && typeMatches && categoryMatches;
     });
   }
 
@@ -387,15 +362,6 @@ export class TransactionsPage {
       TRANSFER: this.i18n.t('transactions.typeTransfer')
     };
     return labels[type];
-  }
-
-  labelForStatus(status: TransactionStatus): string {
-    const labels: Record<TransactionStatus, string> = {
-      DRAFT: this.i18n.t('transactions.statusDraft'),
-      POSTED: this.i18n.t('transactions.statusPosted'),
-      CANCELLED: this.i18n.t('transactions.statusCancelled')
-    };
-    return labels[status];
   }
 
   private toRequest(): TransactionRequest {
