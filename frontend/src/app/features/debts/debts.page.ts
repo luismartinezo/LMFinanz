@@ -249,6 +249,10 @@ import { DebtsService } from './debts.service';
                   <span>
                     <ng-container *ngIf="editingInstallmentId !== installment.id; else amountEdit">
                       {{ installment.amount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
+                      <small *ngIf="installment.paidAmount">
+                        {{ i18n.t('debts.paidAmount') }}:
+                        {{ installment.paidAmount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
+                      </small>
                     </ng-container>
                     <ng-template #amountEdit>
                       <input type="number" min="0.01" step="0.01" formControlName="amount" />
@@ -272,10 +276,25 @@ import { DebtsService } from './debts.service';
                   </span>
                   <span>{{ labelForInstallmentStatus(installment.status) }}</span>
                   <span class="table-actions">
+                    <form
+                      class="inline-payment-form"
+                      [formGroup]="paymentForm"
+                      *ngIf="payingInstallmentId === installment.id"
+                      (ngSubmit)="saveInstallmentPayment(debt.id, installment.id)"
+                    >
+                      <input type="number" min="0.01" step="0.01" formControlName="paymentAmount" />
+                      <input type="date" formControlName="paidDate" />
+                      <button class="table-action" type="submit" [disabled]="paymentForm.invalid || savingPayment">
+                        {{ savingPayment ? i18n.t('common.saving') : i18n.t('debts.save') }}
+                      </button>
+                      <button class="table-action muted" type="button" (click)="cancelPayment()">
+                        {{ i18n.t('debts.cancel') }}
+                      </button>
+                    </form>
                     <button
                       class="table-action"
                       type="button"
-                      *ngIf="installment.status !== 'PAID' && editingInstallmentId !== installment.id"
+                      *ngIf="installment.status !== 'PAID' && editingInstallmentId !== installment.id && payingInstallmentId !== installment.id"
                       (click)="startEditInstallment(installment)"
                     >
                       {{ i18n.t('debts.edit') }}
@@ -294,8 +313,8 @@ import { DebtsService } from './debts.service';
                     <button
                       class="table-action"
                       type="button"
-                      *ngIf="installment.status !== 'PAID' && editingInstallmentId !== installment.id"
-                      (click)="payInstallment(debt.id, installment.id)"
+                      *ngIf="installment.status !== 'PAID' && editingInstallmentId !== installment.id && payingInstallmentId !== installment.id"
+                      (click)="startPayment(installment)"
                     >
                       {{ i18n.t('debts.markPaid') }}
                     </button>
@@ -327,9 +346,11 @@ export class DebtsPage {
   saving = false;
   savingEdit = false;
   savingInstallment = false;
+  savingPayment = false;
   selectedDebtId: string | null = null;
   editingDebtId: string | null = null;
   editingInstallmentId: string | null = null;
+  payingInstallmentId: string | null = null;
   selectedInstallments: DebtInstallment[] = [];
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -361,6 +382,11 @@ export class DebtsPage {
     principalAmount: [0, [Validators.required, Validators.min(0)]],
     interestAmount: [0, [Validators.required, Validators.min(0)]],
     dueDate: [this.today(), Validators.required]
+  });
+
+  readonly paymentForm = this.formBuilder.nonNullable.group({
+    paymentAmount: [0, [Validators.required, Validators.min(0.01)]],
+    paidDate: [this.today(), Validators.required]
   });
 
   readonly state$: Observable<{ loading: boolean; debts: Debt[]; error: string | null }> = this.reload$.pipe(
@@ -619,6 +645,7 @@ export class DebtsPage {
 
   startEditInstallment(installment: DebtInstallment): void {
     this.editingInstallmentId = installment.id;
+    this.cancelPayment();
     this.installmentForm.reset({
       amount: installment.amount,
       principalAmount: installment.principalAmount,
@@ -645,16 +672,32 @@ export class DebtsPage {
     this.editingInstallmentId = null;
   }
 
-  payInstallment(debtId: string, installmentId: string): void {
-    if (!confirm(this.i18n.t('confirm.payInstallment'))) {
+  startPayment(installment: DebtInstallment): void {
+    this.cancelInstallmentEdit();
+    this.payingInstallmentId = installment.id;
+    this.paymentForm.reset({
+      paymentAmount: installment.amount,
+      paidDate: this.today()
+    });
+  }
+
+  saveInstallmentPayment(debtId: string, installmentId: string): void {
+    if (this.paymentForm.invalid || this.savingPayment) {
       return;
     }
+    this.savingPayment = true;
     this.debts
       .payInstallment(debtId, installmentId, {
-        paidDate: this.today(),
+        paymentAmount: this.paymentForm.controls.paymentAmount.value,
+        paidDate: this.paymentForm.controls.paidDate.value,
         paymentTransactionId: null
       })
+      .pipe(finalize(() => (this.savingPayment = false)))
       .subscribe(() => this.refreshInstallments(debtId));
+  }
+
+  cancelPayment(): void {
+    this.payingInstallmentId = null;
   }
 
   markInstallmentUnpaid(debtId: string, installmentId: string): void {
@@ -665,6 +708,7 @@ export class DebtsPage {
 
   private refreshInstallments(debtId: string): void {
     this.cancelInstallmentEdit();
+    this.cancelPayment();
     this.debts.installments(debtId).subscribe((installments) => {
       this.selectedInstallments = installments;
       this.reload$.next();

@@ -119,6 +119,7 @@ CREATE TABLE debt_installments (
     interest_amount DECIMAL(19,4) NOT NULL,
     due_date DATE NOT NULL,
     paid_date DATE,
+    paid_amount DECIMAL(19,4),
     payment_transaction_id BINARY(16),
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,

@@ -35,6 +35,9 @@ public class DebtInstallment extends BaseEntity {
 
     private LocalDate paidDate;
 
+    @Column(precision = 19, scale = 4)
+    private BigDecimal paidAmount;
+
     private UUID paymentTransactionId;
 
     @Enumerated(EnumType.STRING)
@@ -82,6 +85,10 @@ public class DebtInstallment extends BaseEntity {
         return paidDate;
     }
 
+    public BigDecimal getPaidAmount() {
+        return paidAmount;
+    }
+
     public UUID getPaymentTransactionId() {
         return paymentTransactionId;
     }
@@ -90,11 +97,15 @@ public class DebtInstallment extends BaseEntity {
         return status;
     }
 
-    public void markPaid(LocalDate paidDate, UUID paymentTransactionId) {
+    public void markPaid(LocalDate paidDate, BigDecimal paidAmount, UUID paymentTransactionId) {
         if (status == InstallmentStatus.PAID) {
             throw new DomainException("Installment is already paid");
         }
+        if (paidAmount == null || paidAmount.signum() <= 0) {
+            throw new DomainException("Payment amount must be greater than zero");
+        }
         this.paidDate = paidDate;
+        this.paidAmount = paidAmount;
         this.paymentTransactionId = paymentTransactionId;
         this.status = InstallmentStatus.PAID;
     }
@@ -104,6 +115,7 @@ public class DebtInstallment extends BaseEntity {
             throw new DomainException("Only paid installments can be marked as unpaid");
         }
         this.paidDate = null;
+        this.paidAmount = null;
         this.paymentTransactionId = null;
         this.status = InstallmentStatus.PENDING;
     }

@@ -169,12 +169,13 @@ class DebtServiceTest {
                 userId,
                 debtId,
                 installmentId,
-                new DebtInstallmentPaymentRequest(LocalDate.of(2026, 7, 10), paymentTransactionId)
+                new DebtInstallmentPaymentRequest(new BigDecimal("120.00"), LocalDate.of(2026, 7, 10), paymentTransactionId)
         );
 
-        assertThat(debt.getRemainingBalance()).isEqualByComparingTo("500.00");
+        assertThat(debt.getRemainingBalance()).isEqualByComparingTo("880.00");
         assertThat(debt.getStatus()).isEqualTo(DebtStatus.ACTIVE);
         assertThat(response.status()).isEqualTo(InstallmentStatus.PAID);
+        assertThat(response.paidAmount()).isEqualByComparingTo("120.00");
         assertThat(response.paidDate()).isEqualTo(LocalDate.of(2026, 7, 10));
         assertThat(response.paymentTransactionId()).isEqualTo(paymentTransactionId);
     }
@@ -193,7 +194,7 @@ class DebtServiceTest {
         when(debtRepository.save(debt)).thenReturn(debt);
         when(debtRepository.saveInstallment(installment)).thenReturn(installment);
 
-        service.payInstallment(userId, debtId, installmentId, new DebtInstallmentPaymentRequest(null, null));
+        service.payInstallment(userId, debtId, installmentId, new DebtInstallmentPaymentRequest(new BigDecimal("500.00"), null, null));
 
         assertThat(debt.getRemainingBalance()).isEqualByComparingTo("0.00");
         assertThat(debt.getStatus()).isEqualTo(DebtStatus.PAID);
@@ -207,7 +208,7 @@ class DebtServiceTest {
         UUID installmentId = UUID.randomUUID();
         Debt debt = debt(userId, "1000.00", 2);
         DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
-        installment.markPaid(LocalDate.of(2026, 7, 10), null);
+        installment.markPaid(LocalDate.of(2026, 7, 10), new BigDecimal("500.00"), null);
         when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
         when(debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId()))
                 .thenReturn(Optional.of(installment));
@@ -216,7 +217,7 @@ class DebtServiceTest {
                 userId,
                 debtId,
                 installmentId,
-                new DebtInstallmentPaymentRequest(LocalDate.of(2026, 7, 10), null)
+                new DebtInstallmentPaymentRequest(new BigDecimal("500.00"), LocalDate.of(2026, 7, 10), null)
         ))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Installment is already paid");

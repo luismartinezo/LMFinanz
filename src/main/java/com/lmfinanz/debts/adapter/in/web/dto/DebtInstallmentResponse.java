@@ -14,6 +14,7 @@ public record DebtInstallmentResponse(
         BigDecimal interestAmount,
         LocalDate dueDate,
         LocalDate paidDate,
+        BigDecimal paidAmount,
         UUID paymentTransactionId,
         InstallmentStatus status
 ) {

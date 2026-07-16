@@ -135,8 +135,8 @@ public class DebtService implements DebtUseCase {
         DebtInstallment installment = findInstallment(installmentId, debt.getId());
 
         LocalDate paidDate = request.paidDate() == null ? LocalDate.now() : request.paidDate();
-        installment.markPaid(paidDate, request.paymentTransactionId());
-        debt.applyPrincipalPayment(installment.getPrincipalAmount());
+        installment.markPaid(paidDate, request.paymentAmount(), request.paymentTransactionId());
+        debt.applyPrincipalPayment(request.paymentAmount());
 
         debtRepository.save(debt);
         return toInstallmentResponse(debtRepository.saveInstallment(installment));
@@ -164,8 +164,9 @@ public class DebtService implements DebtUseCase {
     public DebtInstallmentResponse markInstallmentUnpaid(UUID userId, UUID debtId, UUID installmentId) {
         Debt debt = findDebt(userId, debtId);
         DebtInstallment installment = findInstallment(installmentId, debt.getId());
+        BigDecimal paidAmount = installment.getPaidAmount() == null ? installment.getPrincipalAmount() : installment.getPaidAmount();
         installment.markUnpaid();
-        debt.reversePrincipalPayment(installment.getPrincipalAmount());
+        debt.reversePrincipalPayment(paidAmount);
         debtRepository.save(debt);
         return toInstallmentResponse(debtRepository.saveInstallment(installment));
     }
@@ -267,6 +268,7 @@ public class DebtService implements DebtUseCase {
                 installment.getInterestAmount(),
                 installment.getDueDate(),
                 installment.getPaidDate(),
+                installment.getPaidAmount(),
                 installment.getPaymentTransactionId(),
                 installment.getStatus()
         );

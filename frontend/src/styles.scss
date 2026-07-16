@@ -1545,6 +1545,25 @@ nav a.active {
   margin-top: 4px;
 }
 
+.inline-payment-form {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(120px, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  width: min(100%, 520px);
+}
+
+.inline-payment-form input {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .inline-payment-form {
+    grid-template-columns: 1fr;
+  }
+}
+
 .installment-list {
   display: grid;
   gap: 6px;

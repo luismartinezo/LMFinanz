@@ -38,11 +38,13 @@ export interface DebtInstallment {
   interestAmount: number;
   dueDate: string;
   paidDate: string | null;
+  paidAmount: number | null;
   paymentTransactionId: string | null;
   status: InstallmentStatus;
 }
 
 export interface DebtInstallmentPaymentRequest {
+  paymentAmount: number;
   paidDate: string;
   paymentTransactionId: string | null;
 }
