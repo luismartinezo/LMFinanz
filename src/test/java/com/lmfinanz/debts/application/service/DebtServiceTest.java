@@ -72,6 +72,26 @@ class DebtServiceTest {
     }
 
     @Test
+    void regeneratesMissingInstallmentsForActiveDebtWhenListingThem() {
+        DebtService service = new DebtService(debtRepository, referenceDataRepository);
+        UUID userId = UUID.randomUUID();
+        UUID debtId = UUID.randomUUID();
+        Debt debt = debt(userId, "54.00", 3);
+        DebtInstallment generatedInstallment = installment(debt.getId(), 1, "20.88", "18.00", "2.88");
+        when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
+        when(debtRepository.findInstallmentsByDebtId(debt.getId()))
+                .thenReturn(List.of())
+                .thenReturn(List.of(generatedInstallment));
+        when(debtRepository.saveInstallment(any(DebtInstallment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        var installments = service.listInstallments(userId, debtId);
+
+        assertThat(installments).hasSize(1);
+        verify(debtRepository, times(3)).saveInstallment(any(DebtInstallment.class));
+    }
+
+    @Test
     void rejectsUnsupportedCurrency() {
         DebtService service = new DebtService(debtRepository, referenceDataRepository);
         when(referenceDataRepository.findCurrencyByCode("GBP")).thenReturn(Optional.empty());

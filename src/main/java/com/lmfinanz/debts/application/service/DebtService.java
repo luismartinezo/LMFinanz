@@ -9,6 +9,7 @@ import com.lmfinanz.debts.application.port.in.DebtUseCase;
 import com.lmfinanz.debts.application.port.out.DebtRepositoryPort;
 import com.lmfinanz.debts.domain.model.Debt;
 import com.lmfinanz.debts.domain.model.DebtInstallment;
+import com.lmfinanz.debts.domain.model.DebtStatus;
 import com.lmfinanz.reference.application.port.out.ReferenceDataRepositoryPort;
 import com.lmfinanz.shared.domain.exception.DomainException;
 import com.lmfinanz.shared.domain.exception.NotFoundException;
@@ -110,11 +111,15 @@ public class DebtService implements DebtUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<DebtInstallmentResponse> listInstallments(UUID userId, UUID debtId) {
         Debt debt = debtRepository.findByIdAndUserId(debtId, userId)
                 .orElseThrow(() -> new NotFoundException("Debt not found"));
-        return debtRepository.findInstallmentsByDebtId(debt.getId()).stream()
+        List<DebtInstallment> installments = debtRepository.findInstallmentsByDebtId(debt.getId());
+        if (installments.isEmpty() && debt.getStatus() == DebtStatus.ACTIVE) {
+            generateInstallments(debt);
+            installments = debtRepository.findInstallmentsByDebtId(debt.getId());
+        }
+        return installments.stream()
                 .map(this::toInstallmentResponse)
                 .toList();
     }
