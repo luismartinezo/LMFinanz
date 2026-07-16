@@ -1,6 +1,7 @@
 package com.lmfinanz.debts.application.service;
 
 import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentResponse;
+import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentPaymentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtResponse;
@@ -66,6 +67,41 @@ public class DebtService implements DebtUseCase {
     }
 
     @Override
+    public DebtResponse update(UUID userId, UUID debtId, DebtRequest request) {
+        validateRequest(request);
+        Debt debt = findDebt(userId, debtId);
+        if (debtRepository.existsPaidInstallmentByDebtId(debt.getId())) {
+            throw new DomainException("Debts with paid installments cannot be recalculated. Edit pending installments instead.");
+        }
+
+        debtRepository.deleteInstallmentsByDebtId(debt.getId());
+        debt.updateDetails(
+                request.name().trim(),
+                request.debtType(),
+                request.currencyCode(),
+                request.countryCode(),
+                request.principalAmount(),
+                request.annualInterestRate(),
+                request.installments(),
+                request.startDate(),
+                request.finalDueDate()
+        );
+        Debt savedDebt = debtRepository.save(debt);
+        generateInstallments(savedDebt);
+        return toResponse(savedDebt);
+    }
+
+    @Override
+    public void delete(UUID userId, UUID debtId) {
+        Debt debt = findDebt(userId, debtId);
+        if (debtRepository.existsPaidInstallmentByDebtId(debt.getId())) {
+            throw new DomainException("Debts with paid installments cannot be deleted");
+        }
+        debtRepository.deleteInstallmentsByDebtId(debt.getId());
+        debtRepository.delete(debt);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<DebtResponse> list(UUID userId) {
         return debtRepository.findAllByUserId(userId).stream()
@@ -90,10 +126,8 @@ public class DebtService implements DebtUseCase {
             UUID installmentId,
             DebtInstallmentPaymentRequest request
     ) {
-        Debt debt = debtRepository.findByIdAndUserId(debtId, userId)
-                .orElseThrow(() -> new NotFoundException("Debt not found"));
-        DebtInstallment installment = debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId())
-                .orElseThrow(() -> new NotFoundException("Debt installment not found"));
+        Debt debt = findDebt(userId, debtId);
+        DebtInstallment installment = findInstallment(installmentId, debt.getId());
 
         LocalDate paidDate = request.paidDate() == null ? LocalDate.now() : request.paidDate();
         installment.markPaid(paidDate, request.paymentTransactionId());
@@ -101,6 +135,44 @@ public class DebtService implements DebtUseCase {
 
         debtRepository.save(debt);
         return toInstallmentResponse(debtRepository.saveInstallment(installment));
+    }
+
+    @Override
+    public DebtInstallmentResponse updateInstallment(
+            UUID userId,
+            UUID debtId,
+            UUID installmentId,
+            DebtInstallmentRequest request
+    ) {
+        Debt debt = findDebt(userId, debtId);
+        DebtInstallment installment = findInstallment(installmentId, debt.getId());
+        installment.updateDetails(
+                request.amount(),
+                request.principalAmount(),
+                request.interestAmount(),
+                request.dueDate()
+        );
+        return toInstallmentResponse(debtRepository.saveInstallment(installment));
+    }
+
+    @Override
+    public DebtInstallmentResponse markInstallmentUnpaid(UUID userId, UUID debtId, UUID installmentId) {
+        Debt debt = findDebt(userId, debtId);
+        DebtInstallment installment = findInstallment(installmentId, debt.getId());
+        installment.markUnpaid();
+        debt.reversePrincipalPayment(installment.getPrincipalAmount());
+        debtRepository.save(debt);
+        return toInstallmentResponse(debtRepository.saveInstallment(installment));
+    }
+
+    private Debt findDebt(UUID userId, UUID debtId) {
+        return debtRepository.findByIdAndUserId(debtId, userId)
+                .orElseThrow(() -> new NotFoundException("Debt not found"));
+    }
+
+    private DebtInstallment findInstallment(UUID installmentId, UUID debtId) {
+        return debtRepository.findInstallmentByIdAndDebtId(installmentId, debtId)
+                .orElseThrow(() -> new NotFoundException("Debt installment not found"));
     }
 
     private void validateRequest(DebtRequest request) {

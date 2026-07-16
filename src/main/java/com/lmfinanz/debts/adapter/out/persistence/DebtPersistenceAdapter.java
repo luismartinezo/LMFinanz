@@ -3,6 +3,7 @@ package com.lmfinanz.debts.adapter.out.persistence;
 import com.lmfinanz.debts.application.port.out.DebtRepositoryPort;
 import com.lmfinanz.debts.domain.model.Debt;
 import com.lmfinanz.debts.domain.model.DebtInstallment;
+import com.lmfinanz.debts.domain.model.InstallmentStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,8 +29,18 @@ public class DebtPersistenceAdapter implements DebtRepositoryPort {
     }
 
     @Override
+    public void delete(Debt debt) {
+        debtRepository.delete(debt);
+    }
+
+    @Override
     public DebtInstallment saveInstallment(DebtInstallment installment) {
         return installmentRepository.save(installment);
+    }
+
+    @Override
+    public void deleteInstallmentsByDebtId(UUID debtId) {
+        installmentRepository.deleteAllByDebtId(debtId);
     }
 
     @Override
@@ -50,5 +61,10 @@ public class DebtPersistenceAdapter implements DebtRepositoryPort {
     @Override
     public Optional<DebtInstallment> findInstallmentByIdAndDebtId(UUID installmentId, UUID debtId) {
         return installmentRepository.findByIdAndDebtId(installmentId, debtId);
+    }
+
+    @Override
+    public boolean existsPaidInstallmentByDebtId(UUID debtId) {
+        return installmentRepository.existsByDebtIdAndStatus(debtId, InstallmentStatus.PAID);
     }
 }

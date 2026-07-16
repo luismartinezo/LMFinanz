@@ -98,4 +98,23 @@ public class DebtInstallment extends BaseEntity {
         this.paymentTransactionId = paymentTransactionId;
         this.status = InstallmentStatus.PAID;
     }
+
+    public void markUnpaid() {
+        if (status != InstallmentStatus.PAID) {
+            throw new DomainException("Only paid installments can be marked as unpaid");
+        }
+        this.paidDate = null;
+        this.paymentTransactionId = null;
+        this.status = InstallmentStatus.PENDING;
+    }
+
+    public void updateDetails(BigDecimal amount, BigDecimal principalAmount, BigDecimal interestAmount, LocalDate dueDate) {
+        if (status == InstallmentStatus.PAID) {
+            throw new DomainException("Paid installments cannot be edited");
+        }
+        this.amount = amount;
+        this.principalAmount = principalAmount;
+        this.interestAmount = interestAmount;
+        this.dueDate = dueDate;
+    }
 }

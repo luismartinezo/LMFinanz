@@ -46,3 +46,10 @@ export interface DebtInstallmentPaymentRequest {
   paidDate: string;
   paymentTransactionId: string | null;
 }
+
+export interface DebtInstallmentRequest {
+  amount: number;
+  principalAmount: number;
+  interestAmount: number;
+  dueDate: string;
+}

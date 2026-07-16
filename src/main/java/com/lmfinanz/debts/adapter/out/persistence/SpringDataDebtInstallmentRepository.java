@@ -11,4 +11,8 @@ interface SpringDataDebtInstallmentRepository extends JpaRepository<DebtInstallm
     List<DebtInstallment> findAllByDebtIdOrderByInstallmentNumberAsc(UUID debtId);
 
     Optional<DebtInstallment> findByIdAndDebtId(UUID id, UUID debtId);
+
+    boolean existsByDebtIdAndStatus(UUID debtId, com.lmfinanz.debts.domain.model.InstallmentStatus status);
+
+    void deleteAllByDebtId(UUID debtId);
 }

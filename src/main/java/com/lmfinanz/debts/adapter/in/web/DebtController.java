@@ -1,5 +1,6 @@
 package com.lmfinanz.debts.adapter.in.web;
 
+import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentResponse;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtInstallmentPaymentRequest;
 import com.lmfinanz.debts.adapter.in.web.dto.DebtRequest;
@@ -14,9 +15,11 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -53,6 +56,26 @@ public class DebtController {
         return debtUseCase.get(principal.userId(), debtId);
     }
 
+    @PutMapping("/{debtId}")
+    @Operation(summary = "Update debt", description = "Updates a debt and recalculates installments when no installment has been paid.")
+    public DebtResponse update(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID debtId,
+            @Valid @RequestBody DebtRequest request
+    ) {
+        return debtUseCase.update(principal.userId(), debtId, request);
+    }
+
+    @DeleteMapping("/{debtId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete debt", description = "Deletes a debt when no installment has been paid.")
+    public void delete(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID debtId
+    ) {
+        debtUseCase.delete(principal.userId(), debtId);
+    }
+
     @GetMapping
     @Operation(summary = "List debts", description = "Lists debts owned by the authenticated user.")
     public List<DebtResponse> list(@AuthenticationPrincipal JwtPrincipal principal) {
@@ -77,5 +100,26 @@ public class DebtController {
             @Valid @RequestBody DebtInstallmentPaymentRequest request
     ) {
         return debtUseCase.payInstallment(principal.userId(), debtId, installmentId, request);
+    }
+
+    @PutMapping("/{debtId}/installments/{installmentId}")
+    @Operation(summary = "Update debt installment", description = "Updates one pending installment amount and due date.")
+    public DebtInstallmentResponse updateInstallment(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID debtId,
+            @PathVariable UUID installmentId,
+            @Valid @RequestBody DebtInstallmentRequest request
+    ) {
+        return debtUseCase.updateInstallment(principal.userId(), debtId, installmentId, request);
+    }
+
+    @PostMapping("/{debtId}/installments/{installmentId}/unpay")
+    @Operation(summary = "Mark installment as unpaid", description = "Reopens a paid installment and restores debt balance.")
+    public DebtInstallmentResponse markInstallmentUnpaid(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable UUID debtId,
+            @PathVariable UUID installmentId
+    ) {
+        return debtUseCase.markInstallmentUnpaid(principal.userId(), debtId, installmentId);
     }
 }

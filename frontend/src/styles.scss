@@ -1533,6 +1533,18 @@ nav a.active {
   color: #b42318;
 }
 
+.debt-row input,
+.debt-row select,
+.installment-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+.debt-row small input,
+.installment-row small input {
+  margin-top: 4px;
+}
+
 .installment-list {
   display: grid;
   gap: 6px;

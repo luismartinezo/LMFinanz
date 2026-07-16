@@ -132,4 +132,27 @@ public class Debt extends BaseEntity {
             status = DebtStatus.PAID;
         }
     }
+
+    public void reversePrincipalPayment(BigDecimal principalPayment) {
+        remainingBalance = remainingBalance.add(principalPayment);
+        if (status == DebtStatus.PAID && remainingBalance.signum() > 0) {
+            status = DebtStatus.ACTIVE;
+        }
+    }
+
+    public void updateDetails(String name, DebtType debtType, String currencyCode, String countryCode,
+                              BigDecimal principalAmount, BigDecimal annualInterestRate, int installments,
+                              LocalDate startDate, LocalDate finalDueDate) {
+        this.name = name;
+        this.debtType = debtType;
+        this.currencyCode = currencyCode;
+        this.countryCode = countryCode;
+        this.principalAmount = principalAmount;
+        this.annualInterestRate = annualInterestRate;
+        this.installments = installments;
+        this.startDate = startDate;
+        this.finalDueDate = finalDueDate;
+        this.remainingBalance = principalAmount;
+        this.status = DebtStatus.ACTIVE;
+    }
 }

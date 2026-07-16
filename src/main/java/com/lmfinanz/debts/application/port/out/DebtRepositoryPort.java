@@ -10,7 +10,11 @@ public interface DebtRepositoryPort {
 
     Debt save(Debt debt);
 
+    void delete(Debt debt);
+
     DebtInstallment saveInstallment(DebtInstallment installment);
+
+    void deleteInstallmentsByDebtId(UUID debtId);
 
     Optional<Debt> findByIdAndUserId(UUID id, UUID userId);
 
@@ -19,4 +23,6 @@ public interface DebtRepositoryPort {
     List<DebtInstallment> findInstallmentsByDebtId(UUID debtId);
 
     Optional<DebtInstallment> findInstallmentByIdAndDebtId(UUID installmentId, UUID debtId);
+
+    boolean existsPaidInstallmentByDebtId(UUID debtId);
 }
