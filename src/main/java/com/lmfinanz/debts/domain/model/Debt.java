@@ -37,6 +37,9 @@ public class Debt extends BaseEntity {
     @Column(nullable = false, precision = 8, scale = 4)
     private BigDecimal annualInterestRate;
 
+    @Column(nullable = false, precision = 19, scale = 4)
+    private BigDecimal installmentAmount;
+
     @Column(nullable = false)
     private int installments;
 
@@ -57,7 +60,7 @@ public class Debt extends BaseEntity {
     }
 
     public Debt(UUID userId, String name, DebtType debtType, String currencyCode, String countryCode, BigDecimal principalAmount,
-                BigDecimal annualInterestRate, int installments, LocalDate startDate, LocalDate finalDueDate) {
+                BigDecimal annualInterestRate, BigDecimal installmentAmount, int installments, LocalDate startDate, LocalDate finalDueDate) {
         this.userId = userId;
         this.name = name;
         this.debtType = debtType;
@@ -65,6 +68,7 @@ public class Debt extends BaseEntity {
         this.countryCode = countryCode;
         this.principalAmount = principalAmount;
         this.annualInterestRate = annualInterestRate;
+        this.installmentAmount = installmentAmount;
         this.installments = installments;
         this.startDate = startDate;
         this.finalDueDate = finalDueDate;
@@ -97,6 +101,10 @@ public class Debt extends BaseEntity {
 
     public BigDecimal getAnnualInterestRate() {
         return annualInterestRate;
+    }
+
+    public BigDecimal getInstallmentAmount() {
+        return installmentAmount;
     }
 
     public int getInstallments() {
@@ -141,7 +149,7 @@ public class Debt extends BaseEntity {
     }
 
     public void updateDetails(String name, DebtType debtType, String currencyCode, String countryCode,
-                              BigDecimal principalAmount, BigDecimal annualInterestRate, int installments,
+                              BigDecimal principalAmount, BigDecimal annualInterestRate, BigDecimal installmentAmount, int installments,
                               LocalDate startDate, LocalDate finalDueDate) {
         this.name = name;
         this.debtType = debtType;
@@ -149,6 +157,7 @@ public class Debt extends BaseEntity {
         this.countryCode = countryCode;
         this.principalAmount = principalAmount;
         this.annualInterestRate = annualInterestRate;
+        this.installmentAmount = installmentAmount;
         this.installments = installments;
         this.startDate = startDate;
         this.finalDueDate = finalDueDate;

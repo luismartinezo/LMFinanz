@@ -50,6 +50,7 @@ public class DebtService implements DebtUseCase {
                 request.countryCode(),
                 request.principalAmount(),
                 request.annualInterestRate(),
+                request.installmentAmount(),
                 request.installments(),
                 request.startDate(),
                 request.finalDueDate()
@@ -83,6 +84,7 @@ public class DebtService implements DebtUseCase {
                 request.countryCode(),
                 request.principalAmount(),
                 request.annualInterestRate(),
+                request.installmentAmount(),
                 request.installments(),
                 request.startDate(),
                 request.finalDueDate()
@@ -201,38 +203,17 @@ public class DebtService implements DebtUseCase {
     }
 
     private void generateInstallments(Debt debt) {
-        BigDecimal principalPerInstallment = debt.getPrincipalAmount()
-                .divide(BigDecimal.valueOf(debt.getInstallments()), MONEY_SCALE, RoundingMode.HALF_UP);
-        BigDecimal totalInterest = debt.getPrincipalAmount()
-                .multiply(debt.getAnnualInterestRate())
-                .divide(BigDecimal.valueOf(100), MONEY_SCALE, RoundingMode.HALF_UP);
-        BigDecimal interestPerInstallment = totalInterest
-                .divide(BigDecimal.valueOf(debt.getInstallments()), MONEY_SCALE, RoundingMode.HALF_UP);
-
-        BigDecimal assignedPrincipal = BigDecimal.ZERO;
-        BigDecimal assignedInterest = BigDecimal.ZERO;
-
         for (int number = 1; number <= debt.getInstallments(); number++) {
-            boolean lastInstallment = number == debt.getInstallments();
-            BigDecimal principalAmount = lastInstallment
-                    ? debt.getPrincipalAmount().subtract(assignedPrincipal).setScale(MONEY_SCALE, RoundingMode.HALF_UP)
-                    : principalPerInstallment;
-            BigDecimal interestAmount = lastInstallment
-                    ? totalInterest.subtract(assignedInterest).setScale(MONEY_SCALE, RoundingMode.HALF_UP)
-                    : interestPerInstallment;
-            BigDecimal amount = principalAmount.add(interestAmount).setScale(MONEY_SCALE, RoundingMode.HALF_UP);
+            BigDecimal amount = debt.getInstallmentAmount().setScale(MONEY_SCALE, RoundingMode.HALF_UP);
 
             debtRepository.saveInstallment(new DebtInstallment(
                     debt.getId(),
                     number,
                     amount,
-                    principalAmount,
-                    interestAmount,
+                    amount,
+                    BigDecimal.ZERO.setScale(MONEY_SCALE, RoundingMode.HALF_UP),
                     dueDateFor(debt, number)
             ));
-
-            assignedPrincipal = assignedPrincipal.add(principalAmount);
-            assignedInterest = assignedInterest.add(interestAmount);
         }
     }
 
@@ -250,6 +231,7 @@ public class DebtService implements DebtUseCase {
                 debt.getCountryCode(),
                 debt.getPrincipalAmount(),
                 debt.getAnnualInterestRate(),
+                debt.getInstallmentAmount(),
                 debt.getInstallments(),
                 debt.getStartDate(),
                 debt.getFinalDueDate(),

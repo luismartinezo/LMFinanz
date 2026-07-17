@@ -14,6 +14,7 @@ public record DebtResponse(
         String countryCode,
         BigDecimal principalAmount,
         BigDecimal annualInterestRate,
+        BigDecimal installmentAmount,
         int installments,
         LocalDate startDate,
         LocalDate finalDueDate,

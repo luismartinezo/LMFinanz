@@ -17,6 +17,7 @@ public record DebtRequest(
         @NotBlank @Pattern(regexp = "^[A-Z]{2}$") String countryCode,
         @NotNull @DecimalMin(value = "0.0001") BigDecimal principalAmount,
         @NotNull @DecimalMin(value = "0.0000") BigDecimal annualInterestRate,
+        @NotNull @DecimalMin(value = "0.0001") BigDecimal installmentAmount,
         @Min(1) int installments,
         @NotNull LocalDate startDate,
         @NotNull LocalDate finalDueDate

@@ -10,6 +10,7 @@ export interface Debt {
   countryCode: string;
   principalAmount: number;
   annualInterestRate: number;
+  installmentAmount: number;
   installments: number;
   startDate: string;
   finalDueDate: string;
@@ -24,6 +25,7 @@ export interface DebtRequest {
   countryCode: string;
   principalAmount: number;
   annualInterestRate: number;
+  installmentAmount: number;
   installments: number;
   startDate: string;
   finalDueDate: string;

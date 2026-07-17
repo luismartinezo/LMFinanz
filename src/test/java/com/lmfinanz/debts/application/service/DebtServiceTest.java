@@ -54,6 +54,7 @@ class DebtServiceTest {
                 "Car loan",
                 "1000.00",
                 "12.00",
+                "500.00",
                 2,
                 LocalDate.of(2026, 7, 1),
                 LocalDate.of(2026, 8, 1)
@@ -62,13 +63,15 @@ class DebtServiceTest {
         assertThat(response.name()).isEqualTo("Car loan");
         assertThat(response.debtType()).isEqualTo(DebtType.PERSONAL_LOAN);
         assertThat(response.countryCode()).isEqualTo("DE");
+        assertThat(response.principalAmount()).isEqualByComparingTo("1000.00");
+        assertThat(response.installmentAmount()).isEqualByComparingTo("500.00");
         assertThat(response.remainingBalance()).isEqualByComparingTo("1000.00");
         ArgumentCaptor<DebtInstallment> captor = ArgumentCaptor.forClass(DebtInstallment.class);
         verify(debtRepository, times(2)).saveInstallment(captor.capture());
         List<DebtInstallment> installments = captor.getAllValues();
         assertThat(installments).hasSize(2);
-        assertThat(installments.get(0).getAmount()).isEqualByComparingTo("560.0000");
-        assertThat(installments.get(1).getAmount()).isEqualByComparingTo("560.0000");
+        assertThat(installments.get(0).getAmount()).isEqualByComparingTo("500.0000");
+        assertThat(installments.get(1).getAmount()).isEqualByComparingTo("500.0000");
     }
 
     @Test
@@ -76,8 +79,8 @@ class DebtServiceTest {
         DebtService service = new DebtService(debtRepository, referenceDataRepository);
         UUID userId = UUID.randomUUID();
         UUID debtId = UUID.randomUUID();
-        Debt debt = debt(userId, "54.00", 3);
-        DebtInstallment generatedInstallment = installment(debt.getId(), 1, "20.88", "18.00", "2.88");
+        Debt debt = debt(userId, "54.00", "18.00", 3);
+        DebtInstallment generatedInstallment = installment(debt.getId(), 1, "18.00", "18.00", "0.00");
         when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
         when(debtRepository.findInstallmentsByDebtId(debt.getId()))
                 .thenReturn(List.of())
@@ -100,6 +103,7 @@ class DebtServiceTest {
                 "Loan",
                 "1000.00",
                 "5.00",
+                "333.33",
                 3,
                 LocalDate.of(2026, 7, 1),
                 LocalDate.of(2026, 9, 1),
@@ -121,6 +125,7 @@ class DebtServiceTest {
                 "Loan",
                 "1000.00",
                 "5.00",
+                "250.00",
                 4,
                 LocalDate.of(2026, 7, 1),
                 LocalDate.of(2026, 9, 1)
@@ -140,6 +145,7 @@ class DebtServiceTest {
                 "Loan",
                 "1000.00",
                 "5.00",
+                "333.33",
                 3,
                 LocalDate.of(2026, 7, 1),
                 LocalDate.of(2026, 9, 1),
@@ -157,7 +163,7 @@ class DebtServiceTest {
         UUID debtId = UUID.randomUUID();
         UUID installmentId = UUID.randomUUID();
         UUID paymentTransactionId = UUID.randomUUID();
-        Debt debt = debt(userId, "1000.00", 2);
+        Debt debt = debt(userId, "1000.00", "500.00", 2);
         DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
         when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
         when(debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId()))
@@ -186,7 +192,7 @@ class DebtServiceTest {
         UUID userId = UUID.randomUUID();
         UUID debtId = UUID.randomUUID();
         UUID installmentId = UUID.randomUUID();
-        Debt debt = debt(userId, "500.00", 1);
+        Debt debt = debt(userId, "500.00", "500.00", 1);
         DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
         when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
         when(debtRepository.findInstallmentByIdAndDebtId(installmentId, debt.getId()))
@@ -206,7 +212,7 @@ class DebtServiceTest {
         UUID userId = UUID.randomUUID();
         UUID debtId = UUID.randomUUID();
         UUID installmentId = UUID.randomUUID();
-        Debt debt = debt(userId, "1000.00", 2);
+        Debt debt = debt(userId, "1000.00", "500.00", 2);
         DebtInstallment installment = installment(debtId, 1, "560.00", "500.00", "60.00");
         installment.markPaid(LocalDate.of(2026, 7, 10), new BigDecimal("500.00"), null);
         when(debtRepository.findByIdAndUserId(debtId, userId)).thenReturn(Optional.of(debt));
@@ -227,29 +233,32 @@ class DebtServiceTest {
             String name,
             String principalAmount,
             String annualInterestRate,
+            String installmentAmount,
             int installments,
             LocalDate startDate,
             LocalDate finalDueDate
     ) {
-        return request(name, principalAmount, annualInterestRate, installments, startDate, finalDueDate, "EUR");
+        return request(name, principalAmount, annualInterestRate, installmentAmount, installments, startDate, finalDueDate, "EUR");
     }
 
     private DebtRequest request(
             String name,
             String principalAmount,
             String annualInterestRate,
+            String installmentAmount,
             int installments,
             LocalDate startDate,
             LocalDate finalDueDate,
             String currencyCode
     ) {
-        return request(name, principalAmount, annualInterestRate, installments, startDate, finalDueDate, currencyCode, "DE");
+        return request(name, principalAmount, annualInterestRate, installmentAmount, installments, startDate, finalDueDate, currencyCode, "DE");
     }
 
     private DebtRequest request(
             String name,
             String principalAmount,
             String annualInterestRate,
+            String installmentAmount,
             int installments,
             LocalDate startDate,
             LocalDate finalDueDate,
@@ -263,13 +272,14 @@ class DebtServiceTest {
                 countryCode,
                 new BigDecimal(principalAmount),
                 new BigDecimal(annualInterestRate),
+                new BigDecimal(installmentAmount),
                 installments,
                 startDate,
                 finalDueDate
         );
     }
 
-    private Debt debt(UUID userId, String principalAmount, int installments) {
+    private Debt debt(UUID userId, String principalAmount, String installmentAmount, int installments) {
         return new Debt(
                 userId,
                 "Loan",
@@ -278,6 +288,7 @@ class DebtServiceTest {
                 "DE",
                 new BigDecimal(principalAmount),
                 new BigDecimal("12.00"),
+                new BigDecimal(installmentAmount),
                 installments,
                 LocalDate.of(2026, 7, 1),
                 LocalDate.of(2026, 8, 1)

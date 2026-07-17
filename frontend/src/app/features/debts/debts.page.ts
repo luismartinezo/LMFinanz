@@ -93,8 +93,8 @@ import { DebtsService } from './debts.service';
               </label>
 
               <label>
-                {{ i18n.t('debts.interestRate') }}
-                <input type="number" min="0" step="0.01" formControlName="annualInterestRate" />
+                {{ i18n.t('debts.installmentAmount') }}
+                <input type="number" min="0.01" step="0.01" formControlName="installmentAmount" />
               </label>
             </div>
 
@@ -122,6 +122,11 @@ import { DebtsService } from './debts.service';
               </label>
             </div>
 
+            <label>
+              {{ i18n.t('debts.interestRate') }}
+              <input type="number" min="0" step="0.01" formControlName="annualInterestRate" />
+            </label>
+
             <button type="submit" [disabled]="form.invalid || saving">
               {{ saving ? i18n.t('common.saving') : i18n.t('debts.create') }}
             </button>
@@ -143,8 +148,9 @@ import { DebtsService } from './debts.service';
             <div class="data-row debt-row heading">
               <span>{{ i18n.t('debts.name') }}</span>
               <span>{{ i18n.t('debts.type') }}</span>
+              <span>{{ i18n.t('debts.principalAmount') }}</span>
               <span>{{ i18n.t('debts.remainingBalance') }}</span>
-              <span>{{ i18n.t('debts.interestRate') }}</span>
+              <span>{{ i18n.t('debts.installmentAmount') }}</span>
               <span>{{ i18n.t('debts.finalDueDate') }}</span>
               <span>{{ i18n.t('transactions.status') }}</span>
               <span>{{ i18n.t('transactions.actions') }}</span>
@@ -163,7 +169,7 @@ import { DebtsService } from './debts.service';
                   <strong *ngIf="editingDebtId !== debt.id">{{ debt.name }}</strong>
                   <input *ngIf="editingDebtId === debt.id" formControlName="name" />
                   <small>{{ debt.installments }} {{ i18n.t('debts.installments').toLowerCase() }}</small>
-                  <small>{{ i18n.t('debts.monthlyPayment') }}: {{ monthlyPayment(debt) | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</small>
+                  <small>{{ i18n.t('debts.monthlyPayment') }}: {{ debt.installmentAmount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</small>
                 </span>
                 <span>
                   <ng-container *ngIf="editingDebtId !== debt.id; else debtTypeEdit">
@@ -183,17 +189,23 @@ import { DebtsService } from './debts.service';
                   <small>{{ countryLabel(debt.countryCode) }} · {{ debt.currencyCode }}</small>
                 </span>
                 <span>
-                  <strong *ngIf="editingDebtId !== debt.id" [class.negative]="debt.remainingBalance < 0">
-                    {{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
+                  <strong *ngIf="editingDebtId !== debt.id">
+                    {{ debt.principalAmount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
                   </strong>
                   <input *ngIf="editingDebtId === debt.id" type="number" min="0.01" step="0.01" formControlName="principalAmount" />
                 </span>
                 <span>
-                  <ng-container *ngIf="editingDebtId !== debt.id; else interestEdit">
-                    {{ debt.annualInterestRate | number: '1.2-2' }}%
+                  <strong *ngIf="editingDebtId !== debt.id" [class.negative]="debt.remainingBalance < 0">
+                    {{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
+                  </strong>
+                  <small *ngIf="editingDebtId === debt.id">{{ debt.remainingBalance | currency: debt.currencyCode : 'symbol' : '1.2-2' }}</small>
+                </span>
+                <span>
+                  <ng-container *ngIf="editingDebtId !== debt.id; else installmentAmountEdit">
+                    {{ debt.installmentAmount | currency: debt.currencyCode : 'symbol' : '1.2-2' }}
                   </ng-container>
-                  <ng-template #interestEdit>
-                    <input type="number" min="0" step="0.01" formControlName="annualInterestRate" />
+                  <ng-template #installmentAmountEdit>
+                    <input type="number" min="0.01" step="0.01" formControlName="installmentAmount" />
                   </ng-template>
                 </span>
                 <span>
@@ -360,6 +372,7 @@ export class DebtsPage {
     countryCode: ['DE', Validators.required],
     principalAmount: [0, [Validators.required, Validators.min(0.01)]],
     annualInterestRate: [0, [Validators.required, Validators.min(0)]],
+    installmentAmount: [0, [Validators.required, Validators.min(0.01)]],
     installments: [1, [Validators.required, Validators.min(1)]],
     startDate: [this.today(), Validators.required],
     finalDueDate: [this.today(), Validators.required]
@@ -372,6 +385,7 @@ export class DebtsPage {
     countryCode: ['DE', Validators.required],
     principalAmount: [0, [Validators.required, Validators.min(0.01)]],
     annualInterestRate: [0, [Validators.required, Validators.min(0)]],
+    installmentAmount: [0, [Validators.required, Validators.min(0.01)]],
     installments: [1, [Validators.required, Validators.min(1)]],
     startDate: [this.today(), Validators.required],
     finalDueDate: [this.today(), Validators.required]
@@ -426,6 +440,7 @@ export class DebtsPage {
             countryCode: 'DE',
             principalAmount: 0,
             annualInterestRate: 0,
+            installmentAmount: 0,
             installments: 1,
             startDate: this.today(),
             finalDueDate: this.today()
@@ -451,6 +466,7 @@ export class DebtsPage {
       countryCode: debt.countryCode,
       principalAmount: debt.principalAmount,
       annualInterestRate: debt.annualInterestRate,
+      installmentAmount: debt.installmentAmount,
       installments: debt.installments,
       startDate: debt.startDate,
       finalDueDate: debt.finalDueDate
@@ -560,8 +576,7 @@ export class DebtsPage {
   }
 
   monthlyPayment(debt: Debt): number {
-    const totalInterest = Number(debt.principalAmount || 0) * (Number(debt.annualInterestRate || 0) / 100);
-    return (Number(debt.principalAmount || 0) + totalInterest) / Math.max(Number(debt.installments || 1), 1);
+    return Number(debt.installmentAmount || 0);
   }
 
   debtDueLabel(debt: Debt): string {
