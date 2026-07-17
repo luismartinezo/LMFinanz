@@ -198,14 +198,6 @@ interface DebtInstallmentRow {
                   </ng-container>
                   <ng-template #amountEdit>
                     <input type="number" min="0.01" step="0.01" formControlName="amount" />
-                    <small>
-                      {{ i18n.t('debts.principalAmount') }}
-                      <input type="number" min="0" step="0.01" formControlName="principalAmount" />
-                    </small>
-                    <small>
-                      {{ i18n.t('debts.interestRate') }}
-                      <input type="number" min="0" step="0.01" formControlName="interestAmount" />
-                    </small>
                   </ng-template>
                 </span>
                 <span>
@@ -321,8 +313,6 @@ export class DebtsPage {
 
   readonly installmentForm = this.formBuilder.nonNullable.group({
     amount: [0, [Validators.required, Validators.min(0.01)]],
-    principalAmount: [0, [Validators.required, Validators.min(0)]],
-    interestAmount: [0, [Validators.required, Validators.min(0)]],
     dueDate: [this.today(), Validators.required]
   });
 
@@ -648,8 +638,6 @@ export class DebtsPage {
     this.cancelPayment();
     this.installmentForm.reset({
       amount: installment.amount,
-      principalAmount: installment.principalAmount,
-      interestAmount: installment.interestAmount,
       dueDate: installment.dueDate
     });
   }
@@ -659,8 +647,14 @@ export class DebtsPage {
       return;
     }
     this.savingInstallment = true;
+    const value = this.installmentForm.getRawValue();
     this.debts
-      .updateInstallment(debtId, installment.id, this.installmentForm.getRawValue() as DebtInstallmentRequest)
+      .updateInstallment(debtId, installment.id, {
+        amount: value.amount,
+        principalAmount: value.amount,
+        interestAmount: 0,
+        dueDate: value.dueDate
+      } as DebtInstallmentRequest)
       .pipe(
         tap(() => this.refreshInstallments(debtId)),
         finalize(() => (this.savingInstallment = false))
