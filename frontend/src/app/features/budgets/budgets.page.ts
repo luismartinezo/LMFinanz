@@ -69,36 +69,46 @@ interface BudgetState {
       <section class="metric-grid budget-summary">
         <article>
           <span>{{ i18n.t('budget.income') }}</span>
-          <strong>{{ state.summary.incomeAmount | currency: currencyCode : 'symbol' : '1.2-2' }}</strong>
+          <strong [class.positive]="state.summary.incomeAmount > 0" [class.negative]="state.summary.incomeAmount < 0">
+            {{ state.summary.incomeAmount | currency: currencyCode : 'symbol' : '1.2-2' }}
+          </strong>
           <small>{{ i18n.t('budget.incomeHint') }}</small>
         </article>
         <article>
           <span>{{ i18n.t('budget.planned') }}</span>
-          <strong>{{ totalPlanned(state.items) | currency: currencyCode : 'symbol' : '1.2-2' }}</strong>
+          <strong [class.warning]="totalPlanned(state.items) > 0">
+            {{ totalPlanned(state.items) | currency: currencyCode : 'symbol' : '1.2-2' }}
+          </strong>
           <small>{{ i18n.t('budget.plannedHint') }}</small>
         </article>
         <article>
           <span>{{ i18n.t('budget.paidAmount') }}</span>
-          <strong>{{ totalActual(state.items) | currency: currencyCode : 'symbol' : '1.2-2' }}</strong>
+          <strong [class.warning]="totalActual(state.items) > 0">
+            {{ totalActual(state.items) | currency: currencyCode : 'symbol' : '1.2-2' }}
+          </strong>
           <small>{{ i18n.t('budget.paidAmountHint') }}</small>
         </article>
         <article>
           <span>{{ i18n.t('budget.pendingAmount') }}</span>
-          <strong [class.negative]="totalRemaining(state.items) < 0">
+          <strong
+            [class.warning]="totalRemaining(state.items) > 0"
+            [class.positive]="totalRemaining(state.items) === 0 && totalPlanned(state.items) > 0"
+            [class.negative]="totalRemaining(state.items) < 0"
+          >
             {{ totalRemaining(state.items) | currency: currencyCode : 'symbol' : '1.2-2' }}
           </strong>
           <small>{{ i18n.t('budget.pendingAmountHint') }}</small>
         </article>
         <article>
           <span>{{ i18n.t('budget.available') }}</span>
-          <strong [class.negative]="availableAfterPaid(state) < 0">
+          <strong [class.positive]="availableAfterPaid(state) >= 0" [class.negative]="availableAfterPaid(state) < 0">
             {{ availableAfterPaid(state) | currency: currencyCode : 'symbol' : '1.2-2' }}
           </strong>
           <small>{{ i18n.t('budget.availableHint') }}</small>
         </article>
         <article>
           <span>{{ i18n.t('budget.projected') }}</span>
-          <strong [class.negative]="projectedAfterPlanned(state) < 0">
+          <strong [class.positive]="projectedAfterPlanned(state) >= 0" [class.negative]="projectedAfterPlanned(state) < 0">
             {{ projectedAfterPlanned(state) | currency: currencyCode : 'symbol' : '1.2-2' }}
           </strong>
           <small>{{ i18n.t('budget.projectedHint') }}</small>
@@ -430,12 +440,14 @@ export class BudgetsPage {
 
   setYear(event: Event): void {
     this.budgetYear = Number((event.target as HTMLInputElement).value);
+    this.resetTransientState();
     this.form.patchValue({ dueDate: this.defaultDueDate() });
     this.reload$.next();
   }
 
   setMonth(event: Event): void {
     this.budgetMonth = Number((event.target as HTMLSelectElement).value);
+    this.resetTransientState();
     this.form.patchValue({ dueDate: this.defaultDueDate() });
     this.reload$.next();
   }
@@ -443,11 +455,13 @@ export class BudgetsPage {
   setCountry(event: Event): void {
     this.countryCode = (event.target as HTMLSelectElement).value as CountryCode;
     this.currencyCode = this.countryCode === 'CO' ? 'COP' : 'EUR';
+    this.resetTransientState();
     this.reload$.next();
   }
 
   setCurrency(event: Event): void {
     this.currencyCode = (event.target as HTMLSelectElement).value as CurrencyCode;
+    this.resetTransientState();
     this.reload$.next();
   }
 
@@ -571,6 +585,14 @@ export class BudgetsPage {
 
   cancelPayment(): void {
     this.payingItemId = null;
+  }
+
+  resetTransientState(): void {
+    this.cancelEdit();
+    this.cancelPayment();
+    this.showForm = false;
+    this.registeringPayment = false;
+    this.savingEdit = false;
   }
 
   paymentAccounts(accounts: Account[]): Account[] {

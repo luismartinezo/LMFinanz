@@ -624,6 +624,14 @@ nav a.active {
   color: #b42318;
 }
 
+.metric-grid strong.positive {
+  color: #0f766e;
+}
+
+.metric-grid strong.warning {
+  color: #b7791f;
+}
+
 .metric-grid small,
 .module-card p,
 .empty-state p,
@@ -1420,6 +1428,14 @@ nav a.active {
 .budget-row .negative,
 .budget-summary .negative {
   color: #b42318;
+}
+
+.budget-summary .positive {
+  color: #0f766e;
+}
+
+.budget-summary .warning {
+  color: #b7791f;
 }
 
 .form-row {
