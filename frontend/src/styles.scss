@@ -1547,10 +1547,10 @@ nav a.active {
 
 .inline-payment-form {
   display: grid;
-  grid-template-columns: minmax(90px, 1fr) minmax(120px, 1fr) auto auto;
+  grid-template-columns: minmax(82px, 1fr) minmax(118px, 1fr);
   gap: 8px;
   align-items: center;
-  width: min(100%, 520px);
+  width: min(100%, 320px);
 }
 
 .inline-payment-form input {
@@ -1565,16 +1565,24 @@ nav a.active {
 }
 
 .debt-installment-row {
-  min-width: 1280px;
+  min-width: 1080px;
   grid-template-columns:
-    minmax(220px, 1.15fr)
-    minmax(110px, 0.55fr)
-    minmax(150px, 0.75fr)
-    minmax(150px, 0.75fr)
-    minmax(180px, 0.9fr)
-    minmax(160px, 0.8fr)
-    minmax(110px, 0.55fr)
-    minmax(230px, 1.15fr);
+    minmax(190px, 1.2fr)
+    minmax(85px, 0.5fr)
+    minmax(135px, 0.8fr)
+    minmax(135px, 0.8fr)
+    minmax(135px, 0.75fr)
+    minmax(145px, 0.85fr)
+    minmax(95px, 0.55fr)
+    minmax(150px, 0.85fr);
+}
+
+.debt-installment-row .table-actions {
+  align-items: flex-start;
+}
+
+.debt-installment-row .table-action {
+  white-space: nowrap;
 }
 
 .savings-row {

@@ -1,4 +1,4 @@
-import { AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, catchError, finalize, forkJoin, map, of, startWith, switchMap, tap } from 'rxjs';
@@ -13,7 +13,7 @@ interface DebtInstallmentRow {
 
 @Component({
   selector: 'app-debts-page',
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgFor, NgIf, ReactiveFormsModule],
+  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgFor, NgIf, ReactiveFormsModule],
   template: `
     <main class="module-page" *ngIf="state$ | async as state">
       <section class="page-heading">
@@ -161,7 +161,7 @@ interface DebtInstallmentRow {
               <span>{{ i18n.t('transactions.actions') }}</span>
             </div>
 
-            <ng-container *ngFor="let row of sortedInstallmentRows(state.installmentRows)">
+            <ng-container *ngFor="let row of visibleDebtRows(state.installmentRows)">
               <div
                 class="data-row debt-installment-row"
                 [class.paid]="row.installment.status === 'PAID'"
@@ -566,6 +566,20 @@ export class DebtsPage {
     return 'none';
   }
 
+  installmentDueLabel(installment: DebtInstallment): string {
+    if (installment.status === 'PAID') {
+      return this.i18n.t('debts.statusPaid');
+    }
+    const days = this.daysUntil(installment.dueDate);
+    if (days === 0) {
+      return this.i18n.t('budget.dueToday');
+    }
+    if (days > 0) {
+      return this.i18n.t('budget.daysLeft').replace('{days}', String(days));
+    }
+    return this.i18n.t('budget.daysOverdue').replace('{days}', String(Math.abs(days)));
+  }
+
   labelForStatus(status: DebtStatus): string {
     const labels: Record<DebtStatus, string> = {
       ACTIVE: this.i18n.t('common.active'),
@@ -600,6 +614,33 @@ export class DebtsPage {
       }
       return first.debt.name.localeCompare(second.debt.name);
     });
+  }
+
+  visibleDebtRows(rows: DebtInstallmentRow[]): DebtInstallmentRow[] {
+    const rowsByDebt = new Map<string, DebtInstallmentRow[]>();
+    for (const row of rows) {
+      rowsByDebt.set(row.debt.id, [...(rowsByDebt.get(row.debt.id) ?? []), row]);
+    }
+
+    const selectedRows = Array.from(rowsByDebt.values()).map((debtRows) => {
+      const pendingRows = debtRows
+        .filter((row) => row.installment.status !== 'PAID')
+        .sort((first, second) => {
+          const dateCompare = first.installment.dueDate.localeCompare(second.installment.dueDate);
+          if (dateCompare !== 0) {
+            return dateCompare;
+          }
+          return first.installment.installmentNumber - second.installment.installmentNumber;
+        });
+
+      if (pendingRows.length > 0) {
+        return pendingRows[0];
+      }
+
+      return [...debtRows].sort((first, second) => second.installment.installmentNumber - first.installment.installmentNumber)[0];
+    });
+
+    return this.sortedInstallmentRows(selectedRows);
   }
 
   startEditInstallment(installment: DebtInstallment): void {
