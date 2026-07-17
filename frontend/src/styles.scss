@@ -1572,6 +1572,19 @@ nav a.active {
   border-left: 2px solid #dce8e6;
 }
 
+.debt-installments-panel {
+  margin: 16px 0 0;
+  padding: 14px;
+  border: 1px solid #d7e4e8;
+  border-radius: 8px;
+  background: #f8fbfa;
+  overflow-x: auto;
+}
+
+.debt-installments-panel .panel-title {
+  margin-bottom: 10px;
+}
+
 .installment-row {
   min-width: 760px;
   grid-template-columns:
