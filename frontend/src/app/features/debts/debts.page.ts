@@ -175,25 +175,25 @@ interface DebtInstallmentRow {
                   <small>{{ countryLabel(row.debt.countryCode) }} · {{ row.debt.currencyCode }}</small>
                 </span>
                 <span>
-                  <strong>#{{ row.installment.installmentNumber }}</strong>
+                  <strong>{{ row.installment.installmentNumber }}</strong>
                   <small>{{ row.debt.installments }} {{ i18n.t('debts.installments').toLowerCase() }}</small>
                 </span>
                 <span>
                   <strong>
-                    {{ row.debt.principalAmount | currency: row.debt.currencyCode : 'symbol' : '1.2-2' }}
+                    {{ money(row.debt.principalAmount, row.debt.currencyCode) }}
                   </strong>
                 </span>
                 <span>
                   <strong [class.negative]="row.debt.remainingBalance < 0">
-                    {{ row.debt.remainingBalance | currency: row.debt.currencyCode : 'symbol' : '1.2-2' }}
+                    {{ money(row.debt.remainingBalance, row.debt.currencyCode) }}
                   </strong>
                 </span>
                 <span>
                   <ng-container *ngIf="editingInstallmentId !== row.installment.id; else amountEdit">
-                    {{ row.installment.amount | currency: row.debt.currencyCode : 'symbol' : '1.2-2' }}
+                    {{ money(row.installment.amount, row.debt.currencyCode) }}
                     <small *ngIf="row.installment.paidAmount">
                       {{ i18n.t('debts.paidAmount') }}:
-                      {{ row.installment.paidAmount | currency: row.debt.currencyCode : 'symbol' : '1.2-2' }}
+                      {{ money(row.installment.paidAmount, row.debt.currencyCode) }}
                     </small>
                   </ng-container>
                   <ng-template #amountEdit>
@@ -512,6 +512,22 @@ export class DebtsPage {
 
   monthlyPayment(debt: Debt): number {
     return Number(debt.installmentAmount || 0);
+  }
+
+  money(value: number | null | undefined, currencyCode: string): string {
+    const amount = Number(value || 0);
+    if (currencyCode === 'COP') {
+      return `$${new Intl.NumberFormat('es-CO', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount)}`;
+    }
+    return new Intl.NumberFormat(currencyCode === 'EUR' ? 'de-DE' : 'en-US', {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
   }
 
   debtDueLabel(debt: Debt): string {
