@@ -1508,7 +1508,7 @@ nav a.active {
 }
 
 .debt-row.paid,
-.installment-row.paid {
+.debt-installment-row.paid {
   border-color: #cbe8dc;
   background: #f7fcf9;
 }
@@ -1518,13 +1518,13 @@ nav a.active {
 }
 
 .debt-row.due-warning,
-.installment-row.due-warning {
+.debt-installment-row.due-warning {
   border-left: 4px solid #f59e0b;
   background: #fffbeb;
 }
 
 .debt-row.due-danger,
-.installment-row.due-danger {
+.debt-installment-row.due-danger {
   border-left: 4px solid #dc2626;
   background: #fff5f5;
 }
@@ -1535,13 +1535,13 @@ nav a.active {
 
 .debt-row input,
 .debt-row select,
-.installment-row input {
+.debt-installment-row input {
   width: 100%;
   min-width: 0;
 }
 
 .debt-row small input,
-.installment-row small input {
+.debt-installment-row small input {
   margin-top: 4px;
 }
 
@@ -1564,36 +1564,17 @@ nav a.active {
   }
 }
 
-.installment-list {
-  display: grid;
-  gap: 6px;
-  margin: -2px 0 8px 18px;
-  padding-left: 12px;
-  border-left: 2px solid #dce8e6;
-}
-
-.debt-installments-panel {
-  margin: 16px 0 0;
-  padding: 14px;
-  border: 1px solid #d7e4e8;
-  border-radius: 8px;
-  background: #f8fbfa;
-  overflow-x: auto;
-}
-
-.debt-installments-panel .panel-title {
-  margin-bottom: 10px;
-}
-
-.installment-row {
-  min-width: 760px;
+.debt-installment-row {
+  min-width: 1280px;
   grid-template-columns:
-    minmax(60px, 0.35fr)
-    minmax(145px, 0.8fr)
-    minmax(145px, 0.8fr)
-    minmax(110px, 0.6fr)
-    minmax(160px, 0.85fr);
-  background: #f8fbfa;
+    minmax(220px, 1.15fr)
+    minmax(110px, 0.55fr)
+    minmax(150px, 0.75fr)
+    minmax(150px, 0.75fr)
+    minmax(180px, 0.9fr)
+    minmax(160px, 0.8fr)
+    minmax(110px, 0.55fr)
+    minmax(230px, 1.15fr);
 }
 
 .savings-row {
