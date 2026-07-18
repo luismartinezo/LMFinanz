@@ -15,9 +15,34 @@ interface BudgetState {
   loading: boolean;
   items: BudgetItem[];
   summary: BudgetSummary;
+  projection: BudgetProjectionMonth[];
   accounts: Account[];
   categories: Category[];
   error: string | null;
+}
+
+interface BudgetProjectionMonth {
+  year: number;
+  month: number;
+  label: string;
+  items: BudgetItem[];
+  summary: BudgetSummary;
+}
+
+interface BudgetProjectionRow {
+  key: string;
+  name: string;
+  itemType: BudgetItemType;
+  months: BudgetProjectionCell[];
+  totalPlanned: number;
+  totalActual: number;
+  totalRemaining: number;
+}
+
+interface BudgetProjectionCell {
+  plannedAmount: number;
+  actualAmount: number;
+  remainingAmount: number;
 }
 
 @Component({
@@ -144,6 +169,89 @@ interface BudgetState {
             {{ savingIncome ? i18n.t('common.saving') : i18n.t('budget.saveIncome') }}
           </button>
         </form>
+      </section>
+
+      <section class="panel budget-projection-panel">
+        <div class="panel-title">
+          <div>
+            <h3>{{ i18n.t('budget.projectionTitle') }}</h3>
+            <span>{{ i18n.t('budget.projectionHint') }}</span>
+          </div>
+          <label class="projection-range">
+            {{ i18n.t('budget.projectionRange') }}
+            <select [value]="projectionMonths" (change)="setProjectionMonths($event)">
+              <option *ngFor="let option of projectionOptions" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="projection-empty" *ngIf="!state.loading && projectionRows(state.projection).length === 0">
+          <strong>{{ i18n.t('budget.projectionEmptyTitle') }}</strong>
+          <p>{{ i18n.t('budget.projectionEmptyHint') }}</p>
+        </div>
+
+        <div class="projection-table-wrap" *ngIf="projectionRows(state.projection).length > 0">
+          <table class="projection-table">
+            <thead>
+              <tr>
+                <th>{{ i18n.t('budget.name') }}</th>
+                <th *ngFor="let month of state.projection">{{ month.label }}</th>
+                <th>{{ i18n.t('budget.projectionTotal') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of projectionRows(state.projection)">
+                <th>
+                  <strong>{{ row.name }}</strong>
+                  <small>{{ labelForItemType(row.itemType) }}</small>
+                </th>
+                <td *ngFor="let month of row.months">
+                  <span>{{ month.plannedAmount | currency: currencyCode : 'symbol' : '1.2-2' }}</span>
+                  <small>{{ i18n.t('budget.paidAmount') }}: {{ month.actualAmount | currency: currencyCode : 'symbol' : '1.2-2' }}</small>
+                  <small [class.positive]="month.remainingAmount <= 0" [class.negative]="month.remainingAmount > 0">
+                    {{ i18n.t('budget.remaining') }}: {{ month.remainingAmount | currency: currencyCode : 'symbol' : '1.2-2' }}
+                  </small>
+                </td>
+                <td>
+                  <span>{{ row.totalPlanned | currency: currencyCode : 'symbol' : '1.2-2' }}</span>
+                  <small>{{ i18n.t('budget.paidAmount') }}: {{ row.totalActual | currency: currencyCode : 'symbol' : '1.2-2' }}</small>
+                  <small [class.positive]="row.totalRemaining <= 0" [class.negative]="row.totalRemaining > 0">
+                    {{ i18n.t('budget.remaining') }}: {{ row.totalRemaining | currency: currencyCode : 'symbol' : '1.2-2' }}
+                  </small>
+                </td>
+              </tr>
+              <tr class="projection-summary-row">
+                <th>{{ i18n.t('budget.income') }}</th>
+                <td *ngFor="let month of state.projection" [class.positive]="month.summary.incomeAmount > 0">
+                  {{ month.summary.incomeAmount | currency: currencyCode : 'symbol' : '1.2-2' }}
+                </td>
+                <td [class.positive]="projectionIncomeTotal(state.projection) > 0">
+                  {{ projectionIncomeTotal(state.projection) | currency: currencyCode : 'symbol' : '1.2-2' }}
+                </td>
+              </tr>
+              <tr class="projection-summary-row">
+                <th>{{ i18n.t('budget.planned') }}</th>
+                <td *ngFor="let month of state.projection">
+                  {{ totalPlanned(month.items) | currency: currencyCode : 'symbol' : '1.2-2' }}
+                </td>
+                <td>{{ projectionPlannedTotal(state.projection) | currency: currencyCode : 'symbol' : '1.2-2' }}</td>
+              </tr>
+              <tr class="projection-summary-row strong">
+                <th>{{ i18n.t('budget.projected') }}</th>
+                <td
+                  *ngFor="let month of state.projection"
+                  [class.positive]="projectionMonthFinal(month) >= 0"
+                  [class.negative]="projectionMonthFinal(month) < 0"
+                >
+                  {{ projectionMonthFinal(month) | currency: currencyCode : 'symbol' : '1.2-2' }}
+                </td>
+                <td [class.positive]="projectionFinalTotal(state.projection) >= 0" [class.negative]="projectionFinalTotal(state.projection) < 0">
+                  {{ projectionFinalTotal(state.projection) | currency: currencyCode : 'symbol' : '1.2-2' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section class="content-grid budget-layout">
@@ -361,11 +469,13 @@ export class BudgetsPage {
     { value: 11, label: '11' },
     { value: 12, label: '12' }
   ];
+  readonly projectionOptions = [3, 4, 5, 6, 8, 12];
 
   budgetYear = new Date().getFullYear();
   budgetMonth = new Date().getMonth() + 1;
   countryCode: CountryCode = 'DE';
   currencyCode: CurrencyCode = 'EUR';
+  projectionMonths = 6;
   showForm = false;
   saving = false;
   savingIncome = false;
@@ -407,24 +517,27 @@ export class BudgetsPage {
       forkJoin({
         items: this.budgets.list(this.budgetYear, this.budgetMonth, this.countryCode, this.currencyCode),
         summary: this.budgets.getSummary(this.budgetYear, this.budgetMonth, this.countryCode, this.currencyCode),
+        projection: this.loadProjection(),
         accounts: this.accounts.list(),
         categories: this.categories.list()
       }).pipe(
         tap(({ summary }) => this.incomeForm.patchValue({ incomeAmount: summary.incomeAmount }, { emitEvent: false })),
-        map(({ items, summary, accounts, categories }) => ({
+        map(({ items, summary, projection, accounts, categories }) => ({
           loading: false,
           items,
           summary,
+          projection,
           accounts: accounts.filter((account) => account.active),
           categories: categories.filter((category) => category.active),
           error: null
         })),
-        startWith({ loading: true, items: [], summary: this.emptySummary(), accounts: [], categories: [], error: null }),
+        startWith({ loading: true, items: [], summary: this.emptySummary(), projection: [], accounts: [], categories: [], error: null }),
         catchError(() =>
           of({
             loading: false,
             items: [],
             summary: this.emptySummary(),
+            projection: [],
             accounts: [],
             categories: [],
             error: this.i18n.t('budget.loadError')
@@ -462,6 +575,11 @@ export class BudgetsPage {
   setCurrency(event: Event): void {
     this.currencyCode = (event.target as HTMLSelectElement).value as CurrencyCode;
     this.resetTransientState();
+    this.reload$.next();
+  }
+
+  setProjectionMonths(event: Event): void {
+    this.projectionMonths = Number((event.target as HTMLSelectElement).value);
     this.reload$.next();
   }
 
@@ -617,6 +735,51 @@ export class BudgetsPage {
 
   totalRemaining(items: BudgetItem[]): number {
     return items.reduce((sum, item) => sum + item.remainingAmount, 0);
+  }
+
+  projectionRows(months: BudgetProjectionMonth[]): BudgetProjectionRow[] {
+    const rowMap = new Map<string, BudgetProjectionRow>();
+
+    months.forEach((month, monthIndex) => {
+      month.items.forEach((item) => {
+        const key = `${item.itemType}:${item.name.trim().toLowerCase()}`;
+        const existing = rowMap.get(key) ?? {
+          key,
+          name: item.name,
+          itemType: item.itemType,
+          months: months.map(() => ({ plannedAmount: 0, actualAmount: 0, remainingAmount: 0 })),
+          totalPlanned: 0,
+          totalActual: 0,
+          totalRemaining: 0
+        };
+
+        existing.months[monthIndex].plannedAmount += item.plannedAmount;
+        existing.months[monthIndex].actualAmount += item.actualAmount;
+        existing.months[monthIndex].remainingAmount += item.remainingAmount;
+        existing.totalPlanned += item.plannedAmount;
+        existing.totalActual += item.actualAmount;
+        existing.totalRemaining += item.remainingAmount;
+        rowMap.set(key, existing);
+      });
+    });
+
+    return Array.from(rowMap.values()).sort((first, second) => first.name.localeCompare(second.name));
+  }
+
+  projectionMonthFinal(month: BudgetProjectionMonth): number {
+    return month.summary.incomeAmount - this.totalPlanned(month.items);
+  }
+
+  projectionIncomeTotal(months: BudgetProjectionMonth[]): number {
+    return months.reduce((sum, month) => sum + month.summary.incomeAmount, 0);
+  }
+
+  projectionPlannedTotal(months: BudgetProjectionMonth[]): number {
+    return months.reduce((sum, month) => sum + this.totalPlanned(month.items), 0);
+  }
+
+  projectionFinalTotal(months: BudgetProjectionMonth[]): number {
+    return months.reduce((sum, month) => sum + this.projectionMonthFinal(month), 0);
   }
 
   sortedItems(items: BudgetItem[]): BudgetItem[] {
@@ -786,6 +949,35 @@ export class BudgetsPage {
       incomeAmount: 0,
       notes: null
     };
+  }
+
+  private loadProjection(): Observable<BudgetProjectionMonth[]> {
+    const periods = this.projectionPeriods();
+    return forkJoin(
+      periods.map((period) =>
+        forkJoin({
+          items: this.budgets.list(period.year, period.month, this.countryCode, this.currencyCode),
+          summary: this.budgets.getSummary(period.year, period.month, this.countryCode, this.currencyCode)
+        }).pipe(
+          map(({ items, summary }) => ({
+            ...period,
+            items,
+            summary
+          }))
+        )
+      )
+    );
+  }
+
+  private projectionPeriods(): Array<{ year: number; month: number; label: string }> {
+    return Array.from({ length: this.projectionMonths }, (_, index) => {
+      const date = new Date(this.budgetYear, this.budgetMonth - 1 + index, 1);
+      return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        label: `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
+      };
+    });
   }
 
   private today(): string {

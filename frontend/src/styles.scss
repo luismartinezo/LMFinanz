@@ -1307,6 +1307,100 @@ nav a.active {
   width: auto;
 }
 
+.budget-projection-panel {
+  margin-bottom: 16px;
+}
+
+.projection-range {
+  min-width: 140px;
+}
+
+.projection-empty {
+  border: 1px dashed #b8cbd5;
+  border-radius: 8px;
+  color: #465967;
+  margin-top: 14px;
+  padding: 18px;
+}
+
+.projection-empty strong,
+.projection-empty p {
+  margin: 0;
+}
+
+.projection-empty p {
+  margin-top: 6px;
+}
+
+.projection-table-wrap {
+  margin-top: 14px;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.projection-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1040px;
+  width: 100%;
+}
+
+.projection-table th,
+.projection-table td {
+  border-bottom: 1px solid #e1e9ed;
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.projection-table thead th {
+  background: #f5f9fa;
+  color: #465967;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.projection-table tbody th {
+  color: #142131;
+  min-width: 190px;
+}
+
+.projection-table tbody th small,
+.projection-table td small {
+  color: #64727c;
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.projection-table td span {
+  color: #142131;
+  display: block;
+  font-weight: 800;
+}
+
+.projection-table .positive {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.projection-table .negative {
+  color: #b42318;
+  font-weight: 800;
+}
+
+.projection-summary-row th,
+.projection-summary-row td {
+  background: #fbfcfd;
+  font-weight: 800;
+}
+
+.projection-summary-row.strong th,
+.projection-summary-row.strong td {
+  background: #eef8f5;
+}
+
 .budget-layout {
   grid-template-columns: minmax(300px, 0.45fr) minmax(0, 1fr);
 }
@@ -1798,6 +1892,10 @@ nav a.active {
   .budget-income-form {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+
+  .projection-range {
+    width: 100%;
   }
 
   .budget-payment-cell {
